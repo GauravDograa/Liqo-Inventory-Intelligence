@@ -18,7 +18,14 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const data = await authService.login(email, password);
+  const { token } = await authService.login(email, password);
 
-  res.json({ success: true, ...data });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
+
+  res.json({ success: true });
 };
