@@ -88,8 +88,8 @@ export default function PremiumStoreBarChart() {
               border: "1px solid #fed7aa",
               fontSize: "13px",
             }}
-            formatter={(value: number) =>
-              formatCurrency(value)
+            formatter={(value: number | string | undefined) =>
+            formatCurrency(Number(value ?? 0))
             }
           />
 
