@@ -24,7 +24,11 @@ export default function PremiumStoreBarChart() {
   }));
 
   if (isLoading) {
-    return <Card className="h-[380px] animate-pulse" />;
+    return (
+    <Card className="h-[380px] animate-pulse">
+    <div />
+  </Card>
+  )
   }
 
   if (isError || chartData.length === 0) {
