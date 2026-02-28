@@ -9,7 +9,7 @@ export default function InventoryAgingChart() {
   if (!data || !Array.isArray(data)) return null;
 
   // cast to a known shape so TypeScript understands the collection
-  const inventoryItems = data as { agingDays: number }[];
+
 
   const buckets = {
     "0-30": 0,
@@ -18,10 +18,10 @@ export default function InventoryAgingChart() {
     "90+": 0,
   };
 
-  inventoryItems.forEach((item) => {
-    if (item.agingDays <= 30) buckets["0-30"]++;
-    else if (item.agingDays <= 60) buckets["31-60"]++;
-    else if (item.agingDays <= 90) buckets["61-90"]++;
+  data.forEach((item) => {
+    if (item.stockAgeDays <= 30) buckets["0-30"]++;
+    else if (item.stockAgeDays <= 60) buckets["31-60"]++;
+    else if (item.stockAgeDays <= 90) buckets["61-90"]++;
     else buckets["90+"]++;
   });
 

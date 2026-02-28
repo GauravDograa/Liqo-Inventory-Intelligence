@@ -20,14 +20,12 @@ type InventoryItem = {
 };
 
 export default function StockByCategoryChart() {
-  const { data } = useInventory<InventoryItem[]>();
+  const { data } = useInventory();
   if (!data) return null;
-
-  const items = data as InventoryItem[]; // ensure we have an array
 
   const categoryMap: Record<string, number> = {};
 
-  items.forEach((item) => {
+  data.forEach((item) => {
     const category = item.sku.category;
 
     const value =
@@ -46,27 +44,21 @@ export default function StockByCategoryChart() {
   );
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-      <h2 className="text-lg font-semibold mb-4">
-        Stock Value by Category
-      </h2>
-
-      <ResponsiveContainer width="100%" height={320}>
-        <BarChart data={chartData}>
-          <XAxis dataKey="category" />
-          <YAxis />
-          <Tooltip
-            formatter={(value: number) =>
-              formatCurrency(value)
-            }
-          />
-          <Bar
-            dataKey="value"
-            fill="#f97316"
-            radius={[8, 8, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={320}>
+      <BarChart data={chartData}>
+        <XAxis dataKey="category" />
+        <YAxis />
+        <Tooltip
+          formatter={(value) =>
+            formatCurrency(Number(value ?? 0))
+          }
+        />
+        <Bar
+          dataKey="value"
+          fill="#f97316"
+          radius={[8, 8, 0, 0]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
