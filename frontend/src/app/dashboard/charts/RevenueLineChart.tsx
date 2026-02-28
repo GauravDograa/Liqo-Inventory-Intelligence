@@ -141,7 +141,9 @@ export default function RevenueLineChart() {
               fontSize: "14px",
               fontWeight: 500,
             }}
-            formatter={(value: number) => formatCurrency(value)}
+            formatter={(value: number | string | undefined) =>
+            formatCurrency(Number(value ?? 0))
+            }
             labelFormatter={(label) => formatDate(label)}
           />
 
