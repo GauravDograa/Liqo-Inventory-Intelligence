@@ -11,13 +11,23 @@ import {
 } from "recharts";
 import { formatCurrency } from "@/lib/format";
 
+type InventoryItem = {
+  unitsSaleable: number;
+  sku: {
+    category: string;
+    acquisitionCost: number;
+  };
+};
+
 export default function StockByCategoryChart() {
-  const { data } = useInventory();
+  const { data } = useInventory<InventoryItem[]>();
   if (!data) return null;
+
+  const items = data as InventoryItem[]; // ensure we have an array
 
   const categoryMap: Record<string, number> = {};
 
-  data.forEach((item) => {
+  items.forEach((item) => {
     const category = item.sku.category;
 
     const value =

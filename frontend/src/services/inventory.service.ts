@@ -1,11 +1,11 @@
 import { api } from "@/lib/axios";
-import { InsightsOverview, InsightsResponse } from "@/types/insights.types";
+import { InventoryItem } from "@/types/inventory.types";
 
-export const getInsightsOverview = async (): Promise<InsightsOverview> => {
-  const { data } = await api.get<InsightsResponse>("insights/overview");
+export const getInventory = async (): Promise<InventoryItem[]> => {
+  const { data } = await api.get("/inventory");
 
   if (!data.success) {
-    throw new Error("Failed to fetch insights overview");
+    throw new Error("Failed to fetch inventory");
   }
 
   return data.data;
