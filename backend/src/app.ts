@@ -22,12 +22,15 @@ app.use(rateLimiter);
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigin = process.env.FRONTEND_URL;
-
-      // Allow server-to-server or Postman
       if (!origin) return callback(null, true);
 
-      if (origin === allowedOrigin) {
+      // Allow localhost
+      if (origin.includes("localhost")) {
+        return callback(null, true);
+      }
+
+      // Allow any Vercel deployment of this project
+      if (origin.includes("vercel.app")) {
         return callback(null, true);
       }
 
@@ -36,7 +39,6 @@ app.use(
     credentials: true,
   })
 );
-
 // Routes
 app.use("/api/v2", routes);
 
