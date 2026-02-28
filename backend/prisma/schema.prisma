@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////////////////////////////////////
+// ORGANIZATION
+//////////////////////////////////////////////////////
+
+model Organization {
+  id           String   @id @default(uuid())
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users        User[]
+  stores       Store[]
+  inventory    Inventory[]
+  transactions Transaction[]
+}
+
+//////////////////////////////////////////////////////
+// USER
+//////////////////////////////////////////////////////
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  role           UserRole @default(USER)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  USER
+}
+
+//////////////////////////////////////////////////////
+// STORE
+//////////////////////////////////////////////////////
+
+model Store {
+  id             String   @id @default(uuid())
+  externalId     Int      @unique
+  code           String
+  name           String
+  region         String?
+  city           String?
+  cityType       String?
+  isActive       Boolean  @default(true)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  inventory      Inventory[]
+  transactions   Transaction[]
+
+  @@index([organizationId])
+}
+
+//////////////////////////////////////////////////////
+// SKU (GLOBAL)
+//////////////////////////////////////////////////////
+
+model SKU {
+  id              String   @id @default(uuid())
+  externalId      Int      @unique
+  category        String
+  mrp             Float?
+  condition       String?
+  acquisitionCost Float
+  refurbCost      Float
+  createdAt       DateTime @default(now())
+
+  transactions    Transaction[]
+  inventory       Inventory[]
+}
+
+//////////////////////////////////////////////////////
+// TRANSACTION
+//////////////////////////////////////////////////////
+
+model Transaction {
+  id                 String   @id @default(uuid())
+  externalId         Int      @unique
+  storeId            String
+  skuId              String
+  date               DateTime
+  sellingPriceGst    Float
+  netRevenue         Float
+  cogs               Float
+  grossMarginPct     Float
+  inventoryAgeBucket String
+  quantity           Int?
+
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id])
+
+  store              Store @relation(fields: [storeId], references: [id])
+  sku                SKU   @relation(fields: [skuId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, date])
+  @@index([storeId])
+  @@index([skuId])
+}
+
+//////////////////////////////////////////////////////
+// INVENTORY
+//////////////////////////////////////////////////////
+
+model Inventory {
+  id             String   @id @default(uuid())
+  storeId        String
+  skuId          String
+  unitsAcquired  Int
+  unitsSaleable  Int
+  stockAgeDays   Int
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  store          Store @relation(fields: [storeId], references: [id])
+  sku            SKU   @relation(fields: [skuId], references: [id])
+
+  @@unique([storeId, skuId])
+  @@index([organizationId])
+  @@index([organizationId, stockAgeDays])
+}

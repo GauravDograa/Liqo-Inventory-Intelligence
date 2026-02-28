@@ -1,0 +1,49 @@
+SKU_ID,Category,MRP,Condition,Acquisition_Cost,Refurb_Cost
+1,AC,48952,Minor Cosmetic,26923.6,2285.88
+2,AC,52132,Open Box,31279.2,3008.79
+3,AC,29041,Minor Cosmetic,15972.55,1601.92
+4,AC,28869,Grade C,11547.6,1345.68
+5,AC,47309,Minor Cosmetic,26019.95,2883.21
+6,AC,39149,Grade B,18791.52,1686.0
+7,AC,40449,Grade B,19415.52,2597.39
+8,AC,51911,Grade C,20764.4,2199.16
+9,AC,37606,Minor Cosmetic,20683.3,2299.12
+10,AC,29501,Open Box,17700.6,1937.02
+11,AC,31309,Grade B,15028.32,1405.14
+12,AC,39641,Open Box,23784.6,2310.04
+13,TV,47005,Minor Cosmetic,25852.75,2532.06
+14,TV,53943,Grade B,25892.64,3521.7
+15,TV,15665,Grade B,7519.2,815.13
+16,TV,25826,Minor Cosmetic,14204.3,1540.86
+17,TV,54129,Grade B,25981.92,2391.9
+18,TV,48789,Grade C,19515.6,3265.68
+19,TV,35723,Grade C,14289.2,1526.35
+20,TV,19185,Grade C,7674.0,1110.66
+21,TV,37009,Grade B,17764.32,2558.52
+22,TV,56583,Grade B,27159.84,3568.01
+23,TV,19310,Minor Cosmetic,10620.5,1035.24
+24,TV,59164,Minor Cosmetic,32540.2,3267.65
+25,Refrigerator,29558,Minor Cosmetic,16256.9,1317.85
+26,Refrigerator,45348,Open Box,27208.8,2628.75
+27,Refrigerator,17331,Grade B,8318.88,817.74
+28,Refrigerator,72059,Open Box,43235.4,4464.58
+29,Refrigerator,74093,Minor Cosmetic,40751.15,3249.11
+30,Refrigerator,20821,Grade C,8328.4,1435.21
+31,Refrigerator,55211,Grade B,26501.28,2869.3
+32,Refrigerator,34472,Grade C,13788.8,1504.02
+33,Refrigerator,32156,Minor Cosmetic,17685.8,1853.9
+34,Refrigerator,56389,Minor Cosmetic,31013.95,2369.58
+35,Refrigerator,14643,Minor Cosmetic,8053.65,708.05
+36,Refrigerator,45339,Grade C,18135.6,2144.08
+37,Washing Machine,15181,Open Box,9108.6,907.36
+38,Washing Machine,39606,Open Box,23763.6,2384.32
+39,Washing Machine,35386,Grade B,16985.28,2265.33
+40,Washing Machine,21465,Grade C,8586.0,948.87
+41,Washing Machine,25371,Open Box,15222.6,1352.12
+42,Washing Machine,44427,Open Box,26656.2,3068.57
+43,Washing Machine,35634,Grade C,14253.6,1939.94
+44,Washing Machine,33836,Open Box,20301.6,2353.61
+45,Washing Machine,36722,Grade C,14688.8,1639.41
+46,Washing Machine,12832,Open Box,7699.2,801.22
+47,Washing Machine,40246,Minor Cosmetic,22135.3,1678.52
+48,Washing Machine,21178,Open Box,12706.8,1225.17

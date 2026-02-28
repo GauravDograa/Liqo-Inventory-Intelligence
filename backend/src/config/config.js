@@ -1,0 +1,7 @@
+module.exports = {
+  DEAD_STOCK_DAYS: 90,
+  CRITICAL_DAYS: 150,
+  HIGH_RISK_DAYS: 120,
+  DEMAND_THRESHOLD: 3,
+  DATA_MONTHS: 6
+};

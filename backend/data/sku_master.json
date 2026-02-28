@@ -1,0 +1,386 @@
+[
+  {
+    "SKU_ID":1,
+    "Category":"AC",
+    "MRP":48952,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":26923.6,
+    "Refurb_Cost":2285.88
+  },
+  {
+    "SKU_ID":2,
+    "Category":"AC",
+    "MRP":52132,
+    "Condition":"Open Box",
+    "Acquisition_Cost":31279.2,
+    "Refurb_Cost":3008.79
+  },
+  {
+    "SKU_ID":3,
+    "Category":"AC",
+    "MRP":29041,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":15972.55,
+    "Refurb_Cost":1601.92
+  },
+  {
+    "SKU_ID":4,
+    "Category":"AC",
+    "MRP":28869,
+    "Condition":"Grade C",
+    "Acquisition_Cost":11547.6,
+    "Refurb_Cost":1345.68
+  },
+  {
+    "SKU_ID":5,
+    "Category":"AC",
+    "MRP":47309,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":26019.95,
+    "Refurb_Cost":2883.21
+  },
+  {
+    "SKU_ID":6,
+    "Category":"AC",
+    "MRP":39149,
+    "Condition":"Grade B",
+    "Acquisition_Cost":18791.52,
+    "Refurb_Cost":1686.0
+  },
+  {
+    "SKU_ID":7,
+    "Category":"AC",
+    "MRP":40449,
+    "Condition":"Grade B",
+    "Acquisition_Cost":19415.52,
+    "Refurb_Cost":2597.39
+  },
+  {
+    "SKU_ID":8,
+    "Category":"AC",
+    "MRP":51911,
+    "Condition":"Grade C",
+    "Acquisition_Cost":20764.4,
+    "Refurb_Cost":2199.16
+  },
+  {
+    "SKU_ID":9,
+    "Category":"AC",
+    "MRP":37606,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":20683.3,
+    "Refurb_Cost":2299.12
+  },
+  {
+    "SKU_ID":10,
+    "Category":"AC",
+    "MRP":29501,
+    "Condition":"Open Box",
+    "Acquisition_Cost":17700.6,
+    "Refurb_Cost":1937.02
+  },
+  {
+    "SKU_ID":11,
+    "Category":"AC",
+    "MRP":31309,
+    "Condition":"Grade B",
+    "Acquisition_Cost":15028.32,
+    "Refurb_Cost":1405.14
+  },
+  {
+    "SKU_ID":12,
+    "Category":"AC",
+    "MRP":39641,
+    "Condition":"Open Box",
+    "Acquisition_Cost":23784.6,
+    "Refurb_Cost":2310.04
+  },
+  {
+    "SKU_ID":13,
+    "Category":"TV",
+    "MRP":47005,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":25852.75,
+    "Refurb_Cost":2532.06
+  },
+  {
+    "SKU_ID":14,
+    "Category":"TV",
+    "MRP":53943,
+    "Condition":"Grade B",
+    "Acquisition_Cost":25892.64,
+    "Refurb_Cost":3521.7
+  },
+  {
+    "SKU_ID":15,
+    "Category":"TV",
+    "MRP":15665,
+    "Condition":"Grade B",
+    "Acquisition_Cost":7519.2,
+    "Refurb_Cost":815.13
+  },
+  {
+    "SKU_ID":16,
+    "Category":"TV",
+    "MRP":25826,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":14204.3,
+    "Refurb_Cost":1540.86
+  },
+  {
+    "SKU_ID":17,
+    "Category":"TV",
+    "MRP":54129,
+    "Condition":"Grade B",
+    "Acquisition_Cost":25981.92,
+    "Refurb_Cost":2391.9
+  },
+  {
+    "SKU_ID":18,
+    "Category":"TV",
+    "MRP":48789,
+    "Condition":"Grade C",
+    "Acquisition_Cost":19515.6,
+    "Refurb_Cost":3265.68
+  },
+  {
+    "SKU_ID":19,
+    "Category":"TV",
+    "MRP":35723,
+    "Condition":"Grade C",
+    "Acquisition_Cost":14289.2,
+    "Refurb_Cost":1526.35
+  },
+  {
+    "SKU_ID":20,
+    "Category":"TV",
+    "MRP":19185,
+    "Condition":"Grade C",
+    "Acquisition_Cost":7674.0,
+    "Refurb_Cost":1110.66
+  },
+  {
+    "SKU_ID":21,
+    "Category":"TV",
+    "MRP":37009,
+    "Condition":"Grade B",
+    "Acquisition_Cost":17764.32,
+    "Refurb_Cost":2558.52
+  },
+  {
+    "SKU_ID":22,
+    "Category":"TV",
+    "MRP":56583,
+    "Condition":"Grade B",
+    "Acquisition_Cost":27159.84,
+    "Refurb_Cost":3568.01
+  },
+  {
+    "SKU_ID":23,
+    "Category":"TV",
+    "MRP":19310,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":10620.5,
+    "Refurb_Cost":1035.24
+  },
+  {
+    "SKU_ID":24,
+    "Category":"TV",
+    "MRP":59164,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":32540.2,
+    "Refurb_Cost":3267.65
+  },
+  {
+    "SKU_ID":25,
+    "Category":"Refrigerator",
+    "MRP":29558,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":16256.9,
+    "Refurb_Cost":1317.85
+  },
+  {
+    "SKU_ID":26,
+    "Category":"Refrigerator",
+    "MRP":45348,
+    "Condition":"Open Box",
+    "Acquisition_Cost":27208.8,
+    "Refurb_Cost":2628.75
+  },
+  {
+    "SKU_ID":27,
+    "Category":"Refrigerator",
+    "MRP":17331,
+    "Condition":"Grade B",
+    "Acquisition_Cost":8318.88,
+    "Refurb_Cost":817.74
+  },
+  {
+    "SKU_ID":28,
+    "Category":"Refrigerator",
+    "MRP":72059,
+    "Condition":"Open Box",
+    "Acquisition_Cost":43235.4,
+    "Refurb_Cost":4464.58
+  },
+  {
+    "SKU_ID":29,
+    "Category":"Refrigerator",
+    "MRP":74093,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":40751.15,
+    "Refurb_Cost":3249.11
+  },
+  {
+    "SKU_ID":30,
+    "Category":"Refrigerator",
+    "MRP":20821,
+    "Condition":"Grade C",
+    "Acquisition_Cost":8328.4,
+    "Refurb_Cost":1435.21
+  },
+  {
+    "SKU_ID":31,
+    "Category":"Refrigerator",
+    "MRP":55211,
+    "Condition":"Grade B",
+    "Acquisition_Cost":26501.28,
+    "Refurb_Cost":2869.3
+  },
+  {
+    "SKU_ID":32,
+    "Category":"Refrigerator",
+    "MRP":34472,
+    "Condition":"Grade C",
+    "Acquisition_Cost":13788.8,
+    "Refurb_Cost":1504.02
+  },
+  {
+    "SKU_ID":33,
+    "Category":"Refrigerator",
+    "MRP":32156,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":17685.8,
+    "Refurb_Cost":1853.9
+  },
+  {
+    "SKU_ID":34,
+    "Category":"Refrigerator",
+    "MRP":56389,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":31013.95,
+    "Refurb_Cost":2369.58
+  },
+  {
+    "SKU_ID":35,
+    "Category":"Refrigerator",
+    "MRP":14643,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":8053.65,
+    "Refurb_Cost":708.05
+  },
+  {
+    "SKU_ID":36,
+    "Category":"Refrigerator",
+    "MRP":45339,
+    "Condition":"Grade C",
+    "Acquisition_Cost":18135.6,
+    "Refurb_Cost":2144.08
+  },
+  {
+    "SKU_ID":37,
+    "Category":"Washing Machine",
+    "MRP":15181,
+    "Condition":"Open Box",
+    "Acquisition_Cost":9108.6,
+    "Refurb_Cost":907.36
+  },
+  {
+    "SKU_ID":38,
+    "Category":"Washing Machine",
+    "MRP":39606,
+    "Condition":"Open Box",
+    "Acquisition_Cost":23763.6,
+    "Refurb_Cost":2384.32
+  },
+  {
+    "SKU_ID":39,
+    "Category":"Washing Machine",
+    "MRP":35386,
+    "Condition":"Grade B",
+    "Acquisition_Cost":16985.28,
+    "Refurb_Cost":2265.33
+  },
+  {
+    "SKU_ID":40,
+    "Category":"Washing Machine",
+    "MRP":21465,
+    "Condition":"Grade C",
+    "Acquisition_Cost":8586.0,
+    "Refurb_Cost":948.87
+  },
+  {
+    "SKU_ID":41,
+    "Category":"Washing Machine",
+    "MRP":25371,
+    "Condition":"Open Box",
+    "Acquisition_Cost":15222.6,
+    "Refurb_Cost":1352.12
+  },
+  {
+    "SKU_ID":42,
+    "Category":"Washing Machine",
+    "MRP":44427,
+    "Condition":"Open Box",
+    "Acquisition_Cost":26656.2,
+    "Refurb_Cost":3068.57
+  },
+  {
+    "SKU_ID":43,
+    "Category":"Washing Machine",
+    "MRP":35634,
+    "Condition":"Grade C",
+    "Acquisition_Cost":14253.6,
+    "Refurb_Cost":1939.94
+  },
+  {
+    "SKU_ID":44,
+    "Category":"Washing Machine",
+    "MRP":33836,
+    "Condition":"Open Box",
+    "Acquisition_Cost":20301.6,
+    "Refurb_Cost":2353.61
+  },
+  {
+    "SKU_ID":45,
+    "Category":"Washing Machine",
+    "MRP":36722,
+    "Condition":"Grade C",
+    "Acquisition_Cost":14688.8,
+    "Refurb_Cost":1639.41
+  },
+  {
+    "SKU_ID":46,
+    "Category":"Washing Machine",
+    "MRP":12832,
+    "Condition":"Open Box",
+    "Acquisition_Cost":7699.2,
+    "Refurb_Cost":801.22
+  },
+  {
+    "SKU_ID":47,
+    "Category":"Washing Machine",
+    "MRP":40246,
+    "Condition":"Minor Cosmetic",
+    "Acquisition_Cost":22135.3,
+    "Refurb_Cost":1678.52
+  },
+  {
+    "SKU_ID":48,
+    "Category":"Washing Machine",
+    "MRP":21178,
+    "Condition":"Open Box",
+    "Acquisition_Cost":12706.8,
+    "Refurb_Cost":1225.17
+  }
+]

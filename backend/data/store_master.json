@@ -1,0 +1,50 @@
+[
+  {
+    "Store_Name":"Liqo Chandigarh",
+    "City_Type":"Chandigarh",
+    "Store_Size_sqft":2500,
+    "Monthly_Rent":180000,
+    "Employees":10,
+    "Store_ID":1
+  },
+  {
+    "Store_Name":"Liqo Panchkula",
+    "City_Type":"Others",
+    "Store_Size_sqft":2200,
+    "Monthly_Rent":160000,
+    "Employees":8,
+    "Store_ID":2
+  },
+  {
+    "Store_Name":"Liqo Zirakpur",
+    "City_Type":"Others",
+    "Store_Size_sqft":2400,
+    "Monthly_Rent":170000,
+    "Employees":9,
+    "Store_ID":3
+  },
+  {
+    "Store_Name":"Liqo Kharar",
+    "City_Type":"Others",
+    "Store_Size_sqft":1800,
+    "Monthly_Rent":120000,
+    "Employees":8,
+    "Store_ID":4
+  },
+  {
+    "Store_Name":"Liqo Solan",
+    "City_Type":"Others",
+    "Store_Size_sqft":1600,
+    "Monthly_Rent":110000,
+    "Employees":7,
+    "Store_ID":5
+  },
+  {
+    "Store_Name":"Liqo Pinjore",
+    "City_Type":"Others",
+    "Store_Size_sqft":1700,
+    "Monthly_Rent":115000,
+    "Employees":7,
+    "Store_ID":6
+  }
+]
