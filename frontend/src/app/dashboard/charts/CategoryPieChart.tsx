@@ -88,7 +88,11 @@ function CategoryPieChart() {
   );
 
   if (isLoading) {
-    return <Card className="h-[420px] animate-pulse" />;
+    return (
+    <Card className="h-[420px] animate-pulse">
+    <div />
+  </Card>
+)
   }
 
   if (isError || chartData.length === 0) {
