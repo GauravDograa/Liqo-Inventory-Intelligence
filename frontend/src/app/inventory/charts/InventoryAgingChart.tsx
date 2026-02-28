@@ -5,7 +5,11 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function InventoryAgingChart() {
   const { data } = useInventory();
-  if (!data) return null;
+  // ensure `data` is defined and is an array before iterating
+  if (!data || !Array.isArray(data)) return null;
+
+  // cast to a known shape so TypeScript understands the collection
+  const inventoryItems = data as { agingDays: number }[];
 
   const buckets = {
     "0-30": 0,
@@ -14,7 +18,7 @@ export default function InventoryAgingChart() {
     "90+": 0,
   };
 
-  data.forEach((item) => {
+  inventoryItems.forEach((item) => {
     if (item.agingDays <= 30) buckets["0-30"]++;
     else if (item.agingDays <= 60) buckets["31-60"]++;
     else if (item.agingDays <= 90) buckets["61-90"]++;
