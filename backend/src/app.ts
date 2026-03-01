@@ -6,7 +6,7 @@ import cors from "cors";
 import routes from "./routes";
 import { errorHandler } from "./middleware/error.middleware";
 import rateLimiter from "./middleware/rateLimit.middleware";
-
+import cookieParser from "cookie-parser";
 const app: Application = express();
 
 // Trust proxy (needed for Render / production environments)
@@ -17,7 +17,7 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(rateLimiter);
-
+app.use(cookieParser());
 // ✅ CORS CONFIGURATION
 app.use(
   cors({

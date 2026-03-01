@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,13 +10,22 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.replace("/dashboard");
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  try {
+    await api.post("/auth/login", {
+      email,
+      password,
+    });
+
+    router.push("/dashboard");
+  } catch (error: any) {
+    alert(error.message || "Login failed");
+  }
+};
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-400">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-500 to-orange-400">
       <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-slate-900">
@@ -26,7 +36,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm text-slate-600">Email</label>
             <input
