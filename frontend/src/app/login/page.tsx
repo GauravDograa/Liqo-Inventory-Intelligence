@@ -14,10 +14,15 @@ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
   try {
-    await api.post("/auth/login", {
+    const response = await api.post("/auth/login", {
       email,
       password,
     });
+
+    const token = response.data.token;
+
+    // Store token
+    localStorage.setItem("token", token);
 
     router.push("/dashboard");
   } catch (error: any) {
