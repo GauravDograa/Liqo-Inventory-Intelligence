@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { getCategoryPerformance } from "./category.controller";
-import { authMiddleware } from "../../middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-router.get("/performance", authMiddleware, getCategoryPerformance);
+router.get("/performance", authenticate, getCategoryPerformance);
 
 export default router;

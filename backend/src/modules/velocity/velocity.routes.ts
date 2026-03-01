@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 import * as controller from "./velocity.controller";
 
 const router = Router();
 
-router.get("/", authMiddleware, controller.getVelocity);
+router.get("/", authenticate, controller.getVelocity);
 
 export default router;

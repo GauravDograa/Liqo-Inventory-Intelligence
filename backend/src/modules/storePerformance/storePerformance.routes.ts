@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 import * as controller from "./storePerformance.controller";
 
 const router = Router();
 
-router.get("/", authMiddleware, controller.getPerformance);
+router.get("/", authenticate, controller.getPerformance);
 
 export default router;

@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 import * as controller from "./inventory.controller";
 
 const router = Router();
 
-router.get("/", authMiddleware, controller.getInventory);
+router.get("/", authenticate, controller.getInventory);
 
 export default router;
