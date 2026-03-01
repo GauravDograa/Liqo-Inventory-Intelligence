@@ -14,21 +14,18 @@ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
   try {
-    const response = await api.post("/auth/login", {
+    await api.post("/auth/login", {
       email,
       password,
     });
-
-    const token = response.data.token;
-
-    // Store token
-    localStorage.setItem("token", token);
 
     router.push("/dashboard");
   } catch (error: any) {
     alert(error.message || "Login failed");
   }
 };
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-500 to-orange-400">
       <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md space-y-6">

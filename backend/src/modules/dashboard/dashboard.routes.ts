@@ -1,14 +1,14 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { getAggregatedDashboard } from "./dashboard.controller";
 import { getDashboardOverview } from "./dashboard.service";
-import { authMiddleware } from "../../middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 
 const router = Router();
 
 // 🔹 Overview endpoint
 router.get(
   "/overview",
-  authMiddleware,
+  authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const overview = await getDashboardOverview();
@@ -23,6 +23,6 @@ router.get(
 );
 
 // 🔹 Full dashboard
-router.get("/", authMiddleware, getAggregatedDashboard);
+router.get("/", authenticate, getAggregatedDashboard);
 
 export default router;
