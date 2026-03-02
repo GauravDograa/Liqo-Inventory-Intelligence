@@ -16,7 +16,16 @@ export const generateTransferRecommendations = async (
   );
 
   const skuVelocityMap: Record<string, any[]> = {};
+    console.log("Velocity sample:", velocityData.slice(0,5));
 
+for (const skuId in skuVelocityMap) {
+  console.log(
+    "SKU:", skuId,
+    "Stores:", skuVelocityMap[skuId].length,
+    "Velocities:",
+    skuVelocityMap[skuId].map(v => v.velocityPerDay)
+  );
+}
   velocityData.forEach(v => {
     if (!skuVelocityMap[v.skuId]) {
       skuVelocityMap[v.skuId] = [];
