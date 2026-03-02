@@ -6,26 +6,26 @@ export const generateTransferRecommendations = async (
   days = 30
 ) => {
 
+  console.log("=== GENERATE RECOMMENDATIONS START ===");
+  console.log("Days used:", days);
+
   const velocityData = await velocityService.getVelocity(
     organizationId,
     days
   );
 
+  console.log("Velocity count:", velocityData.length);
+  console.log("Velocity sample:", velocityData.slice(0, 5));
+
   const inventory = await repo.getInventoryWithStoreAndSku(
     organizationId
   );
 
-  const skuVelocityMap: Record<string, any[]> = {};
-    console.log("Velocity sample:", velocityData.slice(0,5));
+  console.log("Inventory count:", inventory.length);
 
-for (const skuId in skuVelocityMap) {
-  console.log(
-    "SKU:", skuId,
-    "Stores:", skuVelocityMap[skuId].length,
-    "Velocities:",
-    skuVelocityMap[skuId].map(v => v.velocityPerDay)
-  );
-}
+  const skuVelocityMap: Record<string, any[]> = {};
+
+  // Build SKU → store velocity map
   velocityData.forEach(v => {
     if (!skuVelocityMap[v.skuId]) {
       skuVelocityMap[v.skuId] = [];
@@ -33,14 +33,31 @@ for (const skuId in skuVelocityMap) {
     skuVelocityMap[v.skuId].push(v);
   });
 
+  // 🔍 Debug: Check how many stores per SKU
+  for (const skuId in skuVelocityMap) {
+    console.log(
+      "SKU:",
+      skuId,
+      "Store count:",
+      skuVelocityMap[skuId].length,
+      "Velocities:",
+      skuVelocityMap[skuId].map(v => v.velocityPerDay)
+    );
+  }
+
   const recommendations: any[] = [];
 
   for (const skuId in skuVelocityMap) {
 
     const skuStores = skuVelocityMap[skuId];
 
-    if (skuStores.length < 2) continue;
+    // 🚨 If only one store has velocity, skip
+    if (skuStores.length < 2) {
+      console.log("Skipping SKU (only 1 store):", skuId);
+      continue;
+    }
 
+    // Sort by velocity descending
     skuStores.sort((a, b) => b.velocityPerDay - a.velocityPerDay);
 
     let left = 0;
@@ -65,6 +82,7 @@ for (const skuId in skuVelocityMap) {
       );
 
       if (!demandInventory || !surplusInventory) {
+        console.log("Missing inventory for SKU:", skuId);
         left++;
         right--;
         continue;
@@ -77,6 +95,16 @@ for (const skuId in skuVelocityMap) {
 
       const deficit =
         desiredStock - demandInventory.unitsSaleable;
+
+      console.log({
+        skuId,
+        demandStore: demandInventory.store.name,
+        surplusStore: surplusInventory.store.name,
+        velocity: demand.velocityPerDay,
+        units: demandInventory.unitsSaleable,
+        desiredStock,
+        deficit
+      });
 
       if (deficit <= 0) {
         left++;
@@ -114,12 +142,22 @@ for (const skuId in skuVelocityMap) {
 
         demandInventory.unitsSaleable += transferQty;
         surplusInventory.unitsSaleable -= transferQty;
+
+        console.log("Recommendation created:", {
+          skuId,
+          from: surplusInventory.store.name,
+          to: demandInventory.store.name,
+          qty: transferQty
+        });
       }
 
       left++;
       right--;
     }
   }
+
+  console.log("Total recommendations:", recommendations.length);
+  console.log("=== GENERATE RECOMMENDATIONS END ===");
 
   return recommendations;
 };
