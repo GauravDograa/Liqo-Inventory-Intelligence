@@ -1,21 +1,10 @@
 import * as repo from "./recommendation.repository";
-import * as velocityService from "../velocity/velocity.service";
 
 export const generateTransferRecommendations = async (
-  organizationId: string,
-  days = 600
+  organizationId: string
 ) => {
 
   console.log("=== GENERATE RECOMMENDATIONS START ===");
-  console.log("Days used:", days);
-
-  const velocityData = await velocityService.getVelocity(
-    organizationId,
-    days
-  );
-
-  console.log("Velocity count:", velocityData.length);
-  console.log("Velocity sample:", velocityData.slice(0, 5));
 
   const inventory = await repo.getInventoryWithStoreAndSku(
     organizationId
@@ -23,132 +12,100 @@ export const generateTransferRecommendations = async (
 
   console.log("Inventory count:", inventory.length);
 
-  const skuVelocityMap: Record<string, any[]> = {};
-
-  // Build SKU → store velocity map
-  velocityData.forEach(v => {
-    if (!skuVelocityMap[v.skuId]) {
-      skuVelocityMap[v.skuId] = [];
-    }
-    skuVelocityMap[v.skuId].push(v);
-  });
-
-  // 🔍 Debug: Check how many stores per SKU
-  for (const skuId in skuVelocityMap) {
-    console.log(
-      "SKU:",
-      skuId,
-      "Store count:",
-      skuVelocityMap[skuId].length,
-      "Velocities:",
-      skuVelocityMap[skuId].map(v => v.velocityPerDay)
-    );
-  }
-
   const recommendations: any[] = [];
 
-  for (const skuId in skuVelocityMap) {
+  // Group inventory by SKU
+  const skuMap: Record<string, any[]> = {};
 
-    const skuStores = skuVelocityMap[skuId];
-
-    // 🚨 If only one store has velocity, skip
-    if (skuStores.length < 2) {
-      console.log("Skipping SKU (only 1 store):", skuId);
-      continue;
+  inventory.forEach(item => {
+    if (!skuMap[item.skuId]) {
+      skuMap[item.skuId] = [];
     }
+    skuMap[item.skuId].push(item);
+  });
 
-    // Sort by velocity descending
-    skuStores.sort((a, b) => b.velocityPerDay - a.velocityPerDay);
+  for (const skuId in skuMap) {
 
-    let left = 0;
-    let right = skuStores.length - 1;
+    const skuInventory = skuMap[skuId];
+
+    // Skip if SKU exists in only one store
+    if (skuInventory.length < 2) continue;
+
+    // Calculate average stock across stores
+    const totalUnits = skuInventory.reduce(
+      (sum, i) => sum + i.unitsSaleable,
+      0
+    );
+
+    const avgUnits = totalUnits / skuInventory.length;
+
+    console.log("SKU:", skuId, "Avg units:", avgUnits);
+
+    // Sort stores by stock descending
+    skuInventory.sort(
+      (a, b) => b.unitsSaleable - a.unitsSaleable
+    );
+
+    let left = 0; // surplus pointer
+    let right = skuInventory.length - 1; // deficit pointer
 
     while (left < right) {
 
-      const demand = skuStores[left];
-      const surplus = skuStores[right];
+      const surplusStore = skuInventory[left];
+      const deficitStore = skuInventory[right];
 
-      if (demand.storeId === surplus.storeId) {
-        right--;
-        continue;
-      }
+      const surplusQty =
+        surplusStore.unitsSaleable - avgUnits;
 
-      const demandInventory = inventory.find(
-        i => i.storeId === demand.storeId && i.skuId === skuId
-      );
+      const deficitQty =
+        avgUnits - deficitStore.unitsSaleable;
 
-      const surplusInventory = inventory.find(
-        i => i.storeId === surplus.storeId && i.skuId === skuId
-      );
-
-      if (!demandInventory || !surplusInventory) {
-        console.log("Missing inventory for SKU:", skuId);
-        left++;
-        right--;
-        continue;
-      }
-
-      const desiredStock = Math.ceil(demand.velocityPerDay * 365)
-        
-      
-
-      const deficit =
-        desiredStock - demandInventory.unitsSaleable;
-
-      console.log({
-        skuId,
-        demandStore: demandInventory.store.name,
-        surplusStore: surplusInventory.store.name,
-        velocity: demand.velocityPerDay,
-        units: demandInventory.unitsSaleable,
-        desiredStock,
-        deficit
-      });
-
-      if (deficit <= 0) {
+      if (surplusQty <= 0) {
         left++;
         continue;
       }
 
-      if (surplusInventory.unitsSaleable <= 5) {
+      if (deficitQty <= 0) {
         right--;
         continue;
       }
 
       const transferQty = Math.min(
-        surplusInventory.unitsSaleable,
-        deficit
+        Math.floor(surplusQty),
+        Math.floor(deficitQty)
       );
 
-      if (transferQty > 0) {
-
-        recommendations.push({
-          skuCategory: demandInventory.sku.category,
-          skuId,
-          moveFrom: surplusInventory.store.name,
-          moveTo: demandInventory.store.name,
-          quantity: transferQty,
-          reason: "Velocity imbalance",
-          impact: {
-            demandCoverageDays: Number(
-              (
-                transferQty /
-                (demand.velocityPerDay || 0.01)
-              ).toFixed(1)
-            )
-          }
-        });
-
-        demandInventory.unitsSaleable += transferQty;
-        surplusInventory.unitsSaleable -= transferQty;
-
-        console.log("Recommendation created:", {
-          skuId,
-          from: surplusInventory.store.name,
-          to: demandInventory.store.name,
-          qty: transferQty
-        });
+      if (transferQty <= 0) {
+        left++;
+        right--;
+        continue;
       }
+
+      recommendations.push({
+        skuCategory: surplusStore.sku.category,
+        skuId,
+        moveFrom: surplusStore.store.name,
+        moveTo: deficitStore.store.name,
+        quantity: transferQty,
+        reason: "Stock imbalance across stores",
+        impact: {
+          imbalanceBefore: Math.abs(
+            surplusStore.unitsSaleable -
+            deficitStore.unitsSaleable
+          )
+        }
+      });
+
+      console.log("Transfer created:", {
+        skuId,
+        from: surplusStore.store.name,
+        to: deficitStore.store.name,
+        qty: transferQty
+      });
+
+      // Simulate transfer
+      surplusStore.unitsSaleable -= transferQty;
+      deficitStore.unitsSaleable += transferQty;
 
       left++;
       right--;
