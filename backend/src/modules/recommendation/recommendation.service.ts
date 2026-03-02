@@ -88,10 +88,9 @@ export const generateTransferRecommendations = async (
         continue;
       }
 
-      const desiredStock = Math.max(
-        Math.ceil(demand.velocityPerDay * 60),
-        8
-      );
+      const desiredStock = Math.ceil(demand.velocityPerDay * 365)
+        
+      
 
       const deficit =
         desiredStock - demandInventory.unitsSaleable;
