@@ -3,7 +3,7 @@ import * as velocityService from "../velocity/velocity.service";
 
 export const generateTransferRecommendations = async (
   organizationId: string,
-  days = 500
+  days = 30
 ) => {
 
   const velocityData = await velocityService.getVelocity(
