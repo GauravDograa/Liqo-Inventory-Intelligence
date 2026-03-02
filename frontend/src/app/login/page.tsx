@@ -10,24 +10,32 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    await api.post("/auth/login", {
-      email,
-      password,
-    });
+    try {
+      await api.post("/auth/login", {
+        email,
+        password,
+      });
 
-    router.push("/dashboard");
-  } catch (error: any) {
-    alert(error.message || "Login failed");
-  }
-};
+      router.push("/dashboard");
+    } catch (error: any) {
+      alert(error.message || "Login failed");
+    }
+  };
 
+  const handleGuestLogin = async () => {
+    try {
+      await api.post("/auth/guest");
+      router.push("/dashboard");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-500 to-orange-400">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-400">
       <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-slate-900">
@@ -66,6 +74,14 @@ const handleSubmit = async (e: React.FormEvent) => {
             className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-xl font-medium transition"
           >
             Sign In
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            className="w-full border border-orange-500 text-orange-500 hover:bg-orange-50 py-2 rounded-xl font-medium transition"
+          >
+            Continue as Guest
           </button>
         </form>
       </div>
