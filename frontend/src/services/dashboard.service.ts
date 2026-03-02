@@ -6,7 +6,7 @@ import {
 export const getAggregatedDashboard = async () => {
   const { data } =
     await api.get<AggregatedDashboardResponse>(
-      "dashboard/overview"
+      "/dashboard/overview"
     );
 
   if (!data.success) {

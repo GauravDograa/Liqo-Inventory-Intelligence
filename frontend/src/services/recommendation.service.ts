@@ -6,7 +6,7 @@ import {
 
 export const getRecommendations = async (): Promise<RecommendationItem[]> => {
   const { data } =
-    await api.get<RecommendationResponse>("recommendations");
+    await api.get<RecommendationResponse>("/recommendations");
 
   if (!data.success) {
     throw new Error("Failed to fetch recommendations");

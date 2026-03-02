@@ -3,7 +3,7 @@ import { InsightsOverview, InsightsResponse } from "@/types/insights.types";
 
 export const getInsights = async (): Promise<InsightsOverview> => {
   const { data } = await api.get<InsightsResponse>(
-    "insights/overview"
+    "/insights/overview"
   );
 
   if (!data.success) {

@@ -6,7 +6,7 @@ import {
 
 export const getDeadstock = async (): Promise<DeadstockItem[]> => {
   const { data } = await api.get<DeadstockResponse>(
-    "deadstock/summary"
+    "/deadstock/summary"
   );
 
   if (!data.success) {

@@ -8,7 +8,7 @@ export const getStorePerformance =
   async (): Promise<StorePerformanceItem[]> => {
     const { data } =
       await api.get<StorePerformanceResponse>(
-        "stores/performance"
+        "/stores/performance"
       );
 
     if (!data.success) {
