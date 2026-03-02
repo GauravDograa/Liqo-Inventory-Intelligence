@@ -8,7 +8,7 @@ export const getCategoryPerformance =
   async (): Promise<CategoryPerformanceItem[]> => {
     const { data } =
       await api.get<CategoryPerformanceResponse>(
-        "/categories/performance"
+        "/category/performance"
       );
 
     if (!data.success) {
