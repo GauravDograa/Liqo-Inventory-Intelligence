@@ -45,11 +45,21 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed left-6 top-6 bottom-6 ${
-        collapsed ? "w-[90px]" : "w-[260px]"
-      } bg-gray-100 rounded-3xl shadow-xl border border-gray-200 flex flex-col justify-between transition-all duration-300`}
+      className={`
+        fixed lg:left-6 lg:top-6 lg:bottom-6
+        inset-y-0 left-0
+        z-50
+        ${collapsed ? "lg:w-[90px]" : "lg:w-[260px]"}
+        w-64
+        bg-gray-100
+        lg:rounded-3xl
+        shadow-xl
+        border border-gray-200
+        flex flex-col
+        transition-all duration-300
+      `}
     >
-      <div className="flex flex-col h-full p-4">
+      <div className="flex flex-col h-full p-4 overflow-y-auto">
 
         {/* Logo + Collapse */}
         <div className="flex items-center justify-between mb-8">
@@ -63,9 +73,10 @@ export default function Sidebar({
             />
           )}
 
+          {/* Collapse only on desktop */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-lg hover:bg-slate-100 transition"
+            className="hidden lg:block p-2 rounded-lg hover:bg-slate-100 transition"
           >
             {collapsed ? (
               <ChevronRight size={18} />
@@ -78,7 +89,7 @@ export default function Sidebar({
         {/* MENU */}
         <div>
           {!collapsed && (
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            <p className="hidden lg:block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
               Menu
             </p>
           )}
@@ -94,12 +105,16 @@ export default function Sidebar({
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-xl transition ${
                     active
-                      ? "bg-slate-100 text-slate-900 font-medium"
+                      ? "bg-slate-200 text-slate-900 font-medium"
                       : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   <Icon size={18} />
-                  {!collapsed && <span>{item.name}</span>}
+                  {!collapsed && (
+                    <span className="hidden lg:inline">
+                      {item.name}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -107,9 +122,9 @@ export default function Sidebar({
         </div>
 
         {/* GENERAL */}
-        <div>
+        <div className="mt-auto">
           {!collapsed && (
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 mt-8">
+            <p className="hidden lg:block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 mt-8">
               General
             </p>
           )}
@@ -125,7 +140,11 @@ export default function Sidebar({
                   className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 transition"
                 >
                   <Icon size={18} />
-                  {!collapsed && <span>{item.name}</span>}
+                  {!collapsed && (
+                    <span className="hidden lg:inline">
+                      {item.name}
+                    </span>
+                  )}
                 </Link>
               );
             })}
