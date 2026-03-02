@@ -3,9 +3,12 @@ import { prisma } from "../../prisma/client";
 
 export const getVelocity = async (
   organizationId: string,
-  days = 30,
+  days = 365,   // safer default
   storeId?: string
 ) => {
+
+  console.log("=== VELOCITY CALCULATION START ===");
+  console.log("Days window:", days);
 
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -16,10 +19,15 @@ export const getVelocity = async (
     storeId
   );
 
-  if (!grouped.length) return [];
+  console.log("Grouped velocity rows:", grouped.length);
 
-  const skuIds = grouped.map(g => g.skuId);
-  const storeIds = grouped.map(g => g.storeId);
+  if (!grouped.length) {
+    console.log("No transactions found in window.");
+    return [];
+  }
+
+  const skuIds = [...new Set(grouped.map(g => g.skuId))];
+  const storeIds = [...new Set(grouped.map(g => g.storeId))];
 
   const skus = await prisma.sKU.findMany({
     where: { id: { in: skuIds } },
@@ -39,8 +47,20 @@ export const getVelocity = async (
     stores.map(s => [s.id, s])
   );
 
-  return grouped.map(row => {
+  // Calculate actual day span to avoid distortion
+  const now = new Date();
+  const actualDays =
+    (now.getTime() - startDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+
+  const safeDays = actualDays > 0 ? actualDays : 1;
+
+  const result = grouped.map(row => {
     const unitsSold = row._sum.quantity || 0;
+
+    const velocityPerDay = Number(
+      (unitsSold / safeDays).toFixed(2)
+    );
 
     return {
       storeId: row.storeId,
@@ -48,9 +68,12 @@ export const getVelocity = async (
       skuId: row.skuId,
       category: skuMap[row.skuId]?.category || null,
       unitsSold,
-      velocityPerDay: Number(
-        (unitsSold / days).toFixed(2)
-      )
+      velocityPerDay
     };
   });
+
+  console.log("Velocity sample:", result.slice(0, 5));
+  console.log("=== VELOCITY CALCULATION END ===");
+
+  return result;
 };
