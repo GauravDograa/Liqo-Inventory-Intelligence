@@ -3,7 +3,7 @@ import * as velocityService from "../velocity/velocity.service";
 
 export const generateTransferRecommendations = async (
   organizationId: string,
-  days = 30
+  days = 600
 ) => {
 
   console.log("=== GENERATE RECOMMENDATIONS START ===");
