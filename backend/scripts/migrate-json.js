@@ -1,5 +1,4 @@
-console.log("USING CLEAN SCHEMA-ALIGNED SCRIPT");
-
+console.log("USING FIXED SCHEMA-ALIGNED SCRIPT WITH ORGANIZATION");
 require("dotenv").config();
 const prisma = require("../src/config/prisma");
 
@@ -17,6 +16,22 @@ async function migrate() {
   try {
     /*
     =========================================
+    0️⃣ CREATE ORGANIZATION
+    =========================================
+    */
+    const org = await prisma.organization.upsert({
+      where: { id: "default-org-001" },
+      update: {},
+      create: {
+        id: "default-org-001",
+        name: "Liqo Enterprise",
+      },
+    });
+    const organizationId = org.id;
+    console.log("✅ Organization ready:", organizationId);
+
+    /*
+    =========================================
     1️⃣ INSERT STORES
     =========================================
     */
@@ -30,14 +45,12 @@ async function migrate() {
           name: store.Store_Name,
           region: store.Region || null,
           city: store.City || null,
-        }
+          organizationId: organizationId,
+        },
       });
-
-
       storeMap[store.Store_ID] = created.id;
     }
-
-    console.log("Stores migrated");
+    console.log("✅ Stores migrated:", Object.keys(storeMap).length);
 
     /*
     =========================================
@@ -55,63 +68,75 @@ async function migrate() {
           condition: sku.Condition || null,
           acquisitionCost: Number(sku.Acquisition_Cost || 0),
           refurbCost: Number(sku.Refurb_Cost || 0),
-        }
+        },
       });
-
-
       skuMap[sku.SKU_ID] = created.id;
     }
-
-    console.log("SKUs migrated");
+    console.log("✅ SKUs migrated:", Object.keys(skuMap).length);
 
     /*
     =========================================
     3️⃣ INSERT TRANSACTIONS
     =========================================
     */
+    let txCount = 0;
     for (const tx of transactions) {
-      await prisma.transaction.create({
-        data: {
+      await prisma.transaction.upsert({
+        where: { externalId: tx.Transaction_ID },
+        update: {},
+        create: {
           externalId: tx.Transaction_ID,
           storeId: storeMap[tx.Store_ID],
           skuId: skuMap[tx.SKU_ID],
+          organizationId: organizationId,
           date: new Date(tx.Date),
-
-          quantity: Number(tx.Units_Saleable || 1), // ✅ THIS IS CRITICAL
-
+          quantity: Number(tx.Units_Saleable || 1),
           sellingPriceGst: Number(tx.Selling_Price_GST || 0),
           netRevenue: Number(tx.Net_Revenue || 0),
           cogs: Number(tx.COGS || 0),
           grossMarginPct: Number(tx.True_Gross_Margin_percent || 0),
-          inventoryAgeBucket: tx.Inventory_Age_Bucket || "0-30"
-        }
+          inventoryAgeBucket: tx.Inventory_Age_Bucket || "0-30",
+        },
       });
-
+      txCount++;
+      if (txCount % 500 === 0) console.log(`  ...${txCount} transactions inserted`);
     }
-
-    console.log("Transactions migrated");
+    console.log("✅ Transactions migrated:", txCount);
 
     /*
     =========================================
     4️⃣ INSERT INVENTORY
     =========================================
     */
+    let invCount = 0;
     for (const item of inventoryData) {
-      await prisma.inventory.create({
-        data: {
+      await prisma.inventory.upsert({
+        where: {
+          storeId_skuId: {
+            storeId: storeMap[item.Store_ID],
+            skuId: skuMap[item.SKU_ID],
+          },
+        },
+        update: {},
+        create: {
           storeId: storeMap[item.Store_ID],
           skuId: skuMap[item.SKU_ID],
+          organizationId: organizationId,
           unitsAcquired: item.Units_Acquired,
           unitsSaleable: item.Units_Saleable,
           stockAgeDays: item.Stock_Age_Days,
         },
       });
+      invCount++;
     }
+    console.log("✅ Inventory migrated:", invCount);
 
-    console.log("Inventory migrated");
-    console.log("Migration complete ✅");
+    console.log("\n🎉 Migration complete!");
+    console.log("Organization ID:", organizationId);
+    console.log("⚠️  Save this Organization ID — your User accounts need it!");
+
   } catch (err) {
-    console.error("Migration failed ❌", err);
+    console.error("❌ Migration failed:", err);
   } finally {
     await prisma.$disconnect();
   }
