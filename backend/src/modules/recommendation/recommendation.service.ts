@@ -71,7 +71,7 @@ for (const skuId in skuVelocityMap) {
       }
 
       const desiredStock = Math.max(
-        Math.ceil(demand.velocityPerDay * 30),
+        Math.ceil(demand.velocityPerDay * 60),
         8
       );
 
