@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  if (process.env.NODE_ENV !== "production") {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get("token");
 
   if (!token && request.nextUrl.pathname.startsWith("/dashboard")) {
