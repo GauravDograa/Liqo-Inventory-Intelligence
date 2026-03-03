@@ -21,11 +21,10 @@ router.post("/login", async (req, res) => {
     });
 
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
-
     return res.json({ message: "Login successful", role: "admin" });
   }
 
@@ -39,12 +38,11 @@ router.post("/guest", (req, res) => {
     role: "guest",
   });
 
-  res.cookie("token", token, {
+    res.cookie("token", token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
-
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
   res.json({ message: "Guest login successful", role: "guest" });
 });
 

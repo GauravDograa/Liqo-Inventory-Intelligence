@@ -21,21 +21,10 @@ app.use(cookieParser());
 // ✅ CORS CONFIGURATION
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      // Allow localhost
-      if (origin.includes("localhost")) {
-        return callback(null, true);
-      }
-
-      // Allow any Vercel deployment of this project
-      if (origin.includes("vercel.app")) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
+    origin: [
+      "http://localhost:3000",
+      "https://liqo-inventory-intelligence.vercel.app", // 👈 replace if different
+    ],
     credentials: true,
   })
 );
