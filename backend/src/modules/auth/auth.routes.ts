@@ -14,7 +14,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   // Replace this with real DB validation
-  if (email === "admin@gmail.com" && password === "123456") {
+  if (email.endsWith("@gmail.com") && password === "123456") {
     const token = generateToken({
       id: 1,
       role: "admin",
