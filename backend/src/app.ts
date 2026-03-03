@@ -23,7 +23,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://liqo-inventory-intelligence.vercel.app", // 👈 replace if different
+      "https://liqo-inventory-intelligence-ep1q.vercel.app", // 👈 replace if different
     ],
     credentials: true,
   })
