@@ -38,7 +38,7 @@ This helps retailers:
 
 ## Main Dashboard
 
-![Dashboard](public/readme/dashboard.png)
+![Dashboard](frontend/public/readme/dashboard.png)
 
 The dashboard provides:
 
@@ -390,19 +390,19 @@ Monitored endpoint:
 
 ## Login Page
 
-![Login](public/readme/login.png)
+![Login](frontend/public/readme/login.png)
 
 ---
 
 ## Dashboard
 
-![Dashboard](public/readme/dashboard.png)
+![Dashboard](frontend/public/readme/dashboard.png)
 
 ---
 
 ## Recommendations
 
-![Recommendations](public/readme/recommendations.png)
+![Recommendations](frontend/public/readme/recommendations.png)
 
 ---
 
