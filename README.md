@@ -7,7 +7,7 @@
 ## 🚀 Live Demo
 
 🌐 Frontend (Vercel)  
-https://liqo-inventory-intelligence.vercel.app
+https://liqo-inventory-intelligence-ep1q.vercel.app/login
 
 ⚙️ Backend (Render)  
 https://liqo-inventory-intelligence.onrender.com
