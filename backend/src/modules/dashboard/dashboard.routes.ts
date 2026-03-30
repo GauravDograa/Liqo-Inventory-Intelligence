@@ -11,7 +11,17 @@ router.get(
   authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const overview = await getDashboardOverview();
+      const start = req.query.start as string | undefined;
+      const end = req.query.end as string | undefined;
+      const months = req.query.months
+        ? Number(req.query.months)
+        : undefined;
+
+      const overview = await getDashboardOverview(
+        start,
+        end,
+        months
+      );
       res.json({
         success: true,
         data: overview,

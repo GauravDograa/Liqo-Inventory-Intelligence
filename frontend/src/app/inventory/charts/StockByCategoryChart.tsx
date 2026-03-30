@@ -11,14 +11,6 @@ import {
 } from "recharts";
 import { formatCurrency } from "@/lib/format";
 
-type InventoryItem = {
-  unitsSaleable: number;
-  sku: {
-    category: string;
-    acquisitionCost: number;
-  };
-};
-
 export default function StockByCategoryChart() {
   const { data } = useInventory();
   if (!data) return null;

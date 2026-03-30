@@ -1,10 +1,23 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
+import { authenticate } from "../../middleware/auth.middleware";
+import { AuthRequest } from "../../types/auth.types";
 
 const router = Router();
+const DEFAULT_ORGANIZATION_ID =
+  process.env.DEFAULT_ORGANIZATION_ID || "default-org-001";
+const jwtSecret =
+  process.env.JWT_SECRET ||
+  (process.env.NODE_ENV !== "production"
+    ? "liqo-local-dev-secret"
+    : undefined);
 
 const generateToken = (payload: any) => {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
+  return jwt.sign(payload, jwtSecret, {
     expiresIn: "1d",
   });
 };
@@ -16,8 +29,9 @@ router.post("/login", async (req, res) => {
   // Replace this with real DB validation
   if (email.endsWith("@gmail.com") && password === "123456") {
     const token = generateToken({
-      id: 1,
-      role: "admin",
+      userId: "local-admin",
+      organizationId: DEFAULT_ORGANIZATION_ID,
+      role: "ADMIN",
     });
 
     res.cookie("token", token, {
@@ -34,8 +48,9 @@ router.post("/login", async (req, res) => {
 // ✅ Guest Login
 router.post("/guest", (req, res) => {
   const token = generateToken({
-    id: "guest",
-    role: "guest",
+    userId: "guest-user",
+    organizationId: DEFAULT_ORGANIZATION_ID,
+    role: "USER",
   });
 
     res.cookie("token", token, {
@@ -44,6 +59,13 @@ router.post("/guest", (req, res) => {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
   res.json({ message: "Guest login successful", role: "guest" });
+});
+
+router.get("/session", authenticate, (req: AuthRequest, res) => {
+  res.json({
+    success: true,
+    data: req.user,
+  });
 });
 
 // ✅ Logout

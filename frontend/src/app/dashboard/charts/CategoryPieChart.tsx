@@ -12,6 +12,15 @@ import Card from "@/app/dashboard/components/ui/Card";
 import { useCategoryPerformance } from "@/hooks/useCategoryPerformance";
 import { formatCurrency } from "@/lib/format";
 
+interface PieLabelProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  outerRadius: number;
+  percent: number;
+  name: string;
+}
+
 const COLORS = [
   "#FBCEB1",
   "#F88379",
@@ -20,7 +29,7 @@ const COLORS = [
   "#FFF5EE",
 ];
 
-function renderCustomizedLabel(props: any) {
+function renderCustomizedLabel(props: PieLabelProps) {
   const {
     cx,
     cy,
@@ -28,7 +37,6 @@ function renderCustomizedLabel(props: any) {
     outerRadius,
     percent,
     name,
-    fill,
   } = props;
 
   const RADIAN = Math.PI / 180;
@@ -89,10 +97,10 @@ function CategoryPieChart() {
 
   if (isLoading) {
     return (
-    <Card className="h-[420px] animate-pulse">
-    <div />
-  </Card>
-)
+      <Card className="h-[420px] animate-pulse">
+        <div />
+      </Card>
+    );
   }
 
   if (isError || chartData.length === 0) {
@@ -128,14 +136,11 @@ function CategoryPieChart() {
               label={renderCustomizedLabel}
               stroke="#fff"
               strokeWidth={2}
-              
             >
               {chartData.map((_, index) => (
-                <Cell 
+                <Cell
                   key={index}
-                  fill={
-                    COLORS[index % COLORS.length]
-                  }
+                  fill={COLORS[index % COLORS.length]}
                 />
               ))}
             </Pie>

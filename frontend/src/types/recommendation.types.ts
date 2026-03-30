@@ -1,5 +1,6 @@
 export interface RecommendationImpact {
   demandCoverageDays: number;
+  imbalanceBefore?: number;
 }
 
 export interface RecommendationItem {

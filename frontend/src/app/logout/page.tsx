@@ -14,7 +14,7 @@ export default function Logout() {
     };
 
     logout();
-  }, []);
+  }, [router]);
 
   return <div className="p-10">Logging out...</div>;
 }

@@ -21,6 +21,7 @@ export default function DeadstockPage() {
 
   return (
     <div className="space-y-8">
+      <DeadstockHeader />
       <DeadstockFilters />
       <DeadstockRiskBar data={data} />
 

@@ -10,6 +10,7 @@ import {
   Boxes,
   Sparkles,
   Brain,
+  Upload,
   Settings,
   HelpCircle,
   LogOut,
@@ -23,12 +24,13 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Deadstock", href: "/deadstock", icon: Package },
   { name: "Store Performance", href: "/store-performance", icon: BarChart3 },
   { name: "Inventory", href: "/inventory", icon: Boxes },
   { name: "Recommender", href: "/recommendations", icon: Sparkles },
   { name: "Insights", href: "/insights", icon: Brain },
+  { name: "Import", href: "/import", icon: Upload },
 ];
 
 const generalItems = [

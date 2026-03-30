@@ -22,7 +22,7 @@ export default function InventoryError({ error, reset }: Props) {
         </h2>
 
         <p className="text-gray-500 mb-6">
-          We couldn't load inventory data.
+          We couldn&apos;t load inventory data.
         </p>
 
         <button

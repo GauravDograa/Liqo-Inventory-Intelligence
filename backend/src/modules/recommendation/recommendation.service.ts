@@ -1,4 +1,5 @@
 import * as repo from "./recommendation.repository";
+import * as velocityService from "../velocity/velocity.service";
 
 export const generateTransferRecommendations = async (
   organizationId: string
@@ -8,6 +9,16 @@ export const generateTransferRecommendations = async (
 
   const inventory = await repo.getInventoryWithStoreAndSku(
     organizationId
+  );
+  const velocityData = await velocityService.getVelocity(
+    organizationId,
+    365
+  );
+  const velocityMap = new Map(
+    velocityData.map((item) => [
+      `${item.storeId}_${item.skuId}`,
+      item.velocityPerDay,
+    ])
   );
 
   console.log("Inventory count:", inventory.length);
@@ -89,6 +100,12 @@ export const generateTransferRecommendations = async (
         quantity: transferQty,
         reason: "Stock imbalance across stores",
         impact: {
+          demandCoverageDays: getDemandCoverageDays(
+            transferQty,
+            velocityMap.get(
+              `${deficitStore.storeId}_${deficitStore.skuId}`
+            ) || 0
+          ),
           imbalanceBefore: Math.abs(
             surplusStore.unitsSaleable -
             deficitStore.unitsSaleable
@@ -117,3 +134,14 @@ export const generateTransferRecommendations = async (
 
   return recommendations;
 };
+
+function getDemandCoverageDays(
+  quantity: number,
+  velocityPerDay: number
+) {
+  if (velocityPerDay <= 0) {
+    return 0;
+  }
+
+  return Number((quantity / velocityPerDay).toFixed(1));
+}

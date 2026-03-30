@@ -3,7 +3,7 @@ import { SimulationResponse } from "@/types/simulation.types";
 
 export const getSimulation = async () => {
   const { data } = await api.get<SimulationResponse>(
-    "/simulation"
+    "/simulation/run"
   );
   return data;
 };

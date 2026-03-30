@@ -2,9 +2,14 @@ import * as repo from "./dashboard.repository";
 
 export const getDashboardOverview = async (
   start?: string,
-  end?: string
+  end?: string,
+  months?: number
 ) => {
-  const startDate = start ? new Date(start) : new Date("2000-01-01");
+  const startDate = start
+    ? new Date(start)
+    : months
+    ? getMonthsAgoDate(months)
+    : new Date("2000-01-01");
   const endDate = end ? new Date(end) : new Date();
 
   const aggregates = await repo.getOverviewAggregates(
@@ -36,3 +41,9 @@ export const getDashboardOverview = async (
     revenueTrend,
   };
 };
+
+function getMonthsAgoDate(months: number) {
+  const date = new Date();
+  date.setMonth(date.getMonth() - months);
+  return date;
+}

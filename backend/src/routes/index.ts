@@ -12,6 +12,7 @@ import storePerformanceRoutes from "../modules/storePerformance/storePerformance
 import transactionRoutes from "../modules/transaction/transaction.routes";
 import velocityRoutes from "../modules/velocity/velocity.routes";
 import categoryRoutes from "../modules/category/category.routes";
+import importRoutes from "../modules/import/import.routes";
 import { authenticate } from "../middleware/auth.middleware";
 
 const router = Router();
@@ -33,5 +34,6 @@ router.use("/store-performance", storePerformanceRoutes);
 router.use("/transactions", transactionRoutes);
 router.use("/velocity", velocityRoutes);
 router.use("/category", categoryRoutes);
+router.use("/import", importRoutes);
 
 export default router;

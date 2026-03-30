@@ -1,4 +1,5 @@
 import InsightsKPIs from "./components/InsightsKPIs";
+import AiInsightsPanel from "./components/AiInsightsPanel";
 
 export default function InsightsPage() {
   return (
@@ -15,6 +16,7 @@ export default function InsightsPage() {
       </div>
 
       <InsightsKPIs />
+      <AiInsightsPanel />
 
     </div>
   );

@@ -9,5 +9,15 @@ router.get(
   authenticate,
   controller.getOverviewInsights
 );
+router.get(
+  "/ai-summary",
+  authenticate,
+  controller.getAiInsightsSummary
+);
+router.post(
+  "/ask",
+  authenticate,
+  controller.askAiInsightsQuestion
+);
 
 export default router;
