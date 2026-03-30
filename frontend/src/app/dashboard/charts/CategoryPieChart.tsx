@@ -29,7 +29,7 @@ const COLORS = [
   "#FFF5EE",
 ];
 
-function renderCustomizedLabel(props: PieLabelProps) {
+function renderCustomizedLabel(props: any) {
   const {
     cx,
     cy,
@@ -133,7 +133,7 @@ function CategoryPieChart() {
               outerRadius="80%"
               paddingAngle={3}
               labelLine={false}
-              label={renderCustomizedLabel}
+              label={(props) => renderCustomizedLabel(props)}
               stroke="#fff"
               strokeWidth={2}
             >
