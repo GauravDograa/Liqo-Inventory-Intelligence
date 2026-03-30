@@ -550,5 +550,7 @@ async function buildImportPayload(files: UploadState): Promise<ImportFilesInput>
     })
   );
 
-  return Object.fromEntries(entries) as ImportFilesInput;
+  const result: Partial<ImportFilesInput> = Object.fromEntries(entries);
+
+  return result as ImportFilesInput;
 }
