@@ -23,9 +23,17 @@ export const generateOverviewInsights = async (
   start?: string,
   end?: string
 ) => {
-  const dashboard = await dashboardService.getDashboardOverview(start, end);
+  const dashboard = await dashboardService.getDashboardOverview(
+    organizationId,
+    start,
+    end
+  );
   const stores = await storeService.getPerformance(organizationId);
-  const categories = await categoryService.getCategoryPerformance(start, end);
+  const categories = await categoryService.getCategoryPerformance(
+    organizationId,
+    start,
+    end
+  );
   const deadstock = await deadstockService.getDeadStockSummary(
     organizationId,
     90
@@ -201,7 +209,11 @@ async function buildInsightsContext(
 ) {
   const overview = await generateOverviewInsights(organizationId, start, end);
   const stores = await storeService.getPerformance(organizationId);
-  const categories = await categoryService.getCategoryPerformance(start, end);
+  const categories = await categoryService.getCategoryPerformance(
+    organizationId,
+    start,
+    end
+  );
   const deadstock = await deadstockService.getDeadStockSummary(
     organizationId,
     90

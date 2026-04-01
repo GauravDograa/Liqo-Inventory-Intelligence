@@ -3,6 +3,7 @@
 import Card from "@/app/dashboard/components/ui/Card";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { ArrowRight } from "lucide-react";
+import { formatCoverageChange, formatCoverageDays } from "@/lib/format";
 
 export default function StoreMovementCard() {
   const { data = [], isLoading, error } = useRecommendations();
@@ -70,7 +71,8 @@ export default function StoreMovementCard() {
                 </span>
 
                 <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium">
-                  Coverage: {item.impact.demandCoverageDays} days
+                  {formatCoverageChange(item.impact.demandCoverageDays)} to{" "}
+                  {formatCoverageDays(item.impact.afterCoverageDays)}
                 </span>
               </div>
 

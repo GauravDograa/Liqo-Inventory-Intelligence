@@ -13,8 +13,8 @@ export const getAggregatedDashboard = async (
 
   const [overview, categories, stores, deadstock] =
     await Promise.all([
-      getDashboardOverview(),
-      getCategoryPerformance(),
+      getDashboardOverview(orgId),
+      getCategoryPerformance(orgId),
       getPerformance(orgId),
       getDeadStockSummary(orgId)
     ]);

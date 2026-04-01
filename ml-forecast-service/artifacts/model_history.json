@@ -1,0 +1,40 @@
+[
+  {
+    "selected_at": "2026-04-01T10:56:16.753Z",
+    "winner": "trained_baseline",
+    "selection_metric": "holdout_mae",
+    "dataset": {
+      "total_rows": 36,
+      "train_rows": 28,
+      "test_rows": 8,
+      "history_window_days": 180,
+      "horizon_days": 30
+    },
+    "scores": {
+      "trained_baseline": 1.8281,
+      "trained_challenger": 2.3317,
+      "trained_lag_trend": 2.375
+    },
+    "time_based_scores": {
+      "trained_baseline": 1.9209,
+      "trained_challenger": 2.0474,
+      "trained_lag_trend": 3.1833
+    },
+    "improvement": {
+      "mae_delta": 1.4674,
+      "challenger_mae_delta": 0.9638,
+      "lag_trend_mae_delta": 0.9205,
+      "mape_delta": 1.3097,
+      "challenger_mape_delta": 1.005,
+      "lag_trend_mape_delta": 1.6339,
+      "rmse_delta": 1.8211,
+      "challenger_rmse_delta": 1.4347,
+      "lag_trend_rmse_delta": 0.711
+    },
+    "model_names": {
+      "trained_baseline": "baseline-demand-ratio-v1",
+      "trained_challenger": "challenger-shrunk-seasonal-v1",
+      "trained_lag_trend": "lag-trend-forecast-v1"
+    }
+  }
+]

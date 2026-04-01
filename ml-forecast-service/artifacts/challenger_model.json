@@ -1,0 +1,24 @@
+{
+  "model_name": "challenger-shrunk-seasonal-v1",
+  "trained_at": "2026-04-01T10:56:16.753Z",
+  "row_count": 36,
+  "category_factors": {
+    "tv": 1.25,
+    "washing machine": 0.9545,
+    "refrigerator": 0.7037,
+    "ac": 0.4762
+  },
+  "month_factors": {
+    "11": 0.8333,
+    "12": 1.1111
+  },
+  "quarter_factors": {
+    "4": 0.8333
+  },
+  "confidence_weight": 0.337,
+  "inventory_pressure_floor": 0.82,
+  "inventory_pressure_ceiling": 1.116,
+  "mean_absolute_percentage_error": 0.9396,
+  "history_window_days": 180,
+  "horizon_days": 30
+}

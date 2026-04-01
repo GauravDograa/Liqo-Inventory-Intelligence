@@ -1,0 +1,27 @@
+{
+  "model_name": "baseline-demand-ratio-v1",
+  "trained_at": "2026-04-01T10:56:16.753Z",
+  "row_count": 36,
+  "global_multiplier": 0.9394,
+  "category_multipliers": {
+    "tv": 1.2121,
+    "washing machine": 0.8947,
+    "refrigerator": 0.7042,
+    "ac": 0.4348
+  },
+  "month_multipliers": {
+    "11": 0.9563,
+    "12": 0.8213
+  },
+  "quarter_multipliers": {
+    "4": 0.9394
+  },
+  "average_recent_share": 0.1862,
+  "average_recency_ratio": 0.3463,
+  "recency_floor": 0.9,
+  "recency_ceiling": 1.12,
+  "confidence_boost": 0.03,
+  "mean_absolute_percentage_error": 0.9396,
+  "history_window_days": 180,
+  "horizon_days": 30
+}

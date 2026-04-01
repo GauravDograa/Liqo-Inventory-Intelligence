@@ -9,7 +9,13 @@ export const getRecommendations = async (
 
   const data =
     await service.generateTransferRecommendations(
-      req.user!.organizationId
+      req.user!.organizationId,
+      typeof req.query.provider === "string"
+        ? (req.query.provider as any)
+        : undefined,
+      typeof req.query.modelName === "string"
+        ? req.query.modelName
+        : undefined
     );
 
   res.json({

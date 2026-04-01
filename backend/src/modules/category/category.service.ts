@@ -11,6 +11,7 @@ interface CategoryAggregate {
 }
 
 export const getCategoryPerformance = async (
+  organizationId: string,
   start?: string,
   end?: string
 ): Promise<CategoryAggregate[]> => {
@@ -18,6 +19,7 @@ export const getCategoryPerformance = async (
   const endDate = end ? new Date(end) : new Date();
 
   const grouped = await repo.getCategoryPerformance(
+    organizationId,
     startDate,
     endDate
   );

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { getAggregatedDashboard } from "./dashboard.controller";
 import { getDashboardOverview } from "./dashboard.service";
 import { authenticate } from "../../middleware/auth.middleware";
+import { AuthRequest } from "../../types/auth.types";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get(
   authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const authReq = req as AuthRequest;
       const start = req.query.start as string | undefined;
       const end = req.query.end as string | undefined;
       const months = req.query.months
@@ -18,6 +20,7 @@ router.get(
         : undefined;
 
       const overview = await getDashboardOverview(
+        authReq.user!.organizationId,
         start,
         end,
         months

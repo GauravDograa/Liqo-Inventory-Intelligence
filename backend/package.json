@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "export:ml-training-dataset": "node scripts/export-ml-training-dataset.js"
   },
   "keywords": [],
   "author": "",

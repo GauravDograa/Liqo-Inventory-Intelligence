@@ -1,21 +1,39 @@
 import { prisma } from "../../prisma/client";
 import * as recommendationService from "../recommendation/recommendation.service";
-import * as velocityService from "../velocity/velocity.service";
+import {
+  getCategoryPolicy,
+  RECOMMENDATION_RULES,
+} from "../recommendation/recommendation.config";
+import * as forecastService from "../forecast/forecast.service";
+
+const SIMULATION_COST_RULES = {
+  fixedCostPerTransfer: 300,
+  variableCostPerUnit: 18,
+} as const;
 
 export const runSimulation = async (
   organizationId: string,
-  days = 30
+  days = 30,
+  provider?: forecastService.DemandSignalSource,
+  modelName?: string
 ) => {
 
   const recommendations =
     await recommendationService.generateTransferRecommendations(
-      organizationId
+      organizationId,
+      provider,
+      modelName
     );
 
-  const velocityData =
-    await velocityService.getVelocity(
+  const demandContext =
+    await forecastService.getDemandSignals(
       organizationId,
-      500
+      {
+        horizonDays: days,
+        historyWindowDays: RECOMMENDATION_RULES.velocityWindowDays,
+        provider,
+        modelName,
+      }
     );
 
   const inventory = await prisma.inventory.findMany({
@@ -26,21 +44,27 @@ export const runSimulation = async (
     }
   });
 
-  const velocityMap: Record<string, number> = {};
+  const demandSignalMap: Record<
+    string,
+    (typeof demandContext.signals)[number]
+  > = {};
 
-  velocityData.forEach(v => {
-    velocityMap[`${v.storeId}_${v.skuId}`] =
-      v.velocityPerDay;
+  demandContext.signals.forEach((signal) => {
+    demandSignalMap[`${signal.storeId}_${signal.skuId}`] =
+      signal;
   });
 
   const baseline = calculateProjection(
     inventory,
-    velocityMap,
+    demandSignalMap,
     days
   );
 
   const simulatedInventory =
     JSON.parse(JSON.stringify(inventory));
+  let transferCost = 0;
+  let transferredUnits = 0;
+  let transferredInventoryCost = 0;
 
   recommendations.forEach(rec => {
 
@@ -56,14 +80,53 @@ export const runSimulation = async (
         i.skuId === rec.skuId
     );
 
-    if (from) from.unitsSaleable -= rec.quantity;
+    if (from) {
+      from.unitsSaleable -= rec.quantity;
+      transferCost +=
+        SIMULATION_COST_RULES.fixedCostPerTransfer +
+        rec.quantity * SIMULATION_COST_RULES.variableCostPerUnit;
+      transferredUnits += rec.quantity;
+      transferredInventoryCost +=
+        rec.quantity * (from.sku?.acquisitionCost || 0);
+    }
     if (to) to.unitsSaleable += rec.quantity;
   });
 
   const postTransfer = calculateProjection(
     simulatedInventory,
-    velocityMap,
+    demandSignalMap,
     days
+  );
+  const revenueLiftPct =
+    baseline.revenue > 0
+      ? Number(
+          (
+            ((postTransfer.revenue - baseline.revenue) /
+              baseline.revenue) *
+            100
+          ).toFixed(2)
+        )
+      : 0;
+  const marginLiftPct =
+    baseline.margin > 0
+      ? Number(
+          (
+            ((postTransfer.margin - baseline.margin) /
+              baseline.margin) *
+            100
+          ).toFixed(2)
+        )
+      : 0;
+  const capitalFreed = Math.max(
+    0,
+    baseline.deadStockValue - postTransfer.deadStockValue
+  );
+  const netBenefit = Number(
+    (
+      (postTransfer.margin - baseline.margin) +
+      capitalFreed -
+      transferCost
+    ).toFixed(0)
   );
 
   return {
@@ -87,14 +150,81 @@ export const runSimulation = async (
         postTransfer.lostSalesUnits,
       deadStockReduction:
         baseline.deadUnits -
-        postTransfer.deadUnits
+        postTransfer.deadUnits,
+      deadStockValueRecovered: capitalFreed,
+      transferCost: Number(transferCost.toFixed(0)),
+      netBenefit,
+      transferredUnits,
+      transferredInventoryCost: Number(transferredInventoryCost.toFixed(0)),
+    },
+    planningAssumptions: {
+      horizonDays: days,
+      velocityWindowDays: demandContext.summary.historyWindowDays,
+      coverageDrivenTransfers: true,
+      fixedCostPerTransfer: SIMULATION_COST_RULES.fixedCostPerTransfer,
+      variableCostPerUnit: SIMULATION_COST_RULES.variableCostPerUnit,
+      demandSignalSource: demandContext.summary.source,
+      averageDemandConfidence:
+        demandContext.summary.averageConfidence,
+      modelReadyCoveragePct:
+        demandContext.summary.modelReadyCoveragePct,
+      modelName,
+    },
+    summary: {
+      recommendedActions: recommendations.length,
+      projectedRevenueLiftPct: revenueLiftPct,
+      projectedMarginLiftPct: marginLiftPct,
+      projectedNetBenefit: netBenefit,
+      capitalFreed,
+      demandSignalSource: demandContext.summary.source,
+      averageDemandConfidence:
+        demandContext.summary.averageConfidence,
     }
   };
 };
 
+const SIMULATION_MODEL_CHOICES = [
+  {
+    modelName: "trained_baseline",
+    label: "Baseline",
+  },
+  {
+    modelName: "trained_challenger",
+    label: "Challenger",
+  },
+  {
+    modelName: "trained_lag_trend",
+    label: "Lag Trend",
+  },
+] as const;
+
+export async function runSimulationComparison(
+  organizationId: string,
+  days = 30
+) {
+  const items = await Promise.all(
+    SIMULATION_MODEL_CHOICES.map(async (choice) => ({
+      modelName: choice.modelName,
+      label: choice.label,
+      result: await runSimulation(
+        organizationId,
+        days,
+        "external_ml_service",
+        choice.modelName
+      ),
+    }))
+  );
+
+  return {
+    provider: "external_ml_service" as const,
+    comparedModels: items.length,
+    items,
+  };
+}
+
 function calculateProjection(
   inventory: any[],
-  velocityMap: Record<string, number>,
+  demandSignalMap: Record<string, { observedVelocityPerDay: number; planningVelocityPerDay: number; confidence: number }>,
   days: number
 ) {
 
@@ -102,14 +232,23 @@ function calculateProjection(
   let margin = 0;
   let deadUnits = 0;
   let lostSalesUnits = 0;
+  let deadStockValue = 0;
+  let revenueAtRisk = 0;
 
   for (const item of inventory) {
 
     const key = `${item.storeId}_${item.skuId}`;
-    const velocity = velocityMap[key] || 0;
+    const demandSignal = demandSignalMap[key];
+    const velocity =
+      demandSignal?.observedVelocityPerDay || 0;
+    const planningVelocity =
+      demandSignal?.planningVelocityPerDay || velocity;
+    const policy = getCategoryPolicy(item.sku.category);
 
     const demandUnits =
-      Math.max(velocity * days * 2, 5);
+      planningVelocity > 0
+        ? Math.max(planningVelocity * days, 1)
+        : 0;
 
     const sellableUnits =
       Math.min(item.unitsSaleable, demandUnits);
@@ -119,6 +258,7 @@ function calculateProjection(
 
     if (unmetDemand > 0) {
       lostSalesUnits += unmetDemand;
+      revenueAtRisk += unmetDemand * (item.sku.mrp || 0);
     }
 
     const sellingPrice = item.sku.mrp || 0;
@@ -133,12 +273,14 @@ function calculateProjection(
     revenue += itemRevenue;
     margin += (itemRevenue - itemCost);
 
-    if (item.stockAgeDays > 90) {
+    if (item.stockAgeDays > policy.deadstockThresholdDays) {
       const remainingUnits =
         item.unitsSaleable - sellableUnits;
 
       if (remainingUnits > 0) {
         deadUnits += remainingUnits;
+        deadStockValue +=
+          remainingUnits * (item.sku.acquisitionCost || 0);
       }
     }
   }
@@ -155,6 +297,8 @@ function calculateProjection(
     margin: Number(margin.toFixed(0)),
     grossMarginPct,
     deadUnits: Math.floor(deadUnits),
-    lostSalesUnits: Math.floor(lostSalesUnits)
+    lostSalesUnits: Math.floor(lostSalesUnits),
+    deadStockValue: Number(deadStockValue.toFixed(0)),
+    revenueAtRisk: Number(revenueAtRisk.toFixed(0)),
   };
 }

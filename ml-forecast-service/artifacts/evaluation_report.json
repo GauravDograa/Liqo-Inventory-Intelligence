@@ -1,0 +1,248 @@
+{
+  "dataset": {
+    "total_rows": 36,
+    "train_rows": 28,
+    "test_rows": 8,
+    "history_window_days": 180,
+    "horizon_days": 30
+  },
+  "baseline_without_training": {
+    "mae": 3.2955,
+    "rmse": 3.932,
+    "mape": 2.1535
+  },
+  "trained_baseline": {
+    "mae": 1.8281,
+    "rmse": 2.1109,
+    "mape": 0.8438
+  },
+  "trained_challenger": {
+    "mae": 2.3317,
+    "rmse": 2.4973,
+    "mape": 1.1485
+  },
+  "trained_lag_trend": {
+    "mae": 2.375,
+    "rmse": 3.221,
+    "mape": 0.5196
+  },
+  "time_based_validation": {
+    "fold_count": 4,
+    "average_baseline_mae": 2.8735,
+    "average_trained_mae": 1.9209,
+    "average_challenger_mae": 2.0474,
+    "average_lag_trend_mae": 3.1833,
+    "average_baseline_rmse": 3.3724,
+    "average_trained_rmse": 2.4439,
+    "average_challenger_rmse": 2.4057,
+    "average_lag_trend_rmse": 3.9912,
+    "average_baseline_mape": 1.5306,
+    "average_trained_mape": 0.7159,
+    "average_challenger_mape": 0.7957,
+    "average_lag_trend_mape": 0.6165,
+    "folds": [
+      {
+        "train_rows": 18,
+        "test_rows": 5,
+        "baseline_mae": 3.6649,
+        "trained_mae": 2.8325,
+        "baseline_rmse": 4.2964,
+        "trained_rmse": 4.2982,
+        "challenger_mae": 2.3637,
+        "challenger_rmse": 2.7373,
+        "lag_trend_mae": 3.8,
+        "lag_trend_rmse": 4.8785,
+        "baseline_mape": 1.8149,
+        "trained_mape": 1.0372,
+        "challenger_mape": 0.8155,
+        "lag_trend_mape": 0.63
+      },
+      {
+        "train_rows": 23,
+        "test_rows": 5,
+        "baseline_mae": 1.5814,
+        "trained_mae": 0.7896,
+        "baseline_rmse": 1.6875,
+        "trained_rmse": 1.1111,
+        "challenger_mae": 1.2101,
+        "challenger_rmse": 1.833,
+        "lag_trend_mae": 4.2,
+        "lag_trend_rmse": 4.9193,
+        "baseline_mape": 0.4266,
+        "trained_mape": 0.1402,
+        "challenger_mape": 0.1705,
+        "lag_trend_mape": 0.7425
+      },
+      {
+        "train_rows": 28,
+        "test_rows": 5,
+        "baseline_mae": 3.8106,
+        "trained_mae": 1.4041,
+        "baseline_rmse": 4.3169,
+        "trained_rmse": 1.6653,
+        "challenger_mae": 2.4481,
+        "challenger_rmse": 2.5659,
+        "lag_trend_mae": 2.4,
+        "lag_trend_rmse": 3.5214,
+        "baseline_mape": 2.7923,
+        "trained_mape": 0.7757,
+        "challenger_mape": 1.3452,
+        "lag_trend_mape": 0.4381
+      },
+      {
+        "train_rows": 33,
+        "test_rows": 3,
+        "baseline_mae": 2.437,
+        "trained_mae": 2.6573,
+        "baseline_rmse": 3.1889,
+        "trained_rmse": 2.7009,
+        "challenger_mae": 2.1678,
+        "challenger_rmse": 2.4867,
+        "lag_trend_mae": 2.3333,
+        "lag_trend_rmse": 2.6458,
+        "baseline_mape": 1.0888,
+        "trained_mape": 0.9107,
+        "challenger_mape": 0.8515,
+        "lag_trend_mape": 0.6556
+      }
+    ]
+  },
+  "model_summary": {
+    "model_name": "baseline-demand-ratio-v1",
+    "trained_at": "2026-04-01T10:56:16.753Z",
+    "row_count": 28,
+    "global_multiplier": 0.9741,
+    "category_multipliers": {
+      "tv": 1.1928,
+      "washing machine": 0.8958,
+      "refrigerator": 0.6522,
+      "ac": 0.3571
+    },
+    "month_multipliers": {
+      "11": 0.9741
+    },
+    "quarter_multipliers": {
+      "4": 0.9741
+    },
+    "average_recent_share": 0.1866,
+    "average_recency_ratio": 0.3466,
+    "recency_floor": 0.9,
+    "recency_ceiling": 1.12,
+    "confidence_boost": 0.03,
+    "mean_absolute_percentage_error": 0.7939,
+    "history_window_days": 180,
+    "horizon_days": 30
+  },
+  "challenger_summary": {
+    "model_name": "challenger-shrunk-seasonal-v1",
+    "trained_at": "2026-04-01T10:56:16.753Z",
+    "row_count": 28,
+    "category_factors": {
+      "tv": 1.0417,
+      "washing machine": 0.9545,
+      "refrigerator": 0.7037,
+      "ac": 0.3675
+    },
+    "month_factors": {
+      "11": 0.8333
+    },
+    "quarter_factors": {
+      "4": 0.8333
+    },
+    "confidence_weight": 0.385,
+    "inventory_pressure_floor": 0.82,
+    "inventory_pressure_ceiling": 1.119,
+    "mean_absolute_percentage_error": 0.7939,
+    "history_window_days": 180,
+    "horizon_days": 30
+  },
+  "lag_trend_summary": {
+    "model_name": "lag-trend-forecast-v1",
+    "trained_at": "2026-04-01T10:56:16.753Z",
+    "row_count": 28,
+    "category_factors": {
+      "tv": 0.2105,
+      "washing machine": 0.1512,
+      "refrigerator": 0.1137,
+      "ac": 0.0602
+    },
+    "month_factors": {
+      "11": 0.1648
+    },
+    "base_weight": 0.4,
+    "lag_weight": 0.35,
+    "trend_mix_weight": 0.35,
+    "trend_weight": 0.6,
+    "history_window_days": 180,
+    "horizon_days": 30
+  },
+  "winner": "trained_baseline",
+  "improvement": {
+    "mae_delta": 1.4674,
+    "challenger_mae_delta": 0.9638,
+    "lag_trend_mae_delta": 0.9205,
+    "mape_delta": 1.3097,
+    "challenger_mape_delta": 1.005,
+    "lag_trend_mape_delta": 1.6339,
+    "rmse_delta": 1.8211,
+    "challenger_rmse_delta": 1.4347,
+    "lag_trend_rmse_delta": 0.711
+  },
+  "sample_predictions": [
+    {
+      "anchor_date": "2025-11-30T00:00:00.000Z",
+      "store_id": "3c690dbe-fe50-4c9e-887b-31e5e67ac208",
+      "sku_id": "d8582b45-90e8-4c9c-a0d1-0f491376962f",
+      "category": "TV",
+      "actual_units": 7,
+      "baseline_prediction": 5.8,
+      "trained_prediction": 5.92,
+      "challenger_prediction": 4.29,
+      "lag_trend_prediction": 1
+    },
+    {
+      "anchor_date": "2025-11-30T00:00:00.000Z",
+      "store_id": "37148ab1-66a3-439e-be2a-dd0770e2e875",
+      "sku_id": "3a17fdc8-801d-4f4d-b9fb-506468dc11e7",
+      "category": "AC",
+      "actual_units": 2,
+      "baseline_prediction": 7.05,
+      "trained_prediction": 1.97,
+      "challenger_prediction": 3.06,
+      "lag_trend_prediction": 1
+    },
+    {
+      "anchor_date": "2025-11-30T00:00:00.000Z",
+      "store_id": "74579815-94a0-4be8-b5ff-0640c96da1ff",
+      "sku_id": "220e5847-ab99-4b31-b0eb-c4e0d2f0b3e5",
+      "category": "Refrigerator",
+      "actual_units": 1,
+      "baseline_prediction": 5.29,
+      "trained_prediction": 3.07,
+      "challenger_prediction": 3.23,
+      "lag_trend_prediction": 1
+    },
+    {
+      "anchor_date": "2025-12-01T00:00:00.000Z",
+      "store_id": "7cc75b13-7f57-4e52-b733-a616c2faf837",
+      "sku_id": "b056ea6c-0999-481c-a9f7-64d08763f593",
+      "category": "AC",
+      "actual_units": 1,
+      "baseline_prediction": 7.66,
+      "trained_prediction": 2.2,
+      "challenger_prediction": 4.05,
+      "lag_trend_prediction": 1
+    },
+    {
+      "anchor_date": "2025-12-01T00:00:00.000Z",
+      "store_id": "8fd3f4c7-afd4-45b1-a391-509378c68c50",
+      "sku_id": "02c95bb5-0a2d-47d3-92b4-0ff05aa2020c",
+      "category": "Washing Machine",
+      "actual_units": 6,
+      "baseline_prediction": 4.16,
+      "trained_prediction": 3.36,
+      "challenger_prediction": 2.8,
+      "lag_trend_prediction": 1
+    }
+  ]
+}

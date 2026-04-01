@@ -15,14 +15,14 @@ export default function RecommendationKPIs() {
     0
   );
 
-  const highImpactMoves = data.filter(
-    (item) => item.impact.demandCoverageDays > 300
+  const priorityMoves = data.filter(
+    (item) => (item.mlSignals?.confidence ?? 0) >= 0.7
   ).length;
 
-  const highImpactPercent =
+  const priorityPercent =
     totalRecommendations > 0
       ? Math.round(
-          (highImpactMoves / totalRecommendations) * 100
+          (priorityMoves / totalRecommendations) * 100
         )
       : 0;
 
@@ -43,8 +43,8 @@ export default function RecommendationKPIs() {
       />
 
       <RecommendationKPICard
-        label="High Impact Moves"
-        value={`${highImpactPercent}%`}
+        label="Priority Moves"
+        value={`${priorityPercent}%`}
       />
 
       <RecommendationKPICard

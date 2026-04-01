@@ -1,6 +1,7 @@
 import * as repo from "./dashboard.repository";
 
 export const getDashboardOverview = async (
+  organizationId: string,
   start?: string,
   end?: string,
   months?: number
@@ -13,6 +14,7 @@ export const getDashboardOverview = async (
   const endDate = end ? new Date(end) : new Date();
 
   const aggregates = await repo.getOverviewAggregates(
+    organizationId,
     startDate,
     endDate
   );
@@ -25,7 +27,7 @@ export const getDashboardOverview = async (
   const grossMargin =
     totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
-  const trend = await repo.getRevenueTrend(startDate, endDate);
+  const trend = await repo.getRevenueTrend(organizationId, startDate, endDate);
 
   const revenueTrend = trend.map((t) => ({
     date: t.date,

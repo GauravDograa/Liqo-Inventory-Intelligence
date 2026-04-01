@@ -1,6 +1,7 @@
 "use client";
 
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { formatCoverageDays } from "@/lib/format";
 
 export default function RecommendationsTable() {
   const { data = [], isLoading, error } = useRecommendations();
@@ -65,14 +66,14 @@ export default function RecommendationsTable() {
             <div className="text-right">
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  item.impact?.demandCoverageDays < 30
-                    ? "bg-red-100 text-red-600"
-                    : item.impact?.demandCoverageDays < 60
+                  (item.mlSignals?.confidence ?? 0) >= 0.7
+                    ? "bg-green-100 text-green-600"
+                    : (item.mlSignals?.confidence ?? 0) >= 0.6
                     ? "bg-orange-100 text-orange-600"
-                    : "bg-green-100 text-green-600"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
-                {item.impact?.demandCoverageDays}d
+                {formatCoverageDays(item.impact?.afterCoverageDays)} target
               </span>
             </div>
           </div>

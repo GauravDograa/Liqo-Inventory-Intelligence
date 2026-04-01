@@ -1,6 +1,7 @@
 "use client";
 
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { formatCoverageChange, formatCoverageDays } from "@/lib/format";
 
 export default function RecommendationTable() {
   const { data } = useRecommendations();
@@ -37,7 +38,16 @@ export default function RecommendationTable() {
               <td>{item.moveTo}</td>
               <td>{item.quantity}</td>
               <td>
-                {item.impact.demandCoverageDays} days
+                <div className="py-4">
+                  <div className="font-medium text-slate-800">
+                    {formatCoverageDays(item.impact.beforeCoverageDays)} to{" "}
+                    {formatCoverageDays(item.impact.afterCoverageDays)}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    Change {formatCoverageChange(item.impact.demandCoverageDays)},
+                    target {formatCoverageDays(item.impact.targetCoverageDays)}
+                  </div>
+                </div>
               </td>
               <td>{item.reason}</td>
             </tr>

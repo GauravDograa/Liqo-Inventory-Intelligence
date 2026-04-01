@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import * as service from "./category.service";
 import serializeBigInt from "../../utils/serializer";
+import { AuthRequest } from "../../types/auth.types";
 
 export const getCategoryPerformance = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -13,7 +14,11 @@ export const getCategoryPerformance = async (
       end?: string;
     };
 
-    const data = await service.getCategoryPerformance(start, end);
+    const data = await service.getCategoryPerformance(
+      req.user!.organizationId,
+      start,
+      end
+    );
 
     res.json({
       success: true,

@@ -13,6 +13,7 @@ import transactionRoutes from "../modules/transaction/transaction.routes";
 import velocityRoutes from "../modules/velocity/velocity.routes";
 import categoryRoutes from "../modules/category/category.routes";
 import importRoutes from "../modules/import/import.routes";
+import mlForecastRoutes from "../modules/mlForecast/mlForecast.routes";
 import { authenticate } from "../middleware/auth.middleware";
 
 const router = Router();
@@ -35,5 +36,6 @@ router.use("/transactions", transactionRoutes);
 router.use("/velocity", velocityRoutes);
 router.use("/category", categoryRoutes);
 router.use("/import", importRoutes);
+router.use("/ml-forecast", mlForecastRoutes);
 
 export default router;

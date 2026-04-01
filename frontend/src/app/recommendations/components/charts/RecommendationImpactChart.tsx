@@ -12,28 +12,28 @@ export default function RecommendationImpactChart() {
   data.forEach((item) => {
     map[item.skuCategory] =
       (map[item.skuCategory] || 0) +
-      item.impact.demandCoverageDays;
+      item.quantity;
   });
 
   const chartData = Object.entries(map).map(
-    ([category, impact]) => ({
+    ([category, units]) => ({
       category,
-      impact,
+      units,
     })
   );
 
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
       <h2 className="text-lg font-semibold mb-4">
-        Demand Coverage Impact by Category
+        Units Reallocated by Category
       </h2>
 
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={chartData}>
           <XAxis dataKey="category" />
           <YAxis />
-          <Tooltip />
-          <Bar dataKey="impact" fill="#f97316" radius={[8, 8, 0, 0]} />
+          <Tooltip formatter={(value) => [`${value} units`, "Units"]} />
+          <Bar dataKey="units" fill="#f97316" radius={[8, 8, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
