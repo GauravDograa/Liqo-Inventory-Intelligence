@@ -1,13 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getDeadstock } from "@/services/deadstock.service";
-import { DeadstockItem } from "@/types/deadstock.types";
+import { useAggregatedDashboard } from "./useAggregatedDashboard";
 
 export const useDeadstock = () => {
-  return useQuery<DeadstockItem[]>({
-    queryKey: ["deadstock"],
-    queryFn: getDeadstock,
-    staleTime: 1000 * 60 * 5,
-  });
+  return useAggregatedDashboard((data) => data.deadstock);
 };

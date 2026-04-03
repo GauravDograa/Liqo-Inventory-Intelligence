@@ -13,11 +13,15 @@ export const getDashboardOverview = async (
     : new Date("2000-01-01");
   const endDate = end ? new Date(end) : new Date();
 
-  const aggregates = await repo.getOverviewAggregates(
-    organizationId,
-    startDate,
-    endDate
-  );
+  const [aggregates, trend, deadstockValue] = await Promise.all([
+    repo.getOverviewAggregates(
+      organizationId,
+      startDate,
+      endDate
+    ),
+    repo.getRevenueTrend(organizationId, startDate, endDate),
+    repo.getDeadstockValue(organizationId),
+  ]);
 
   const totalRevenue = Number(aggregates._sum.netRevenue || 0);
   const totalCOGS = Number(aggregates._sum.cogs || 0);
@@ -26,8 +30,6 @@ export const getDashboardOverview = async (
   const grossProfit = totalRevenue - totalCOGS;
   const grossMargin =
     totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
-
-  const trend = await repo.getRevenueTrend(organizationId, startDate, endDate);
 
   const revenueTrend = trend.map((t) => ({
     date: t.date,
@@ -40,6 +42,7 @@ export const getDashboardOverview = async (
     grossProfit,
     grossMargin: Number(grossMargin.toFixed(2)),
     totalTransactions,
+    deadstockValue,
     revenueTrend,
   };
 };

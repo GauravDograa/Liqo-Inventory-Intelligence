@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Cormorant_Garamond,
   Manrope,
@@ -11,6 +12,7 @@ import {
 } from "next/font/google";
 import { Eye, LockKeyhole, Mail } from "lucide-react";
 import { api } from "@/lib/axios";
+import { getAggregatedDashboard } from "@/services/dashboard.service";
 
 const sans = Manrope({
   subsets: ["latin"],
@@ -41,6 +43,7 @@ const getErrorMessage = (error: unknown) => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,7 +56,13 @@ export default function LoginPage() {
 
     try {
       await api.post("/auth/login", { email, password });
-      router.push("/dashboard");
+      await queryClient.prefetchQuery({
+        queryKey: ["dashboard"],
+        queryFn: getAggregatedDashboard,
+      });
+      startTransition(() => {
+        router.push("/dashboard");
+      });
     } catch (error: unknown) {
       alert(getErrorMessage(error) || "Login failed");
     } finally {
@@ -66,7 +75,13 @@ export default function LoginPage() {
 
     try {
       await api.post("/auth/guest");
-      router.push("/dashboard");
+      await queryClient.prefetchQuery({
+        queryKey: ["dashboard"],
+        queryFn: getAggregatedDashboard,
+      });
+      startTransition(() => {
+        router.push("/dashboard");
+      });
     } catch (error: unknown) {
       alert(getErrorMessage(error));
     } finally {

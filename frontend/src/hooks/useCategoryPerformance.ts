@@ -1,11 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getCategoryPerformance } from "@/services/category.service";
+import { useAggregatedDashboard } from "./useAggregatedDashboard";
 
 export const useCategoryPerformance = () => {
-  return useQuery({
-    queryKey: ["dashboard", "category-performance"],
-    queryFn: getCategoryPerformance,
-  });
+  return useAggregatedDashboard((data) => data.categories);
 };

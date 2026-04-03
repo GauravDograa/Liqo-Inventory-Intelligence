@@ -1,23 +1,11 @@
 "use client";
 
-import { useDashboardOverview  } from "./useDashboardOverview";
-import { useDeadstock } from "./useDeadstock";
+import { useDashboardOverview } from "./useDashboardOverview";
 
 export const useDashboardKpis = () => {
   const overviewQuery = useDashboardOverview();
-  const deadstockQuery = useDeadstock();
-
-  const isLoading =
-    overviewQuery.isLoading || deadstockQuery.isLoading;
-
-  const isError =
-    overviewQuery.isError || deadstockQuery.isError;
-
-  const totalDeadstock =
-    deadstockQuery.data?.reduce(
-      (sum, item) => sum + item.deadStockValue,
-      0
-    ) ?? 0;
+  const isLoading = overviewQuery.isLoading;
+  const isError = overviewQuery.isError;
 
   const overview = overviewQuery.data;
 
@@ -29,7 +17,7 @@ export const useDashboardKpis = () => {
           totalRevenue: overview.totalRevenue,
           grossProfit: overview.grossProfit,
           transactions: overview.totalTransactions,
-          deadstockValue: totalDeadstock,
+          deadstockValue: overview.deadstockValue ?? 0,
         }
       : null,
   };
