@@ -1,10 +1,28 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { formatCoverageDays } from "@/lib/format";
 
 export default function RecommendationsTable() {
   const { data = [], isLoading, error } = useRecommendations();
+  const sortedData = useMemo(
+    () =>
+      [...data].sort((a, b) => {
+        const fromCompare = a.moveFrom.localeCompare(b.moveFrom);
+        if (fromCompare !== 0) return fromCompare;
+
+        const categoryCompare =
+          a.skuCategory.localeCompare(b.skuCategory);
+        if (categoryCompare !== 0) return categoryCompare;
+
+        const toCompare = a.moveTo.localeCompare(b.moveTo);
+        if (toCompare !== 0) return toCompare;
+
+        return b.quantity - a.quantity;
+      }),
+    [data]
+  );
 
   if (isLoading) {
     return (
@@ -45,17 +63,24 @@ export default function RecommendationsTable() {
       {/* Body */}
       <div className="flex-1 overflow-auto divide-y divide-slate-100">
         <div className="min-w-[640px]">
-        {data.map((item, index) => (
+        {sortedData.map((item, index) => {
+          const previousItem = sortedData[index - 1];
+          const isNewSource =
+            !previousItem || previousItem.moveFrom !== item.moveFrom;
+
+          return (
           <div
             key={index}
-            className="grid grid-cols-5 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5"
+            className={`grid grid-cols-5 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5 ${
+              isNewSource ? "border-t border-orange-100" : ""
+            }`}
           >
             <div className="font-semibold text-slate-900">
               {item.skuCategory}
             </div>
 
             <div className="text-slate-600 font-medium">
-              {item.moveFrom?.replace("Liqo ", "")}
+              {isNewSource ? item.moveFrom?.replace("Liqo ", "") : ""}
             </div>
 
             <div className="text-slate-600 font-medium">
@@ -80,7 +105,8 @@ export default function RecommendationsTable() {
               </span>
             </div>
           </div>
-        ))}
+        );
+        })}
         </div>
       </div>
     </div>

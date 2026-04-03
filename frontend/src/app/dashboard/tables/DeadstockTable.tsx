@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useDeadstock } from "@/hooks/useDeadstock";
 
 function formatCurrency(value: number) {
@@ -12,6 +13,23 @@ function formatCurrency(value: number) {
 
 export default function DeadstockTable() {
   const { data, isLoading, error } = useDeadstock();
+  const sortedData = useMemo(
+    () =>
+      [...(data ?? [])].sort((a, b) => {
+        const storeCompare = a.store.localeCompare(b.store);
+        if (storeCompare !== 0) return storeCompare;
+
+        const categoryCompare = a.category.localeCompare(b.category);
+        if (categoryCompare !== 0) return categoryCompare;
+
+        if (b.stockAgeDays !== a.stockAgeDays) {
+          return b.stockAgeDays - a.stockAgeDays;
+        }
+
+        return b.deadStockValue - a.deadStockValue;
+      }),
+    [data]
+  );
 
   if (isLoading) {
     return (
@@ -51,22 +69,25 @@ export default function DeadstockTable() {
       {/* 💎 Scrollable Body */}
       <div className="flex-1 overflow-auto divide-y divide-slate-100">
         <div className="min-w-[540px]">
-        {data.map((item, index) => (
+        {sortedData.map((item, index) => {
+          const previousItem = sortedData[index - 1];
+          const isNewStore = !previousItem || previousItem.store !== item.store;
+
+          return (
           <div
             key={index}
-            className="grid grid-cols-4 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5"
+            className={`grid grid-cols-4 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5 ${
+              isNewStore ? "border-t border-orange-100" : ""
+            }`}
           >
-            {/* Store */}
             <div className="font-semibold text-slate-600">
-              {item.store?.replace("Liqo ", "")}
+              {isNewStore ? item.store?.replace("Liqo ", "") : ""}
             </div>
 
-            {/* Category */}
             <div className="text-slate-600 font-medium">
               {item.category}
             </div>
 
-            {/* Age with risk logic */}
             <div>
               <span
                 className={`text-sm font-semibold ${
@@ -83,12 +104,12 @@ export default function DeadstockTable() {
               </span>
             </div>
 
-            {/* Value */}
             <div className="text-right text-sm font-bold text-slate-600">
               {formatCurrency(item.deadStockValue)}
             </div>
           </div>
-        ))}
+        );
+        })}
         </div>
       </div>
     </div>
