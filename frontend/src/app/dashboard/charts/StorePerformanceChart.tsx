@@ -25,25 +25,25 @@ export default function PremiumStoreBarChart() {
 
   if (isLoading) {
     return (
-    <Card className="h-[380px] animate-pulse">
-    <div />
-  </Card>
-  )
+      <Card className="h-[360px] animate-pulse sm:h-[380px]">
+        <div />
+      </Card>
+    );
   }
 
   if (isError || chartData.length === 0) {
     return (
-      <Card className="h-[380px] flex items-center justify-center text-sm text-slate-500">
+      <Card className="flex h-[360px] items-center justify-center text-sm text-slate-500 sm:h-[380px]">
         No data available
       </Card>
     );
   }
 
   return (
-    <Card className="h-[420px] p-6 border border-orange-200 rounded-2xl shadow-2xl">
+    <Card className="h-[360px] rounded-2xl border border-orange-200 p-4 shadow-2xl sm:h-[420px] sm:p-6">
 
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <h3 className="text-lg font-semibold text-slate-900">
           Store Revenue Overview
         </h3>
@@ -65,7 +65,7 @@ export default function PremiumStoreBarChart() {
 
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 11 }}
             stroke="#9a3412"
             axisLine={false}
             tickLine={false}
@@ -75,7 +75,7 @@ export default function PremiumStoreBarChart() {
             tickFormatter={(value) =>
               `₹${(value / 1000000).toFixed(1)}M`
             }
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 11 }}
             stroke="#9a3412"
             axisLine={false}
             tickLine={false}

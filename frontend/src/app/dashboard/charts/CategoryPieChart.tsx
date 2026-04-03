@@ -97,7 +97,7 @@ function CategoryPieChart() {
 
   if (isLoading) {
     return (
-      <Card className="h-[420px] animate-pulse">
+      <Card className="h-[360px] animate-pulse sm:h-[420px]">
         <div />
       </Card>
     );
@@ -105,23 +105,23 @@ function CategoryPieChart() {
 
   if (isError || chartData.length === 0) {
     return (
-      <Card className="h-[420px] flex items-center justify-center text-sm text-slate-500">
+      <Card className="flex h-[360px] items-center justify-center text-sm text-slate-500 sm:h-[420px]">
         No data available
       </Card>
     );
   }
 
   return (
-    <Card className="h-[420px] p-6 shadow-2xl">
+    <Card className="h-[360px] p-4 shadow-2xl sm:h-[420px] sm:p-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-4 flex items-center justify-between sm:mb-6">
         <h3 className="text-lg font-semibold text-slate-900">
           Revenue by Category
         </h3>
       </div>
 
-      <div className="relative h-[300px]">
+      <div className="relative h-[260px] sm:h-[300px]">
 
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

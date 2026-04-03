@@ -10,7 +10,7 @@ export default function StoreMovementCard() {
 
   if (isLoading) {
     return (
-      <Card className="h-[650px] flex items-center justify-center">
+      <Card className="flex min-h-[420px] items-center justify-center lg:h-[650px]">
         Loading...
       </Card>
     );
@@ -18,7 +18,7 @@ export default function StoreMovementCard() {
 
   if (error || data.length === 0) {
     return (
-      <Card className="h-[650px] flex items-center justify-center">
+      <Card className="flex min-h-[420px] items-center justify-center lg:h-[650px]">
         Failed to load
       </Card>
     );
@@ -27,7 +27,7 @@ export default function StoreMovementCard() {
   const movements = data.slice(0, 8);
 
   return (
-    <Card className="h-[842px] flex flex-col p-6 shadow-2xl">
+    <Card className="flex min-h-[420px] flex-col p-4 shadow-2xl sm:p-6 lg:h-[842px]">
       {/* Header */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-slate-900 tracking-tight">
@@ -55,14 +55,14 @@ export default function StoreMovementCard() {
               </div>
 
               {/* Movement */}
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+              <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-800">
                 <span>{item.moveFrom}</span>
                 <ArrowRight size={14} className="text-slate-400" />
                 <span>{item.moveTo}</span>
               </div>
 
               {/* Details */}
-              <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+              <div className="mt-2 flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                 <span>
                   Qty:{" "}
                   <span className="font-medium text-slate-700">

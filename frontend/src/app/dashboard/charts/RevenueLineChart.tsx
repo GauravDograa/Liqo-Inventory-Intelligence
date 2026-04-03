@@ -40,16 +40,16 @@ export default function RevenueLineChart() {
   const { data, isLoading, error } = useRevenueTrend(months);
 
   if (isLoading)
-    return <Card className="h-[400px] p-8">Loading...</Card>;
+    return <Card className="h-[320px] p-4 sm:h-[400px] sm:p-6 lg:p-8">Loading...</Card>;
 
   if (error || !data)
-    return <Card className="h-[400px] p-8">Failed to load</Card>;
+    return <Card className="h-[320px] p-4 sm:h-[400px] sm:p-6 lg:p-8">Failed to load</Card>;
 
   return (
-    <Card className="h-[400px] p-8 flex flex-col shadow-2xl">
+    <Card className="flex h-[320px] flex-col p-4 shadow-2xl sm:h-[400px] sm:p-6 lg:p-8">
       
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-5 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 
         {/* Bigger Premium Title */}
         <h3 className="text-lg font-semibold text-slate-900 tracking-tight">
@@ -57,12 +57,12 @@ export default function RevenueLineChart() {
         </h3>
 
         {/* Toggle Bar */}
-        <div className="relative bg-slate-100 rounded-full p-1 flex">
+        <div className="relative flex w-full rounded-full bg-slate-100 p-1 sm:w-auto">
           {ranges.map((range) => (
             <button
               key={range.value}
               onClick={() => setMonths(range.value)}
-              className={`relative z-10 px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-300 ${
+              className={`relative z-10 flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-300 sm:px-4 sm:text-sm ${
                 months === range.value
                   ? "text-white"
                   : "text-slate-600"
@@ -112,7 +112,7 @@ export default function RevenueLineChart() {
             dataKey="date"
             tickFormatter={formatDate}
             tick={{
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 500,
               fill: "#64748b",
             }}
@@ -125,7 +125,7 @@ export default function RevenueLineChart() {
               `₹${(value / 1000000).toFixed(1)}M`
             }
             tick={{
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 500,
               fill: "#64748b",
             }}

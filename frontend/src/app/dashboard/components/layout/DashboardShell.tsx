@@ -10,30 +10,33 @@ export default function DashboardShell({
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen bg-slate-50">
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
 
-      {/* Sidebar */}
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-
-      {/* Main Area */}
       <div
         className={`transition-all duration-300 ${
-          collapsed ? "ml-[130px]" : "ml-[300px]"
-        } p-6 space-y-2`}
+          collapsed ? "lg:ml-[130px]" : "lg:ml-[300px]"
+        } px-3 py-3 sm:px-4 sm:py-4 lg:p-6`}
       >
+        <div className="space-y-3 sm:space-y-4">
+          <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 shadow-sm sm:px-4 lg:px-6 lg:py-4">
+            <Navbar
+              onOpenMobileMenu={() => setMobileMenuOpen(true)}
+            />
+          </div>
 
-        {/* ===== TOP NAVBAR CARD ===== */}
-        <div className="bg-gray-100 rounded-2xl shadow-sm border border-slate-200 px-6 py-4">
-          <Navbar />
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:p-6">
+            {children}
+          </div>
         </div>
-
-        {/* ===== MAIN DASHBOARD CARD ===== */}
-        <div className="bg-gray-100 rounded-2xl shadow-sm border border-slate-200 p-6">
-          {children}
-        </div>
-
       </div>
     </div>
   );

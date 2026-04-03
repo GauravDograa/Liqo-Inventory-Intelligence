@@ -23,7 +23,7 @@ export default function KPICard({
 
   return (
     <div
-      className={`relative p-7 rounded-3xl border transition-all duration-300
+      className={`relative rounded-3xl border p-5 transition-all duration-300 sm:p-6 lg:p-7
       ${
         highlight
           ? "bg-orange-500 border-orange-500 text-white shadow-lg"
@@ -56,7 +56,7 @@ export default function KPICard({
       {/* Value */}
       <div className="mt-4">
         <span
-          className={`text-4xl font-bold tracking-tight ${
+          className={`text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl ${
             highlight ? "text-white" : "text-slate-900"
           }`}
         >

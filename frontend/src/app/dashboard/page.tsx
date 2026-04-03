@@ -10,14 +10,14 @@ import RecommendationsTable from "@/app/dashboard/tables/RecommendationsTable";
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-4">
-      <div className="mb-10">
-        <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="mb-6 sm:mb-8 lg:mb-10">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               Dashboard
             </h1>
-            <p className="mt-2 text-sm text-slate-500 font-medium">
+            <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500">
               Real-time performance insights across revenue, profitability,
               and inventory risk exposure.
             </p>
@@ -27,11 +27,11 @@ export default function DashboardPage() {
 
       <KPISection />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3 space-y-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-6">
+        <div className="space-y-4 lg:col-span-3 lg:space-y-6">
           <RevenueLineChart />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <CategoryPieChart />
             <StorePerformanceChart />
           </div>
@@ -42,7 +42,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
         <DeadstockTable />
         <RecommendationsTable />
       </div>

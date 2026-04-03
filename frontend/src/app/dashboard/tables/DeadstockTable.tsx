@@ -15,7 +15,7 @@ export default function DeadstockTable() {
 
   if (isLoading) {
     return (
-      <div className="h-[500px] flex items-center justify-center bg-white rounded-3xl shadow-xl">
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white shadow-xl lg:h-[500px]">
         <span className="text-slate-500 font-medium">
           Loading deadstock data...
         </span>
@@ -25,7 +25,7 @@ export default function DeadstockTable() {
 
   if (error || !data || data.length === 0) {
     return (
-      <div className="h-[500px] flex items-center justify-center bg-white rounded-3xl shadow-xl">
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white shadow-xl lg:h-[500px]">
         <span className="text-red-600 font-medium">
           Failed to load deadstock data
         </span>
@@ -34,24 +34,27 @@ export default function DeadstockTable() {
   }
 
   return (
-    <div className="rounded-3xl shadow-2xl bg-white overflow-hidden h-[500px] flex flex-col">
+    <div className="flex min-h-[360px] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl lg:h-[500px]">
       
       {/* 🔥 Premium Gradient Header */}
-      <div className="bg-gradient-to-r from-orange-400 via-orange-300 to-orange-300 px-8 py-5">
-        <div className="grid grid-cols-4 text-white text-xs tracking-widest uppercase font-semibold">
+      <div className="overflow-x-auto">
+        <div className="min-w-[540px] bg-gradient-to-r from-orange-400 via-orange-300 to-orange-300 px-5 py-4 sm:px-8 sm:py-5">
+          <div className="grid grid-cols-4 text-xs font-semibold uppercase tracking-widest text-white">
           <span>Store</span>
           <span>Category</span>
           <span>Stock Age</span>
           <span className="text-right">Deadstock Value</span>
+          </div>
         </div>
       </div>
 
       {/* 💎 Scrollable Body */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+      <div className="flex-1 overflow-auto divide-y divide-slate-100">
+        <div className="min-w-[540px]">
         {data.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-4 px-8 py-5 items-center hover:bg-orange-50 transition duration-200"
+            className="grid grid-cols-4 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5"
           >
             {/* Store */}
             <div className="font-semibold text-slate-600">
@@ -81,11 +84,12 @@ export default function DeadstockTable() {
             </div>
 
             {/* Value */}
-            <div className="text-right font-bold text-slate-600 text-sm">
+            <div className="text-right text-sm font-bold text-slate-600">
               {formatCurrency(item.deadStockValue)}
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

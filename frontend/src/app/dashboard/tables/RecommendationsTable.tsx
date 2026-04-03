@@ -8,7 +8,7 @@ export default function RecommendationsTable() {
 
   if (isLoading) {
     return (
-      <div className="h-[400px] flex items-center justify-center bg-white rounded-3xl shadow-xl">
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white shadow-xl lg:h-[500px]">
         <span className="text-slate-500 font-medium">
           Loading recommendations...
         </span>
@@ -18,7 +18,7 @@ export default function RecommendationsTable() {
 
   if (error || data.length === 0) {
     return (
-      <div className="h-[400px] flex items-center justify-center bg-white rounded-3xl shadow-xl">
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white shadow-xl lg:h-[500px]">
         <span className="text-red-600 font-medium">
           Failed to load recommendations
         </span>
@@ -27,25 +27,28 @@ export default function RecommendationsTable() {
   }
 
   return (
-    <div className="rounded-3xl shadow-2xl bg-white overflow-hidden h-[500px] flex flex-col">
+    <div className="flex min-h-[360px] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl lg:h-[500px]">
       
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-400 via-orange-300 to-orange-300 px-8 py-5">
-        <div className="grid grid-cols-5 text-white text-xs tracking-widest uppercase font-semibold">
+      <div className="overflow-x-auto">
+        <div className="min-w-[640px] bg-gradient-to-r from-orange-400 via-orange-300 to-orange-300 px-5 py-4 sm:px-8 sm:py-5">
+          <div className="grid grid-cols-5 text-xs font-semibold uppercase tracking-widest text-white">
           <span>Category</span>
           <span>From</span>
           <span>To</span>
           <span className="text-right">Qty</span>
           <span className="text-right">Coverage</span>
+          </div>
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+      <div className="flex-1 overflow-auto divide-y divide-slate-100">
+        <div className="min-w-[640px]">
         {data.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-5 px-8 py-5 items-center hover:bg-orange-50 transition duration-200"
+            className="grid grid-cols-5 items-center px-5 py-4 transition duration-200 hover:bg-orange-50 sm:px-8 sm:py-5"
           >
             <div className="font-semibold text-slate-900">
               {item.skuCategory}
@@ -78,6 +81,7 @@ export default function RecommendationsTable() {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

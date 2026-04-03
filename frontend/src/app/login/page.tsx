@@ -90,18 +90,18 @@ export default function LoginPage() {
   };
 
   return (
-    <main className={`${sans.className} min-h-screen bg-[#f5ece5] px-4 py-4 text-slate-900 sm:px-6 sm:py-6`}>
-      <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1280px] overflow-hidden rounded-[34px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.14)] lg:grid-cols-[1.02fr_0.98fr]">
-        <section className="relative overflow-hidden bg-gradient-to-b from-[#ff7a21] via-[#ef6714] to-[#d94d08] px-10 py-12 text-white sm:px-14 sm:py-14">
+    <main className={`${sans.className} min-h-screen bg-[#f5ece5] px-3 py-3 text-slate-900 sm:px-6 sm:py-6`}>
+      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1280px] overflow-hidden rounded-[28px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.14)] lg:min-h-[calc(100vh-3rem)] lg:grid-cols-[1.02fr_0.98fr] lg:rounded-[34px]">
+        <section className="relative overflow-hidden bg-gradient-to-b from-[#ff7a21] via-[#ef6714] to-[#d94d08] px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-14 lg:py-14">
           <div className="absolute inset-y-0 right-0 hidden w-12 bg-gradient-to-r from-transparent via-[#f38a47]/28 to-[#f7d6c3]/58 lg:block" />
 
           <div className="relative flex h-full flex-col justify-between">
-            <div className="pt-4 text-center lg:pt-8">
-              <p className={`${display.className} text-[28px] font-semibold tracking-tight sm:text-[36px]`}>
+            <div className="pt-2 text-center lg:pt-8">
+              <p className={`${display.className} text-[24px] font-semibold tracking-tight sm:text-[30px] lg:text-[36px]`}>
                 Welcome to
               </p>
 
-              <div className="mx-auto mt-16 flex max-w-[250px] justify-center rounded-[28px] bg-white px-8 py-8 shadow-[0_18px_40px_rgba(0,0,0,0.08)]">
+              <div className="mx-auto mt-8 flex max-w-[220px] justify-center rounded-[24px] bg-white px-6 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] sm:mt-10 sm:max-w-[250px] sm:px-8 sm:py-8 lg:mt-16 lg:rounded-[28px]">
                 <Image
                   src="/image.png"
                   alt="Liqo"
@@ -112,14 +112,14 @@ export default function LoginPage() {
               </div>
 
               <p
-                className={`${accentSerif.className} mx-auto mt-16 max-w-[420px] text-[28px] leading-[1.45] text-white/95`}
+                className={`${accentSerif.className} mx-auto mt-8 max-w-[420px] text-[22px] leading-[1.35] text-white/95 sm:mt-10 sm:text-[24px] lg:mt-16 lg:text-[28px] lg:leading-[1.45]`}
               >
                 With cleaner inventory visibility and faster transfer action,
                 your team stays ahead of stock issues every day.
               </p>
             </div>
 
-            <div className={`${sans.className} pt-12 text-sm leading-7 text-white/95`}>
+            <div className={`${sans.className} pt-8 text-sm leading-7 text-white/95 lg:pt-12`}>
               <p>
                 Built for retail teams that want inventory decisions to feel
                 simple, focused, and reliable.
@@ -131,20 +131,20 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#fffdfb] px-8 py-12 sm:px-12 sm:py-14">
+        <section className="relative overflow-hidden bg-[#fffdfb] px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-14">
           <div className="absolute inset-y-0 left-0 hidden w-10 bg-gradient-to-r from-[#f6dbca]/42 to-transparent lg:block" />
 
           <div className="relative mx-auto flex h-full max-w-[360px] flex-col justify-center">
             <div>
-              <h1 className={`${display.className} text-[50px] font-bold leading-none text-[#eb5d1b] sm:text-[58px]`}>
+              <h1 className={`${display.className} text-[40px] font-bold leading-none text-[#eb5d1b] sm:text-[50px] lg:text-[58px]`}>
                 Log in
               </h1>
-              <p className={`${serif.className} mt-3 text-[18px] leading-8 text-slate-500`}>
+              <p className={`${serif.className} mt-3 text-base leading-7 text-slate-500 sm:text-[18px] sm:leading-8`}>
                 Please fill in your credentials to login.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-14 space-y-7">
+            <form onSubmit={handleSubmit} className="mt-10 space-y-6 sm:mt-12 lg:mt-14 lg:space-y-7">
               <label className="block">
                 <span className="sr-only">Email</span>
                 <div className="flex items-center gap-3 border-b border-slate-400 pb-3">
@@ -187,7 +187,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={submitting || guestLoading}
-                className="mt-6 w-[170px] rounded-[12px] bg-[#ff6a2a] px-6 py-3 text-center text-[18px] font-bold text-white shadow-[0_10px_25px_rgba(255,106,42,0.28)] transition hover:bg-[#f15e1e] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 w-full rounded-[12px] bg-[#ff6a2a] px-6 py-3 text-center text-[18px] font-bold text-white shadow-[0_10px_25px_rgba(255,106,42,0.28)] transition hover:bg-[#f15e1e] disabled:cursor-not-allowed disabled:opacity-60 sm:mt-6 sm:w-[170px]"
               >
                 {submitting ? "Logging in..." : "Log in"}
               </button>
