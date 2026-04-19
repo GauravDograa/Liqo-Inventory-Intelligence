@@ -1,5 +1,15 @@
 import { prisma } from "../../prisma/client";
 
+export const getLatestTransactionDate = async (organizationId: string) => {
+  const result = await prisma.transaction.findFirst({
+    where: { organizationId },
+    select: { date: true },
+    orderBy: { date: "desc" },
+  });
+
+  return result?.date ?? null;
+};
+
 export const getOverviewAggregates = async (
   organizationId: string,
   startDate: Date,
@@ -28,8 +38,7 @@ export const getRevenueTrend = async (
   startDate: Date,
   endDate: Date
 ) => {
-  return prisma.transaction.groupBy({
-    by: ["date"],
+  const transactions = await prisma.transaction.findMany({
     where: {
       organizationId,
       date: {
@@ -37,13 +46,27 @@ export const getRevenueTrend = async (
         lte: endDate,
       },
     },
-    _sum: {
+    select: {
+      date: true,
       netRevenue: true,
     },
-    orderBy: {
-      date: "asc",
-    },
+    orderBy: { date: "asc" },
   });
+
+  const revenueByDate = new Map<string, number>();
+
+  for (const transaction of transactions) {
+    const key = toBusinessDateKey(transaction.date);
+    revenueByDate.set(
+      key,
+      (revenueByDate.get(key) ?? 0) + Number(transaction.netRevenue || 0)
+    );
+  }
+
+  return Array.from(revenueByDate.entries()).map(([date, revenue]) => ({
+    date,
+    revenue,
+  }));
 };
 
 export const getDeadstockValue = async (
@@ -71,3 +94,14 @@ export const getDeadstockValue = async (
     0
   );
 };
+
+function toBusinessDateKey(value: Date) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return formatter.format(value);
+}

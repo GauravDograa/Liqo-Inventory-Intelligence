@@ -1,5 +1,5 @@
-import DecisionLabWorkspace from "./workspace/DecisionLabWorkspace";
+import { redirect } from "next/navigation";
 
 export default function DecisionLabPage() {
-  return <DecisionLabWorkspace />;
+  redirect("/dashboard");
 }

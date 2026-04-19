@@ -6,6 +6,13 @@ export const formatCurrency = (value?: number | null) => {
   }).format(value ?? 0);
 };
 
+export const formatCompactNumber = (value?: number | null) => {
+  return new Intl.NumberFormat("en-IN", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value ?? 0);
+};
+
 export const formatCoverageDays = (value?: number | null) => {
   const days = value ?? 0;
 

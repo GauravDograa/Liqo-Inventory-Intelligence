@@ -10,7 +10,6 @@ import {
   Boxes,
   Sparkles,
   Brain,
-  FlaskConical,
   Upload,
   Settings,
   HelpCircle,
@@ -28,7 +27,6 @@ interface SidebarProps {
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Decision Lab", href: "/decision-lab", icon: FlaskConical },
   { name: "Deadstock", href: "/deadstock", icon: Package },
   { name: "Store Performance", href: "/store-performance", icon: BarChart3 },
   { name: "Inventory", href: "/inventory", icon: Boxes },

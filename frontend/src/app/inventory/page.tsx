@@ -8,11 +8,11 @@ import InventoryTable from "./tables/InventoryTable";
 
 export default function InventoryPage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <InventoryHeader />
       <InventoryKPIs />
 
-      <section className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
+      <section className="grid grid-cols-1 gap-6 2xl:grid-cols-2">
         <StockByCategoryChart />
         <InventoryAgingChart />
       </section>

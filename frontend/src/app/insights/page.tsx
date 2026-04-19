@@ -1,23 +1,19 @@
+import SectionHero from "@/components/analytics/SectionHero";
 import InsightsKPIs from "./components/InsightsKPIs";
 import AiInsightsPanel from "./components/AiInsightsPanel";
 
 export default function InsightsPage() {
   return (
     <div className="space-y-8">
-      
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-3xl p-8 text-white shadow-md">
-        <h1 className="text-2xl font-semibold">
-          Executive Insights Dashboard
-        </h1>
-        <p className="text-orange-100 mt-2">
-          Consolidated business performance intelligence
-        </p>
-      </div>
+      <SectionHero
+        eyebrow="Executive Insights"
+        title="Executive Insights Dashboard"
+        description="A more polished command view for revenue, risk, performance, and AI-guided next actions across the business."
+        accent="slate"
+      />
 
       <InsightsKPIs />
       <AiInsightsPanel />
-
     </div>
   );
 }

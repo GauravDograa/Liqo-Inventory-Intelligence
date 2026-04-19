@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DeadstockItem } from "@/types/deadstock.types";
-import RiskScoreCell from "./RiskScoreCell";
-import { calculateRiskScore, getRiskLevel } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import SurfaceCard from "@/components/analytics/SurfaceCard";
+import { formatCurrency } from "@/lib/format";
+import { DeadstockItem } from "@/types/deadstock.types";
+import { calculateRiskScore, getRiskLevel } from "@/lib/utils";
+import RiskScoreCell from "./RiskScoreCell";
 
 interface Props {
   data: DeadstockItem[];
@@ -14,20 +16,12 @@ interface Props {
 
 export default function DeadstockTable({ data, onRowClick }: Props) {
   const pageSize = 10;
-
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
-  /* ===============================
-     Helper: Unique Row ID
-  =============================== */
-  const getRowId = (item: DeadstockItem): string =>
-    `${item.store}-${item.sku}`;
+  const getRowId = (item: DeadstockItem): string => `${item.store}-${item.sku}`;
 
-  /* ===============================
-     Search Filter
-  =============================== */
   const filteredData = useMemo<DeadstockItem[]>(() => {
     return data.filter((item) =>
       `${item.sku} ${item.store} ${item.category}`
@@ -36,18 +30,12 @@ export default function DeadstockTable({ data, onRowClick }: Props) {
     );
   }, [data, search]);
 
-  /* ===============================
-     Sort by Highest Risk
-  =============================== */
   const sortedData = useMemo<DeadstockItem[]>(() => {
     return [...filteredData].sort(
       (a, b) => calculateRiskScore(b) - calculateRiskScore(a)
     );
   }, [filteredData]);
 
-  /* ===============================
-     Pagination
-  =============================== */
   const totalPages = Math.ceil(sortedData.length / pageSize);
 
   const paginatedData = useMemo<DeadstockItem[]>(() => {
@@ -55,27 +43,19 @@ export default function DeadstockTable({ data, onRowClick }: Props) {
     return sortedData.slice(start, start + pageSize);
   }, [sortedData, page]);
 
-  /* ===============================
-     Selection Logic
-  =============================== */
   const toggleRow = (id: string): void => {
     setSelectedRows((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   };
 
   const toggleAll = (): void => {
     const pageIds = paginatedData.map((item) => getRowId(item));
-
     const allSelected =
-      pageIds.length > 0 &&
-      pageIds.every((id) => selectedRows.has(id));
+      pageIds.length > 0 && pageIds.every((id) => selectedRows.has(id));
 
     if (allSelected) {
       const updated = new Set(selectedRows);
@@ -88,14 +68,8 @@ export default function DeadstockTable({ data, onRowClick }: Props) {
     }
   };
 
-  /* ===============================
-     Export Selected
-  =============================== */
   const exportSelected = (): void => {
-    const selectedData = data.filter((item) =>
-      selectedRows.has(getRowId(item))
-    );
-
+    const selectedData = data.filter((item) => selectedRows.has(getRowId(item)));
     if (selectedData.length === 0) return;
 
     const formatted = selectedData.map((item) => ({
@@ -124,15 +98,20 @@ export default function DeadstockTable({ data, onRowClick }: Props) {
     saveAs(file, "deadstock_selected.xlsx");
   };
 
+  const showingFrom = sortedData.length === 0 ? 0 : (page - 1) * pageSize + 1;
+  const showingTo = Math.min(page * pageSize, sortedData.length);
+
   return (
-    <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-8">
-
-      {/* ===============================
-         Toolbar
-      =============================== */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-
-        {/* Search */}
+    <SurfaceCard
+      title="SKU-Level Risk Queue"
+      subtitle="Review the most exposed store and SKU combinations, filter quickly, and export the rows that need follow-up."
+      action={
+        <div className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
+          {sortedData.length} total rows
+        </div>
+      }
+    >
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <input
           type="text"
           placeholder="Search by SKU, Store, Category..."
@@ -141,167 +120,144 @@ export default function DeadstockTable({ data, onRowClick }: Props) {
             setPage(1);
             setSearch(e.target.value);
           }}
-          className="w-full md:w-96 px-4 py-3 rounded-xl border border-gray-200
-                     focus:outline-none focus:ring-2 focus:ring-orange-400
-                     focus:border-orange-400 text-sm transition"
+          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-orange-100 lg:max-w-md"
         />
 
-        {/* Selection + Export */}
         <div className="flex items-center gap-4">
-          {selectedRows.size > 0 && (
-            <span className="text-sm text-orange-600 font-medium">
+          {selectedRows.size > 0 ? (
+            <span className="rounded-full bg-orange-50 px-3 py-2 text-sm font-medium text-orange-600">
               {selectedRows.size} selected
             </span>
-          )}
+          ) : null}
 
           <button
             onClick={exportSelected}
             disabled={selectedRows.size === 0}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
-              ${
-                selectedRows.size === 0
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
-              }
-            `}
+            className={`rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+              selectedRows.size === 0
+                ? "cursor-not-allowed bg-slate-200 text-slate-400"
+                : "bg-slate-950 text-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.6)] hover:bg-slate-800"
+            }`}
           >
             Export Selected
           </button>
         </div>
       </div>
 
-      {/* ===============================
-         Table
-      =============================== */}
-      <div className="overflow-x-auto rounded-2xl border border-gray-100">
-        <table className="min-w-full text-sm">
-          <thead className="bg-orange-50 text-gray-700 uppercase text-xs tracking-wide">
-            <tr>
-              <th className="px-6 py-4">
-                <input
-                  type="checkbox"
-                  checked={
-                    paginatedData.length > 0 &&
-                    paginatedData.every((item) =>
-                      selectedRows.has(getRowId(item))
-                    )
-                  }
-                  onChange={toggleAll}
-                  className="w-4 h-4 accent-orange-500 cursor-pointer"
-                />
-              </th>
-              <th className="px-6 py-4 text-left">SKU</th>
-              <th className="px-6 py-4 text-left">Store</th>
-              <th className="px-6 py-4 text-left">Category</th>
-              <th className="px-6 py-4 text-left">Units</th>
-              <th className="px-6 py-4 text-left">Aging</th>
-              <th className="px-6 py-4 text-left">Value</th>
-              <th className="px-6 py-4 text-left">Risk Score</th>
-            </tr>
-          </thead>
+      <div className="overflow-hidden rounded-[1.7rem] border border-slate-200">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-[linear-gradient(180deg,_#fff7ed_0%,_#ffedd5_100%)] text-xs uppercase tracking-[0.18em] text-slate-600">
+              <tr>
+                <th className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedData.length > 0 &&
+                      paginatedData.every((item) => selectedRows.has(getRowId(item)))
+                    }
+                    onChange={toggleAll}
+                    className="h-4 w-4 cursor-pointer accent-orange-500"
+                  />
+                </th>
+                <th className="px-6 py-4 text-left">SKU</th>
+                <th className="px-6 py-4 text-left">Store</th>
+                <th className="px-6 py-4 text-left">Category</th>
+                <th className="px-6 py-4 text-left">Units</th>
+                <th className="px-6 py-4 text-left">Aging</th>
+                <th className="px-6 py-4 text-left">Value</th>
+                <th className="px-6 py-4 text-left">Risk Score</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {paginatedData.map((item) => {
-              const id = getRowId(item);
-              const isSelected = selectedRows.has(id);
+            <tbody>
+              {paginatedData.map((item) => {
+                const id = getRowId(item);
+                const isSelected = selectedRows.has(id);
+                const riskScore = calculateRiskScore(item);
+                const riskLevel = getRiskLevel(riskScore);
 
-              const riskScore = calculateRiskScore(item);
-              const riskLevel = getRiskLevel(riskScore);
+                const borderColor =
+                  riskLevel === "HIGH"
+                    ? "border-l-4 border-red-500"
+                    : riskLevel === "MEDIUM"
+                    ? "border-l-4 border-orange-500"
+                    : "border-l-4 border-green-500";
 
-              const borderColor =
-                riskLevel === "HIGH"
-                  ? "border-l-4 border-red-500"
-                  : riskLevel === "MEDIUM"
-                  ? "border-l-4 border-orange-500"
-                  : "border-l-4 border-green-500";
-
-              return (
-                <tr
-                  key={id}
-                  onClick={() => onRowClick(item)}
-                  className={`border-b border-gray-100 cursor-pointer transition-all duration-200
-                    ${isSelected ? "bg-orange-50" : "hover:bg-orange-50"}
-                    ${borderColor}
-                  `}
-                >
-                  <td
-                    className="px-6 py-4"
-                    onClick={(e) => e.stopPropagation()}
+                return (
+                  <tr
+                    key={id}
+                    onClick={() => onRowClick(item)}
+                    className={`cursor-pointer border-b border-slate-100 transition-all duration-200 ${
+                      isSelected ? "bg-orange-50/80" : "bg-white hover:bg-slate-50"
+                    } ${borderColor}`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleRow(id)}
-                      className="w-4 h-4 accent-orange-500 cursor-pointer"
-                    />
-                  </td>
+                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleRow(id)}
+                        className="h-4 w-4 cursor-pointer accent-orange-500"
+                      />
+                    </td>
 
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {item.sku}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {item.store}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {item.category}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {item.unitsSaleable}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {item.stockAgeDays} days
-                  </td>
-
-                  <td className="px-6 py-4 font-semibold text-gray-900">
-                    ₹{item.deadStockValue.toLocaleString()}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <RiskScoreCell score={riskScore} />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-slate-950">{item.sku}</div>
+                      <div className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
+                        {riskLevel} priority
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">{item.store}</td>
+                    <td className="px-6 py-4 text-slate-600">{item.category}</td>
+                    <td className="px-6 py-4 font-medium text-slate-700">
+                      {item.unitsSaleable.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        {item.stockAgeDays} days
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-slate-950">
+                      {formatCurrency(item.deadStockValue)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <RiskScoreCell score={riskScore} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* ===============================
-         Pagination
-      =============================== */}
-      <div className="flex justify-between items-center mt-6">
-        <span className="text-sm text-gray-500">
-          Showing {(page - 1) * pageSize + 1}–
-          {Math.min(page * pageSize, sortedData.length)} of{" "}
-          {sortedData.length}
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-sm text-slate-500">
+          Showing {showingFrom}-{showingTo} of {sortedData.length}
         </span>
 
         <div className="flex items-center gap-2">
           <button
             disabled={page === 1}
             onClick={() => setPage((prev) => prev - 1)}
-            className="px-3 py-1 rounded-lg border text-sm disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
           >
             Prev
           </button>
 
-          <div className="px-3 py-1 bg-orange-500 text-white rounded-lg text-sm">
-            {page}
+          <div className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">
+            {page} / {Math.max(totalPages, 1)}
           </div>
 
           <button
-            disabled={page === totalPages}
+            disabled={page === totalPages || totalPages === 0}
             onClick={() => setPage((prev) => prev + 1)}
-            className="px-3 py-1 rounded-lg border text-sm disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
           >
             Next
           </button>
         </div>
       </div>
-    </div>
+    </SurfaceCard>
   );
 }

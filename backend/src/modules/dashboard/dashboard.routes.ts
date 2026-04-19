@@ -18,12 +18,14 @@ router.get(
       const months = req.query.months
         ? Number(req.query.months)
         : undefined;
+      const range = req.query.range as "30d" | "3m" | "6m" | undefined;
 
       const overview = await getDashboardOverview(
         authReq.user!.organizationId,
         start,
         end,
-        months
+        months,
+        range
       );
       res.json({
         success: true,

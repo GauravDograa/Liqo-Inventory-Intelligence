@@ -1,7 +1,8 @@
 "use client";
 
+import SurfaceCard from "@/components/analytics/SurfaceCard";
 import { DeadstockItem } from "@/types/deadstock.types";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 interface Props {
   data: DeadstockItem[];
@@ -33,74 +34,89 @@ export default function DeadstockAgingDonut({ data }: Props) {
   const criticalPercent = Math.round(
     ((buckets["120+"] + buckets["90-120"]) / (total || 1)) * 100
   );
-
-  const COLORS = ["#22c55e", "#facc15", "#fb923c", "#f97316"]; // green → yellow → orange → dark orange
+  const colors = ["#22c55e", "#facc15", "#fb923c", "#f97316"];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      
-      {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold text-gray-900">
-          Aging Distribution
-        </h3>
-        <p className="text-sm text-gray-500 mt-1">
-          SKU distribution across aging buckets
-        </p>
-      </div>
-
-      <div className="relative flex items-center justify-center">
-
-        {/* Chart */}
-        <div className="w-[320px] h-[320px]">
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={chartData}
-                dataKey="value"
-                innerRadius={90}
-                outerRadius={130}
-                paddingAngle={4}
-                cornerRadius={8}
-              >
-                {chartData.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Center Text */}
-        <div className="absolute text-center">
-          <div className="text-5xl font-bold text-orange-500">
-            {criticalPercent}%
+    <SurfaceCard
+      title="Aging Distribution"
+      subtitle="See how inventory is spreading across aging buckets and how much of the portfolio is already in the critical zone."
+    >
+      <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="relative flex items-center justify-center">
+          <div className="h-[320px] w-full max-w-[340px]">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  innerRadius={90}
+                  outerRadius={130}
+                  paddingAngle={4}
+                  cornerRadius={8}
+                >
+                  {chartData.map((_, index) => (
+                    <Cell key={index} fill={colors[index]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number) => [`${value} SKUs`, "Count"]}
+                  contentStyle={{
+                    borderRadius: "16px",
+                    border: "1px solid #fed7aa",
+                    boxShadow: "0 18px 45px -24px rgba(15,23,42,0.35)",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
-            Critical Aging
-          </p>
+
+          <div className="absolute text-center">
+            <div className="text-5xl font-bold tracking-tight text-orange-500">
+              {criticalPercent}%
+            </div>
+            <p className="mt-1 text-sm text-slate-500">Critical Aging</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {chartData.map((item, index) => (
+            <LegendDot
+              key={item.name}
+              color={colors[index]}
+              label={item.name}
+              value={item.value}
+              total={total}
+            />
+          ))}
         </div>
       </div>
-
-      {/* Legend */}
-      <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm">
-        <LegendDot color="#22c55e" label="0-60 Days" />
-        <LegendDot color="#facc15" label="60-90 Days" />
-        <LegendDot color="#fb923c" label="90-120 Days" />
-        <LegendDot color="#f97316" label="120+ Days" />
-      </div>
-    </div>
+    </SurfaceCard>
   );
 }
 
-function LegendDot({ color, label }: { color: string; label: string }) {
+function LegendDot({
+  color,
+  label,
+  value,
+  total,
+}: {
+  color: string;
+  label: string;
+  value: number;
+  total: number;
+}) {
   return (
-    <div className="flex items-center gap-2">
-      <span
-        className="w-3 h-3 rounded-full"
-        style={{ backgroundColor: color }}
-      />
-      <span className="text-gray-600">{label}</span>
+    <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
+        <span className="text-sm font-medium text-slate-700">{label}</span>
+      </div>
+      <div className="text-right">
+        <div className="text-sm font-semibold text-slate-900">{value}</div>
+        <div className="text-xs text-slate-500">
+          {Math.round((value / (total || 1)) * 100)}%
+        </div>
+      </div>
     </div>
   );
 }

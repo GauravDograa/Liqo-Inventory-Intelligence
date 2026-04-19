@@ -8,6 +8,7 @@ import {
   MessagesSquare,
   SendHorizonal,
 } from "lucide-react";
+import SurfaceCard from "@/components/analytics/SurfaceCard";
 import { useAiInsightsSummary } from "@/hooks/useAiInsightsSummary";
 import { useAskAiInsights } from "@/hooks/useAskAiInsights";
 
@@ -33,7 +34,7 @@ export default function AiInsightsPanel() {
 
   if (isLoading) {
     return (
-      <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
         <p className="text-sm text-slate-500">Generating AI executive summary...</p>
       </div>
     );
@@ -41,7 +42,7 @@ export default function AiInsightsPanel() {
 
   if (error || !data) {
     return (
-      <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm text-red-600">
+      <div className="rounded-[2rem] border border-gray-100 bg-white p-8 text-red-600 shadow-sm">
         Failed to generate AI insights
       </div>
     );
@@ -49,24 +50,22 @@ export default function AiInsightsPanel() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
-              <Sparkles size={14} />
-              AI Executive Summary
-            </div>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              What the business should focus on next
-            </h2>
-          </div>
+      <SurfaceCard
+        title="What the business should focus on next"
+        subtitle="An AI-synthesized view of the strongest signals across revenue, margin, deadstock, and transfer actions."
+        action={
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
             Source: {data.source}
           </span>
+        }
+      >
+        <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
+          <Sparkles size={14} />
+          AI Executive Summary
         </div>
 
         <p className="mt-6 text-base leading-8 text-slate-600">{data.summary}</p>
-      </div>
+      </SurfaceCard>
 
       <div className="space-y-6">
         <InsightListCard
@@ -87,7 +86,7 @@ export default function AiInsightsPanel() {
           items={data.followUpQuestions}
           tone="sky"
         />
-        <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
               <MessagesSquare size={18} />
@@ -119,7 +118,7 @@ export default function AiInsightsPanel() {
             <button
               type="submit"
               disabled={askMutation.isPending || !question.trim()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               <SendHorizonal size={16} />
               {askMutation.isPending ? "Thinking..." : "Ask AI"}
@@ -169,7 +168,7 @@ function InsightListCard({
   };
 
   return (
-    <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
         <div className={`rounded-2xl p-3 ${toneClasses[tone]}`}>{icon}</div>
         <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
