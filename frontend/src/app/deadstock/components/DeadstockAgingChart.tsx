@@ -59,7 +59,7 @@ export default function DeadstockAgingDonut({ data }: Props) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [`${value} SKUs`, "Count"]}
+                  formatter={(value) => [`${Number(value ?? 0)} SKUs`, "Count"]}
                   contentStyle={{
                     borderRadius: "16px",
                     border: "1px solid #fed7aa",

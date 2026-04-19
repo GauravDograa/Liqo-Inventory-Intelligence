@@ -47,7 +47,7 @@ export default function StoreTrendChart() {
             width={84}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), "Profit"]}
+            formatter={(value) => [formatCurrency(Number(value ?? 0)), "Profit"]}
             contentStyle={{
               borderRadius: "16px",
               border: "1px solid #fed7aa",

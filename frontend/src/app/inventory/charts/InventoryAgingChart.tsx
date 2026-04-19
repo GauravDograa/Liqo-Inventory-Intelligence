@@ -52,7 +52,7 @@ export default function InventoryAgingChart() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [`${value} inventory rows`, "Count"]}
+                  formatter={(value) => [`${Number(value ?? 0)} inventory rows`, "Count"]}
                   contentStyle={{
                     borderRadius: "16px",
                     border: "1px solid #fed7aa",

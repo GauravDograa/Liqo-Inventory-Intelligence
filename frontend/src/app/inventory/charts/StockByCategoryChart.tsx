@@ -57,7 +57,7 @@ export default function StockByCategoryChart() {
             width={84}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), "Stock Value"]}
+            formatter={(value) => [formatCurrency(Number(value ?? 0)), "Stock Value"]}
             contentStyle={{
               borderRadius: "16px",
               border: "1px solid #fed7aa",

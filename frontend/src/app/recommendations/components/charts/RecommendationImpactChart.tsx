@@ -52,7 +52,7 @@ export default function RecommendationImpactChart() {
             tick={{ fill: "#94a3b8", fontSize: 12 }}
           />
           <Tooltip
-            formatter={(value: number) => [`${value} units`, "Units"]}
+            formatter={(value) => [`${Number(value ?? 0)} units`, "Units"]}
             contentStyle={{
               borderRadius: "16px",
               border: "1px solid #fed7aa",

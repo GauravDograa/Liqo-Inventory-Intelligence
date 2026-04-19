@@ -43,7 +43,7 @@ export default function StorePerformanceBarChart() {
             width={84}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+            formatter={(value) => [formatCurrency(Number(value ?? 0)), "Revenue"]}
             contentStyle={{
               borderRadius: "16px",
               border: "1px solid #fed7aa",
