@@ -1,7 +1,31 @@
+import dynamic from "next/dynamic";
 import SectionHero from "@/components/analytics/SectionHero";
-import RecommendationKPIs from "./components/cards/RecommendationKPIs";
-import RecommendationImpactChart from "./components/charts/RecommendationImpactChart";
-import RecommendationTable from "./components/tables/RecommendationTable";
+import {
+  CardGridSkeleton,
+  PanelSkeleton,
+  TableSkeleton,
+} from "@/components/ui/RouteSkeletons";
+
+const RecommendationKPIs = dynamic(
+  () => import("./components/cards/RecommendationKPIs"),
+  {
+    loading: () => <CardGridSkeleton />,
+  }
+);
+
+const RecommendationImpactChart = dynamic(
+  () => import("./components/charts/RecommendationImpactChart"),
+  {
+    loading: () => <PanelSkeleton className="h-80" />,
+  }
+);
+
+const RecommendationTable = dynamic(
+  () => import("./components/tables/RecommendationTable"),
+  {
+    loading: () => <TableSkeleton className="h-96" />,
+  }
+);
 
 export default function RecommendationsPage() {
   return (

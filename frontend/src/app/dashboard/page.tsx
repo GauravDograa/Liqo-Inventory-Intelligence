@@ -1,12 +1,49 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import KPISection from "@/app/dashboard/kpi/KPISection";
-import RevenueLineChart from "@/app/dashboard/charts/RevenueLineChart";
-import CategoryPieChart from "@/app/dashboard/charts/CategoryPieChart";
-import StorePerformanceChart from "@/app/dashboard/charts/StorePerformanceChart";
-import StoreMovementCard from "@/app/dashboard/cards/StoreMovementCard";
-import DeadstockTable from "@/app/dashboard/tables/DeadstockTable";
-import RecommendationsTable from "@/app/dashboard/tables/RecommendationsTable";
+
+const RevenueLineChart = dynamic(
+  () => import("@/app/dashboard/charts/RevenueLineChart"),
+  {
+    loading: () => <ChartSkeleton className="h-[320px] sm:h-[400px]" />,
+  }
+);
+
+const CategoryPieChart = dynamic(
+  () => import("@/app/dashboard/charts/CategoryPieChart"),
+  {
+    loading: () => <ChartSkeleton className="h-[360px] sm:h-[420px]" />,
+  }
+);
+
+const StorePerformanceChart = dynamic(
+  () => import("@/app/dashboard/charts/StorePerformanceChart"),
+  {
+    loading: () => <ChartSkeleton className="h-[360px] sm:h-[420px]" />,
+  }
+);
+
+const StoreMovementCard = dynamic(
+  () => import("@/app/dashboard/cards/StoreMovementCard"),
+  {
+    loading: () => <PanelSkeleton className="min-h-[420px] lg:h-[842px]" />,
+  }
+);
+
+const DeadstockTable = dynamic(
+  () => import("@/app/dashboard/tables/DeadstockTable"),
+  {
+    loading: () => <PanelSkeleton className="min-h-[360px] lg:h-[500px]" />,
+  }
+);
+
+const RecommendationsTable = dynamic(
+  () => import("@/app/dashboard/tables/RecommendationsTable"),
+  {
+    loading: () => <PanelSkeleton className="min-h-[360px] lg:h-[500px]" />,
+  }
+);
 
 export default function DashboardPage() {
   return (
@@ -45,6 +82,33 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
         <DeadstockTable />
         <RecommendationsTable />
+      </div>
+    </div>
+  );
+}
+
+function ChartSkeleton({ className }: { className: string }) {
+  return (
+    <div
+      className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 ${className}`}
+    >
+      <div className="h-full animate-pulse">
+        <div className="h-5 w-40 rounded-full bg-slate-200" />
+        <div className="mt-6 h-[calc(100%-3rem)] rounded-2xl bg-slate-100" />
+      </div>
+    </div>
+  );
+}
+
+function PanelSkeleton({ className }: { className: string }) {
+  return (
+    <div
+      className={`rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 ${className}`}
+    >
+      <div className="h-full animate-pulse">
+        <div className="h-5 w-44 rounded-full bg-slate-200" />
+        <div className="mt-3 h-4 w-56 rounded-full bg-slate-100" />
+        <div className="mt-6 h-[calc(100%-4rem)] rounded-2xl bg-slate-100" />
       </div>
     </div>
   );

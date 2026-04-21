@@ -8,5 +8,6 @@ export const useInsights = () => {
   return useQuery<InsightsOverview>({
     queryKey: ["insights-overview"],
     queryFn: getInsights,
+    staleTime: 1000 * 60 * 5,
   });
 };

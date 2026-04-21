@@ -1,10 +1,32 @@
 "use client";
 
-import InventoryHeader from "./components/InventoryHeader";
-import InventoryKPIs from "./kpi/InventoryKPIs";
-import StockByCategoryChart from "./charts/StockByCategoryChart";
-import InventoryAgingChart from "./charts/InventoryAgingChart";
-import InventoryTable from "./tables/InventoryTable";
+import dynamic from "next/dynamic";
+import {
+  HeroSkeleton,
+  CardGridSkeleton,
+  PanelSkeleton,
+  TableSkeleton,
+} from "@/components/ui/RouteSkeletons";
+
+const InventoryHeader = dynamic(() => import("./components/InventoryHeader"), {
+  loading: () => <HeroSkeleton />,
+});
+
+const InventoryKPIs = dynamic(() => import("./kpi/InventoryKPIs"), {
+  loading: () => <CardGridSkeleton />,
+});
+
+const StockByCategoryChart = dynamic(() => import("./charts/StockByCategoryChart"), {
+  loading: () => <PanelSkeleton className="h-80" />,
+});
+
+const InventoryAgingChart = dynamic(() => import("./charts/InventoryAgingChart"), {
+  loading: () => <PanelSkeleton className="h-80" />,
+});
+
+const InventoryTable = dynamic(() => import("./tables/InventoryTable"), {
+  loading: () => <TableSkeleton className="h-96" />,
+});
 
 export default function InventoryPage() {
   return (

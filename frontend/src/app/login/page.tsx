@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -50,18 +50,24 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
 
+  useEffect(() => {
+    router.prefetch("/dashboard");
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       await api.post("/auth/login", { email, password });
-      await queryClient.prefetchQuery({
+
+      void queryClient.prefetchQuery({
         queryKey: ["dashboard"],
         queryFn: getAggregatedDashboard,
       });
+
       startTransition(() => {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       });
     } catch (error: unknown) {
       alert(getErrorMessage(error) || "Login failed");
@@ -75,12 +81,14 @@ export default function LoginPage() {
 
     try {
       await api.post("/auth/guest");
-      await queryClient.prefetchQuery({
+
+      void queryClient.prefetchQuery({
         queryKey: ["dashboard"],
         queryFn: getAggregatedDashboard,
       });
+
       startTransition(() => {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       });
     } catch (error: unknown) {
       alert(getErrorMessage(error));

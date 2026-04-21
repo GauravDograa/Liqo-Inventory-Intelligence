@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -48,6 +48,7 @@ export default function Sidebar({
   setMobileMenuOpen,
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <>
@@ -119,6 +120,9 @@ export default function Sidebar({
                 <Link
                   key={item.name}
                   href={item.href}
+                  prefetch
+                  onMouseEnter={() => router.prefetch(item.href)}
+                  onFocus={() => router.prefetch(item.href)}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 rounded-xl px-3 py-3 transition ${
                     active
@@ -151,6 +155,9 @@ export default function Sidebar({
                 <Link
                   key={item.name}
                   href={item.href}
+                  prefetch
+                  onMouseEnter={() => router.prefetch(item.href)}
+                  onFocus={() => router.prefetch(item.href)}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-slate-600 transition hover:bg-slate-50"
                 >

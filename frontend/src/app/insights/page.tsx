@@ -1,6 +1,17 @@
+import dynamic from "next/dynamic";
 import SectionHero from "@/components/analytics/SectionHero";
-import InsightsKPIs from "./components/InsightsKPIs";
-import AiInsightsPanel from "./components/AiInsightsPanel";
+import {
+  CardGridSkeleton,
+  PanelSkeleton,
+} from "@/components/ui/RouteSkeletons";
+
+const InsightsKPIs = dynamic(() => import("./components/InsightsKPIs"), {
+  loading: () => <CardGridSkeleton />,
+});
+
+const AiInsightsPanel = dynamic(() => import("./components/AiInsightsPanel"), {
+  loading: () => <PanelSkeleton className="h-[32rem]" />,
+});
 
 export default function InsightsPage() {
   return (

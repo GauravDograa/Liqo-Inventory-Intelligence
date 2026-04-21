@@ -1,15 +1,43 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DeadstockItem } from "@/types/deadstock.types";
-
 import { useDeadstock } from "@/hooks/useDeadstock";
-import DeadstockFilters from "./components/DeadstockFilters";
-import DeadstockRiskBar from "./components/DeadstockRiskBar";
-import DeadstockAgingChart from "./components/DeadstockAgingChart";
-import DeadstockRiskBreakdown from "./components/DeadstockRiskBreakdown";
-import DeadstockTable from "./components/DeadstockTable/DeadstockTable";
-import DeadstockDrawer from "./components/DeadstockDrawer/DeadstockDrawer";
+import { PanelSkeleton, TableSkeleton } from "@/components/ui/RouteSkeletons";
+
+const DeadstockFilters = dynamic(() => import("./components/DeadstockFilters"), {
+  loading: () => <PanelSkeleton className="h-40" />,
+});
+
+const DeadstockRiskBar = dynamic(() => import("./components/DeadstockRiskBar"), {
+  loading: () => <PanelSkeleton className="h-40" />,
+});
+
+const DeadstockAgingChart = dynamic(
+  () => import("./components/DeadstockAgingChart"),
+  {
+    loading: () => <PanelSkeleton className="h-80" />,
+  }
+);
+
+const DeadstockRiskBreakdown = dynamic(
+  () => import("./components/DeadstockRiskBreakdown"),
+  {
+    loading: () => <PanelSkeleton className="h-80" />,
+  }
+);
+
+const DeadstockTable = dynamic(
+  () => import("./components/DeadstockTable/DeadstockTable"),
+  {
+    loading: () => <TableSkeleton className="h-96" />,
+  }
+);
+
+const DeadstockDrawer = dynamic(
+  () => import("./components/DeadstockDrawer/DeadstockDrawer")
+);
 
 export default function DeadstockPage() {
   const { data, isLoading, isError } = useDeadstock();

@@ -135,6 +135,10 @@ export default function Navbar({
       .slice(0, 6);
   }, [query]);
 
+  useEffect(() => {
+    results.slice(0, 3).forEach((result) => router.prefetch(result.href));
+  }, [results, router]);
+
   const shouldShowResults = focused && (query.trim().length > 0 || results.length > 0);
 
   function openResult(href: string) {

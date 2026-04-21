@@ -1,16 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+
+const appRoutes = [
+  "/dashboard",
+  "/deadstock",
+  "/store-performance",
+  "/inventory",
+  "/recommendations",
+  "/insights",
+  "/import",
+  "/settings",
+  "/help",
+];
 
 export default function DashboardShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const prefetchTargets = appRoutes.filter((route) => route !== pathname);
+
+    const runPrefetch = () => {
+      prefetchTargets.forEach((route) => router.prefetch(route));
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(runPrefetch, { timeout: 1500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(runPrefetch, 250);
+    return () => window.clearTimeout(timeoutId);
+  }, [pathname, router]);
 
   return (
     <div className="min-h-screen bg-slate-50">
