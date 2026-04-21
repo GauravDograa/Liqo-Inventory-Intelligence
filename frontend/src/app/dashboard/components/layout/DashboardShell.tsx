@@ -34,13 +34,27 @@ export default function DashboardShell({
       prefetchTargets.forEach((route) => router.prefetch(route));
     };
 
-    if ("requestIdleCallback" in window) {
-      const idleId = window.requestIdleCallback(runPrefetch, { timeout: 1500 });
-      return () => window.cancelIdleCallback(idleId);
+    const idleCapableWindow = window as Window &
+      Partial<{
+        requestIdleCallback: (
+          callback: IdleRequestCallback,
+          options?: IdleRequestOptions
+        ) => number;
+        cancelIdleCallback: (handle: number) => void;
+      }>;
+
+    if (idleCapableWindow.requestIdleCallback) {
+      const idleId = idleCapableWindow.requestIdleCallback(runPrefetch, {
+        timeout: 1500,
+      });
+
+      return () => {
+        idleCapableWindow.cancelIdleCallback?.(idleId);
+      };
     }
 
-    const timeoutId = window.setTimeout(runPrefetch, 250);
-    return () => window.clearTimeout(timeoutId);
+    const timeoutId = setTimeout(runPrefetch, 250);
+    return () => clearTimeout(timeoutId);
   }, [pathname, router]);
 
   return (
