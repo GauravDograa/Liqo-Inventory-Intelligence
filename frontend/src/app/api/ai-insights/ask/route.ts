@@ -4,6 +4,7 @@ import { AiInsightsAnswer } from "@/types/insights.types";
 
 const backendApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v2";
+const isProduction = process.env.NODE_ENV === "production";
 
 const buildSuccessResponse = (
   answer: string,
@@ -93,6 +94,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!webhookUrl) {
+    if (isProduction) {
+      return NextResponse.json(
+        {
+          message:
+            "Chat webhook is not configured on this deployment. Add N8N_ANALYTICS_CHAT_WEBHOOK_URL in Vercel environment variables.",
+        },
+        { status: 500 }
+      );
+    }
+  }
+
   if (webhookUrl) {
     try {
       const webhookResponse = await axios.post(
@@ -117,11 +130,35 @@ export async function POST(request: NextRequest) {
       if (answer) {
         return buildSuccessResponse(answer, "n8n");
       }
+
+      if (isProduction) {
+        return NextResponse.json(
+          {
+            message:
+              "The chat webhook responded, but no answer field was found in the response.",
+          },
+          { status: 502 }
+        );
+      }
     } catch (error) {
       if (!axios.isAxiosError(error)) {
         return NextResponse.json(
           { message: "The analytics webhook request failed." },
           { status: 502 }
+        );
+      }
+
+      if (isProduction) {
+        const payload = error.response?.data;
+        const message =
+          extractErrorMessage(payload) ||
+          extractAnswer(payload) ||
+          error.message ||
+          "The analytics webhook request failed.";
+
+        return NextResponse.json(
+          { message },
+          { status: error.response?.status || 502 }
         );
       }
     }
