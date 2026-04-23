@@ -19,7 +19,7 @@ export default function InsightsPage() {
       <SectionHero
         eyebrow="Executive Insights"
         title="Executive Insights Dashboard"
-        description="A more polished command view for revenue, risk, performance, and AI-guided next actions across the business."
+        description="A command view for commercial performance, inventory pressure, and AI-guided actions, with the assistant now available from the floating button on every core workspace."
         accent="slate"
       />
 

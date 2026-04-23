@@ -1,7 +1,6 @@
 import { api } from "@/lib/axios";
 import {
   AiInsightsAnswer,
-  AiInsightsAnswerResponse,
   AiInsightsResponse,
   AiInsightsSummary,
   InsightsOverview,
@@ -35,13 +34,18 @@ export const getAiInsightsSummary = async (): Promise<AiInsightsSummary> => {
 export const askAiInsightsQuestion = async (
   question: string
 ): Promise<AiInsightsAnswer> => {
-  const { data } = await api.post<AiInsightsAnswerResponse>(
-    "/insights/ask",
-    { question }
-  );
+  const response = await fetch("/api/ai-insights/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ question }),
+  });
 
-  if (!data.success) {
-    throw new Error("Failed to get AI answer");
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Failed to get AI answer");
   }
 
   return data.data;

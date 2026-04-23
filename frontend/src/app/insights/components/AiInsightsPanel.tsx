@@ -1,36 +1,21 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import type { ReactNode } from "react";
 import {
+  ArrowUpRight,
+  Bot,
+  CircleAlert,
+  ClipboardList,
   Sparkles,
   TriangleAlert,
   ArrowRightLeft,
   MessagesSquare,
-  SendHorizonal,
 } from "lucide-react";
 import SurfaceCard from "@/components/analytics/SurfaceCard";
 import { useAiInsightsSummary } from "@/hooks/useAiInsightsSummary";
-import { useAskAiInsights } from "@/hooks/useAskAiInsights";
 
 export default function AiInsightsPanel() {
   const { data, isLoading, error } = useAiInsightsSummary();
-  const askMutation = useAskAiInsights();
-  const [question, setQuestion] = useState("");
-  const [latestQuestion, setLatestQuestion] = useState("");
-
-  const handleAsk = async (event: FormEvent) => {
-    event.preventDefault();
-
-    const trimmedQuestion = question.trim();
-
-    if (!trimmedQuestion) {
-      return;
-    }
-
-    setLatestQuestion(trimmedQuestion);
-    askMutation.mutate(trimmedQuestion);
-    setQuestion("");
-  };
 
   if (isLoading) {
     return (
@@ -52,7 +37,7 @@ export default function AiInsightsPanel() {
     <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
       <SurfaceCard
         title="What the business should focus on next"
-        subtitle="An AI-synthesized view of the strongest signals across revenue, margin, deadstock, and transfer actions."
+        subtitle="A sharper executive read on where value is building, where risk is compounding, and what the next operating move should be."
         action={
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
             Source: {data.source}
@@ -65,6 +50,27 @@ export default function AiInsightsPanel() {
         </div>
 
         <p className="mt-6 text-base leading-8 text-slate-600">{data.summary}</p>
+
+        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          <SignalStat
+            icon={<CircleAlert size={16} />}
+            label="Operational Risk"
+            value={`${data.risks.length} live signals`}
+            tone="rose"
+          />
+          <SignalStat
+            icon={<ClipboardList size={16} />}
+            label="Action Queue"
+            value={`${data.actions.length} recommended moves`}
+            tone="amber"
+          />
+          <SignalStat
+            icon={<Bot size={16} />}
+            label="AI Follow-ups"
+            value={`${data.followUpQuestions.length} quick prompts`}
+            tone="sky"
+          />
+        </div>
       </SurfaceCard>
 
       <div className="space-y-6">
@@ -86,65 +92,31 @@ export default function AiInsightsPanel() {
           items={data.followUpQuestions}
           tone="sky"
         />
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-              <MessagesSquare size={18} />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900">Ask Liqo AI</h3>
+        <SurfaceCard
+          title="Open the assistant"
+          subtitle="Launch the floating copilot from here and keep it with you while you move across dashboards."
+          className="bg-[linear-gradient(180deg,_#ffffff_0%,_#fff7ed_100%)]"
+        >
+          <div className="flex flex-wrap gap-3">
+            {data.followUpQuestions.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("liqo-ai:open", {
+                      detail: { question: item },
+                    })
+                  )
+                }
+                className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-orange-300 hover:text-orange-600"
+              >
+                {item}
+                <ArrowUpRight size={14} />
+              </button>
+            ))}
           </div>
-
-          <form onSubmit={handleAsk} className="mt-5 space-y-4">
-            <div className="flex flex-wrap gap-2">
-              {data.followUpQuestions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setQuestion(item)}
-                  className="rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-orange-300 hover:text-orange-600"
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <textarea
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask about margin, deadstock, store performance, or transfer actions..."
-              className="min-h-[110px] w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-orange-300 focus:bg-white"
-            />
-
-            <button
-              type="submit"
-              disabled={askMutation.isPending || !question.trim()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              <SendHorizonal size={16} />
-              {askMutation.isPending ? "Thinking..." : "Ask AI"}
-            </button>
-          </form>
-
-          {askMutation.isError ? (
-            <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-600">
-              Failed to get AI answer
-            </div>
-          ) : null}
-
-          {askMutation.data ? (
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {latestQuestion ? `Question: ${latestQuestion}` : "Latest answer"}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-slate-700">
-                {askMutation.data.answer}
-              </p>
-              <p className="mt-3 text-xs font-medium text-slate-400">
-                Source: {askMutation.data.source}
-              </p>
-            </div>
-          ) : null}
-        </div>
+        </SurfaceCard>
       </div>
     </div>
   );
@@ -156,7 +128,7 @@ function InsightListCard({
   items,
   tone,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   items: string[];
   tone: "rose" | "amber" | "sky";
@@ -184,6 +156,38 @@ function InsightListCard({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SignalStat({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  tone: "rose" | "amber" | "sky";
+}) {
+  const toneClasses = {
+    rose: "bg-rose-50 text-rose-600",
+    amber: "bg-amber-50 text-amber-600",
+    sky: "bg-sky-50 text-sky-600",
+  };
+
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-4">
+      <div className={`inline-flex h-9 w-9 items-center justify-center rounded-2xl ${toneClasses[tone]}`}>
+        {icon}
+      </div>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold tracking-tight text-slate-950">
+        {value}
+      </p>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import FloatingAiAssistant from "./FloatingAiAssistant";
 
 const appRoutes = [
   "/dashboard",
@@ -83,6 +84,8 @@ export default function DashboardShell({
           </div>
         </div>
       </div>
+
+      <FloatingAiAssistant />
     </div>
   );
 }

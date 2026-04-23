@@ -18,7 +18,7 @@ export interface AiInsightsSummary {
   risks: string[];
   actions: string[];
   followUpQuestions: string[];
-  source: "openai" | "fallback";
+  source: "openai" | "fallback" | "n8n";
 }
 
 export interface AiInsightsResponse {
@@ -28,7 +28,7 @@ export interface AiInsightsResponse {
 
 export interface AiInsightsAnswer {
   answer: string;
-  source: "openai" | "fallback";
+  source: "openai" | "fallback" | "n8n";
 }
 
 export interface AiInsightsAnswerResponse {
