@@ -8,6 +8,7 @@ This repository now supports a local containerized stack for frontend, backend, 
 - `frontend/Dockerfile`
 - `docker-compose.yml`
 - `k8s/` scaffold for future Kubernetes or EKS work
+- `.github/workflows/containers.yml` for Docker validation and image publishing
 
 ## Local Docker Compose
 
@@ -48,6 +49,17 @@ docker compose down -v
 - Browser traffic from your machine still uses `localhost`.
 - The backend container uses the Compose PostgreSQL service by default.
 - `OPENAI_API_KEY` and `ML_FORECAST_API_URL` are left blank in Compose and can be filled in later if needed.
+
+## Container CI/CD
+
+- Pull requests validate both Dockerfiles by building backend and frontend images in GitHub Actions.
+- Pushes to `main` publish images to GitHub Container Registry (`ghcr.io`).
+- Published image names are designed to map cleanly into the Kubernetes manifests later.
+
+Expected image names:
+
+- `ghcr.io/<owner>/liqo-backend`
+- `ghcr.io/<owner>/liqo-frontend`
 
 ## Kubernetes Prep
 
