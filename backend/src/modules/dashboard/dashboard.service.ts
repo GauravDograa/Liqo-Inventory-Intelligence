@@ -5,7 +5,8 @@ export const getDashboardOverview = async (
   start?: string,
   end?: string,
   months?: number,
-  range?: "30d" | "3m" | "6m"
+  range?: "30d" | "3m" | "6m",
+  includeRevenueTrend = false
 ) => {
   const latestTransactionDate = await repo.getLatestTransactionDate(organizationId);
   const endDate = end
@@ -27,7 +28,9 @@ export const getDashboardOverview = async (
       startDate,
       endDate
     ),
-    repo.getRevenueTrend(organizationId, startDate, endDate),
+    includeRevenueTrend
+      ? repo.getRevenueTrend(organizationId, startDate, endDate)
+      : Promise.resolve([]),
     repo.getDeadstockValue(organizationId),
   ]);
 
@@ -39,10 +42,12 @@ export const getDashboardOverview = async (
   const grossMargin =
     totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
-  const revenueTrend = trend.map((t) => ({
-    date: t.date,
-    revenue: Number(t.revenue || 0),
-  }));
+  const revenueTrend = includeRevenueTrend
+    ? trend.map((t) => ({
+        date: t.date,
+        revenue: Number(t.revenue || 0),
+      }))
+    : undefined;
 
   return {
     totalRevenue,

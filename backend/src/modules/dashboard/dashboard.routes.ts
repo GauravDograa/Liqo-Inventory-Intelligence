@@ -25,7 +25,8 @@ router.get(
         start,
         end,
         months,
-        range
+        range,
+        true
       );
       res.json({
         success: true,
