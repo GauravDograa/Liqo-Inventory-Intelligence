@@ -5,9 +5,11 @@ This folder is a starter scaffold for moving Liqo Inventory Intelligence from Do
 ## Structure
 
 - `base/namespace.yaml`: shared namespace
+- `base/kustomization.yaml`: base kustomize entrypoint
 - `base/backend-deployment.yaml`: backend deployment + service
 - `base/frontend-deployment.yaml`: frontend deployment + service
 - `base/ingress.yaml`: placeholder ingress routing
+- `overlays/staging/`: staging overlay wired to GHCR image names
 
 ## Assumptions
 
@@ -20,7 +22,30 @@ This folder is a starter scaffold for moving Liqo Inventory Intelligence from Do
 When you are ready for Kubernetes or EKS:
 
 1. Push Docker images to a registry
-2. Replace the placeholder image tags in `base/`
-3. Create Kubernetes Secrets for backend environment variables
-4. Add an ingress controller and TLS
+2. Create Kubernetes Secrets for backend environment variables
+3. Add an ingress controller and TLS
+4. Set the real staging and production hostnames in the overlays
 5. Add readiness/liveness probes, resource requests, and autoscaling
+
+## Staging Overlay
+
+The staging overlay now assumes these image names:
+
+- `ghcr.io/gauravdograa/liqo-backend`
+- `ghcr.io/gauravdograa/liqo-frontend`
+
+Before a real cluster deploy, update:
+
+- `liqo-staging.example.com` in `overlays/staging/ingress-patch.yaml`
+- `NEXT_PUBLIC_API_BASE_URL` in `overlays/staging/frontend-patch.yaml`
+- the `liqo-backend-secrets` secret in the cluster
+
+## GitHub Actions Deployment
+
+The repository now includes `.github/workflows/deploy-staging.yml`.
+
+To use it, add this repository secret:
+
+- `KUBE_CONFIG_DATA`: base64-encoded kubeconfig for the staging cluster
+
+Then trigger the workflow manually or let it run on `main` changes to the Kubernetes folder.

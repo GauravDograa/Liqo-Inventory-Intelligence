@@ -55,11 +55,22 @@ docker compose down -v
 - Pull requests validate both Dockerfiles by building backend and frontend images in GitHub Actions.
 - Pushes to `main` publish images to GitHub Container Registry (`ghcr.io`).
 - Published image names are designed to map cleanly into the Kubernetes manifests later.
+- A separate staging workflow can apply the Kubernetes staging overlay once cluster credentials are configured.
 
 Expected image names:
 
 - `ghcr.io/<owner>/liqo-backend`
 - `ghcr.io/<owner>/liqo-frontend`
+
+## Staging Deploy Workflow
+
+The repo now includes `.github/workflows/deploy-staging.yml`.
+
+It expects:
+
+- a Kubernetes cluster reachable through a `KUBE_CONFIG_DATA` GitHub secret
+- GHCR images already published from `main`
+- the `k8s/overlays/staging` values updated with your real staging hostname and API URL
 
 ## Kubernetes Prep
 
