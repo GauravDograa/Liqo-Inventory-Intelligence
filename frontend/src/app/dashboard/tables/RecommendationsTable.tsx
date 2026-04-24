@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRecommendations } from "@/hooks/useRecommendations";
+import { useDashboardRecommendations } from "@/hooks/useDashboardRecommendations";
 import { formatCoverageDays } from "@/lib/format";
 
 export default function RecommendationsTable() {
-  const { data = [], isLoading, error } = useRecommendations();
+  const { data = [], isLoading, error } = useDashboardRecommendations();
   const sortedData = useMemo(
     () =>
       [...data].sort((a, b) => {

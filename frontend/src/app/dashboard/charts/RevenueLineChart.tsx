@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Card from "@/app/dashboard/components/ui/Card";
+import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import {
   RevenueRange,
   RevenueTrendPoint,
@@ -43,7 +44,15 @@ function formatDate(dateString: string, range: RevenueRange) {
 
 export default function RevenueLineChart() {
   const [range, setRange] = useState<RevenueRange>("30d");
-  const { data, isLoading, error } = useRevenueTrend(range);
+  const overviewQuery = useDashboardOverview();
+  const trendQuery = useRevenueTrend(range, range !== "30d");
+  const data =
+    range === "30d"
+      ? overviewQuery.data?.revenueTrend ?? []
+      : trendQuery.data ?? [];
+  const isLoading =
+    range === "30d" ? overviewQuery.isLoading : trendQuery.isLoading;
+  const error = range === "30d" ? overviewQuery.error : trendQuery.error;
 
   const chartData = useMemo(() => {
     const normalized = normalizeRevenueTrend(data ?? [], range);
@@ -54,7 +63,7 @@ export default function RevenueLineChart() {
     return <Card className="h-[320px] p-4 sm:h-[400px] sm:p-6 lg:p-8">Loading...</Card>;
   }
 
-  if (error || !data) {
+  if (error || !data.length) {
     return <Card className="h-[320px] p-4 sm:h-[400px] sm:p-6 lg:p-8">Failed to load</Card>;
   }
 

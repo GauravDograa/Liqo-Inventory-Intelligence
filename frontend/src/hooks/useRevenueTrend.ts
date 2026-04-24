@@ -10,9 +10,13 @@ export interface RevenueTrendPoint {
   revenue: number;
 }
 
-export const useRevenueTrend = (range: RevenueRange) => {
+export const useRevenueTrend = (
+  range: RevenueRange,
+  enabled = true
+) => {
   return useQuery<RevenueTrendPoint[]>({
     queryKey: ["revenue-trend", range],
+    enabled,
     queryFn: async () => {
       const { data } = await api.get(`/dashboard/overview?range=${range}`);
 
