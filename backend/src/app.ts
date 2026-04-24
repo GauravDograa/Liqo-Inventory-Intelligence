@@ -7,6 +7,8 @@ import routes from "./routes";
 import { errorHandler } from "./middleware/error.middleware";
 import rateLimiter from "./middleware/rateLimit.middleware";
 import cookieParser from "cookie-parser";
+import { requestObservability } from "./middleware/requestObservability.middleware";
+import { getMetricsRegistry } from "./observability/metrics";
 const app: Application = express();
 
 // Trust proxy (needed for Render / production environments)
@@ -18,6 +20,7 @@ app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(rateLimiter);
 app.use(cookieParser());
+app.use(requestObservability);
 // ✅ CORS CONFIGURATION
 app.use(
   cors({
@@ -34,6 +37,16 @@ app.use("/api/v2", routes);
 // Health check
 app.get("/health", (_, res) => {
   res.json({ status: "OK" });
+});
+
+app.get("/metrics", async (_, res, next) => {
+  try {
+    const registry = getMetricsRegistry();
+    res.set("Content-Type", registry.contentType);
+    res.end(await registry.metrics());
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Global error handler

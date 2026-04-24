@@ -18,6 +18,12 @@ Start the stack:
 docker compose up --build
 ```
 
+Start the stack with Prometheus and Grafana:
+
+```bash
+docker compose --profile observability up --build
+```
+
 Stop the stack:
 
 ```bash
@@ -35,13 +41,18 @@ docker compose down -v
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:5000`
 - Backend health: `http://localhost:5000/health`
+- Backend metrics: `http://localhost:5000/metrics`
 - PostgreSQL: `localhost:5432`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3001`
 
 ## Compose Services
 
 - `postgres`: PostgreSQL 16 with a named Docker volume
 - `backend`: Node/Express API container
 - `frontend`: Next.js production container
+- `prometheus`: scrapes backend metrics when the `observability` profile is enabled
+- `grafana`: dashboard layer for Prometheus when the `observability` profile is enabled
 
 ## Notes
 
@@ -49,6 +60,7 @@ docker compose down -v
 - Browser traffic from your machine still uses `localhost`.
 - The backend container uses the Compose PostgreSQL service by default.
 - `OPENAI_API_KEY` and `ML_FORECAST_API_URL` are left blank in Compose and can be filled in later if needed.
+- Grafana defaults to `admin` / `admin` in local Compose and should be changed outside local development.
 
 ## Container CI/CD
 

@@ -56,6 +56,7 @@ The current backend test baseline is a deployment-oriented smoke test that verif
 ### 8. Monitor
 
 - Uptime target starts with `/health`.
+- Prometheus-compatible metrics are exposed at `/metrics`.
 - Expand next with structured logging, error tracking, and business KPI alerting.
 - Treat frontend build failures, backend smoke test failures, and health endpoint failures as deployment blockers.
 
@@ -81,6 +82,7 @@ npm --prefix frontend run ci
 
 - Add Docker image publishing to the CI pipeline.
 - Add staging deployment from Docker Compose or a container registry.
+- Add Grafana dashboards and alert rules for the new `/metrics` endpoint.
 - Add backend unit tests for recommendation, simulation, and import logic.
 - Add frontend tests for critical views and hooks.
 - Add branch protection in GitHub so CI is required before merge.
