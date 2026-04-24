@@ -22,10 +22,6 @@ export default function SimulationCard() {
     );
   }
 
-  const upliftRevenue =
-    data.baseline.revenue > 0
-      ? (data.uplift.revenueIncrease / data.baseline.revenue) * 100
-      : 0;
   const netBenefitTone =
     data.uplift.netBenefit >= 0 ? "text-emerald-600" : "text-rose-600";
 

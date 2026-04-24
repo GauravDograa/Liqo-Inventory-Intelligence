@@ -5,6 +5,9 @@ node_modules
 # Build folders
 backend/dist
 frontend/.next
+frontend/.next-build
+frontend/.next-build-ci
+frontend/.next-dev
 frontend/out
 frontend/build
 

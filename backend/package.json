@@ -7,6 +7,8 @@
     "dev": "ts-node-dev src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "test:smoke": "node tests/health.smoke.mjs",
+    "ci": "npm run build && npm run test:smoke",
     "export:ml-training-dataset": "node scripts/export-ml-training-dataset.js"
   },
   "keywords": [],
