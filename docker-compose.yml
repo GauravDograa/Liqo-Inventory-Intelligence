@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: liqo-postgres
+    environment:
+      POSTGRES_DB: liqo
+      POSTGRES_USER: liqo
+      POSTGRES_PASSWORD: liqo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U liqo -d liqo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: liqo-backend
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://liqo:liqo@postgres:5432/liqo
+      JWT_SECRET: liqo-local-dev-secret
+      DEFAULT_ORGANIZATION_ID: default-org-001
+      DEMAND_SIGNAL_PROVIDER: historical_velocity
+      ML_FORECAST_MODEL_NAME: liqo-demand-forecast-v1
+      OPENAI_API_KEY: ""
+      ML_FORECAST_API_URL: ""
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5000/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: liqo-frontend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_BASE_URL: http://backend:5000/api/v2
+      N8N_ANALYTICS_CHAT_WEBHOOK_URL: ""
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -1,0 +1,60 @@
+# Containers And Local Platform
+
+This repository now supports a local containerized stack for frontend, backend, and PostgreSQL.
+
+## What Exists
+
+- `backend/Dockerfile`
+- `frontend/Dockerfile`
+- `docker-compose.yml`
+- `k8s/` scaffold for future Kubernetes or EKS work
+
+## Local Docker Compose
+
+Start the stack:
+
+```bash
+docker compose up --build
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Stop and remove database volume:
+
+```bash
+docker compose down -v
+```
+
+## Local URLs
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5000`
+- Backend health: `http://localhost:5000/health`
+- PostgreSQL: `localhost:5432`
+
+## Compose Services
+
+- `postgres`: PostgreSQL 16 with a named Docker volume
+- `backend`: Node/Express API container
+- `frontend`: Next.js production container
+
+## Notes
+
+- The frontend container talks to the backend container internally using `http://backend:5000/api/v2`.
+- Browser traffic from your machine still uses `localhost`.
+- The backend container uses the Compose PostgreSQL service by default.
+- `OPENAI_API_KEY` and `ML_FORECAST_API_URL` are left blank in Compose and can be filled in later if needed.
+
+## Kubernetes Prep
+
+The `k8s/base` folder is intentionally a starter scaffold, not a finished production cluster setup.
+
+Use it as the next step after:
+
+1. Building stable Docker images
+2. Publishing images to a registry
+3. Deciding how production secrets and PostgreSQL will be managed

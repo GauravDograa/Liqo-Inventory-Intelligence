@@ -79,6 +79,8 @@ npm --prefix frontend run ci
 
 ## Next Improvements
 
+- Add Docker image publishing to the CI pipeline.
+- Add staging deployment from Docker Compose or a container registry.
 - Add backend unit tests for recommendation, simulation, and import logic.
 - Add frontend tests for critical views and hooks.
 - Add branch protection in GitHub so CI is required before merge.
