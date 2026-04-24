@@ -1,6 +1,5 @@
 import { CategoryPerformanceItem } from "./category.types";
 import { DeadstockItem } from "./deadstock.types";
-import { RecommendationItem } from "./recommendation.types";
 import { StorePerformanceItem } from "./store.types";
 
 export interface DashboardOverview {
@@ -21,7 +20,6 @@ export interface AggregatedDashboardApi {
   categories: CategoryPerformanceItem[];
   stores: StorePerformanceItem[];
   deadstock: DeadstockItem[];
-  recommendations: RecommendationItem[];
 }
 
 export interface AggregatedDashboardResponse {

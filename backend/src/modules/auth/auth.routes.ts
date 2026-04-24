@@ -2,6 +2,8 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { authenticate } from "../../middleware/auth.middleware";
 import { AuthRequest } from "../../types/auth.types";
+import { warmAggregatedDashboardCache } from "../dashboard/dashboard.controller";
+import { warmRecommendationsCache } from "../recommendation/recommendation.cache";
 
 const router = Router();
 const DEFAULT_ORGANIZATION_ID =
@@ -47,6 +49,9 @@ router.post("/login", async (req, res) => {
 
 // ✅ Guest Login
 router.post("/guest", (req, res) => {
+  void warmAggregatedDashboardCache(DEFAULT_ORGANIZATION_ID);
+  void warmRecommendationsCache(DEFAULT_ORGANIZATION_ID);
+
   const token = generateToken({
     userId: "guest-user",
     organizationId: DEFAULT_ORGANIZATION_ID,

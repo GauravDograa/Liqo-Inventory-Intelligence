@@ -4,7 +4,6 @@ import { getDashboardOverview } from "./dashboard.service";
 import { getCategoryPerformance } from "../category/category.service";
 import { getPerformance } from "../storePerformance/storePerformance.service";
 import { getDeadStockSummary } from "../deadstock/deadstock.service";
-import { generateTransferRecommendations } from "../recommendation/recommendation.service";
 
 const DASHBOARD_CACHE_TTL_MS = 1000 * 60 * 2;
 
@@ -13,7 +12,6 @@ type AggregatedDashboardPayload = {
   categories: Awaited<ReturnType<typeof getCategoryPerformance>>;
   stores: Awaited<ReturnType<typeof getPerformance>>;
   deadstock: Awaited<ReturnType<typeof getDeadStockSummary>>;
-  recommendations: Awaited<ReturnType<typeof generateTransferRecommendations>>;
 };
 
 type DashboardCacheEntry = {
@@ -27,13 +25,12 @@ const dashboardCache = new Map<string, DashboardCacheEntry>();
 const buildAggregatedDashboard = async (
   orgId: string
 ): Promise<AggregatedDashboardPayload> => {
-  const [overview, categories, stores, deadstock, recommendations] =
+  const [overview, categories, stores, deadstock] =
     await Promise.all([
       getDashboardOverview(orgId, undefined, undefined, undefined, "30d", true),
       getCategoryPerformance(orgId),
       getPerformance(orgId),
       getDeadStockSummary(orgId),
-      generateTransferRecommendations(orgId),
     ]);
 
   return {
@@ -41,7 +38,6 @@ const buildAggregatedDashboard = async (
     categories,
     stores,
     deadstock,
-    recommendations,
   };
 };
 
@@ -117,4 +113,12 @@ export const getAggregatedDashboard = async (
       cache: "miss",
     },
   });
+};
+
+export const warmAggregatedDashboardCache = async (orgId: string) => {
+  try {
+    await refreshAggregatedDashboard(orgId);
+  } catch (error) {
+    console.error("Failed to warm dashboard cache:", error);
+  }
 };

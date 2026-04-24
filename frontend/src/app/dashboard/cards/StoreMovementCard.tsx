@@ -1,12 +1,12 @@
 "use client";
 
 import Card from "@/app/dashboard/components/ui/Card";
-import { useDashboardRecommendations } from "@/hooks/useDashboardRecommendations";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { ArrowRight } from "lucide-react";
 import { formatCoverageChange, formatCoverageDays } from "@/lib/format";
 
 export default function StoreMovementCard() {
-  const { data = [], isLoading, error } = useDashboardRecommendations();
+  const { data = [], isLoading, error } = useRecommendations();
 
   if (isLoading) {
     return (
