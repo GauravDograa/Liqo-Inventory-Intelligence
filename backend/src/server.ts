@@ -1,24 +1,46 @@
 import dotenv from "dotenv";
-dotenv.config(); // ✅ Load env FIRST
+import { Server } from "http";
+
+dotenv.config();
 
 import app from "./app";
+import { logger } from "./observability/logger";
 import { prisma } from "./prisma/client";
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+export function startServer(port: number | string = PORT) {
+  return app.listen(port, () => {
+    logger.info("Server started", { port });
+  });
+}
 
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("Shutting down gracefully...");
+export async function shutdownServer(server: Server) {
   await prisma.$disconnect();
-  server.close(() => process.exit(0));
-});
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
 
-process.on("SIGINT", async () => {
-  console.log("Shutting down (SIGINT)...");
-  await prisma.$disconnect();
-  process.exit(0);
-});
+      resolve();
+    });
+  });
+}
+
+if (require.main === module) {
+  const server = startServer();
+
+  process.on("SIGTERM", async () => {
+    logger.info("Shutting down gracefully...");
+    await shutdownServer(server);
+    process.exit(0);
+  });
+
+  process.on("SIGINT", async () => {
+    logger.info("Shutting down (SIGINT)...");
+    await shutdownServer(server);
+    process.exit(0);
+  });
+}

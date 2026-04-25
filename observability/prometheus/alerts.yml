@@ -1,0 +1,28 @@
+groups:
+  - name: liqo-backend-alerts
+    rules:
+      - alert: LiqoBackendHighErrorRate
+        expr: |
+          sum(rate(liqo_http_requests_total{status_code=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(liqo_http_requests_total[5m])), 0.001)
+          > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Liqo backend error rate is above 5%
+          description: More than 5% of backend requests have returned 5xx responses for 10 minutes.
+
+      - alert: LiqoBackendP95LatencyHigh
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(liqo_http_request_duration_ms_bucket[5m])) by (le, route)
+          ) > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Liqo backend P95 latency is above 1 second
+          description: The 95th percentile backend latency has exceeded 1000ms for 10 minutes.

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSimulationComparison } from "@/hooks/useSimulationComparison";
 import { formatCurrency } from "@/lib/format";
+import { SimulationResult } from "@/types/simulation.types";
 
 type RankingMetric =
   | "netBenefit"
@@ -127,7 +128,7 @@ function ModelCard({
   rank: number;
   label: string;
   isLeader: boolean;
-  result: any;
+  result: SimulationResult;
   rankingMetric: RankingMetric;
 }) {
   const netBenefitTone =
@@ -232,7 +233,7 @@ function ComparisonMetric({
   );
 }
 
-function getMetricValue(result: any, metric: RankingMetric) {
+function getMetricValue(result: SimulationResult, metric: RankingMetric) {
   switch (metric) {
     case "capitalFreed":
       return result.uplift.deadStockValueRecovered;

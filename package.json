@@ -1,4 +1,12 @@
 {
+  "name": "liqo-inventory-intelligence-platform",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "ci:backend": "npm --prefix backend run ci",
+    "ci:frontend": "npm --prefix frontend run ci",
+    "ci": "npm run ci:backend && npm run ci:frontend"
+  },
   "dependencies": {
     "lucide-react": "^0.564.0",
     "recharts": "^3.7.0"

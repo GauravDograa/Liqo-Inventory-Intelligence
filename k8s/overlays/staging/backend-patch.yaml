@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liqo-backend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "5000"
+    spec:
+      containers:
+        - name: backend
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "5000"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: liqo-backend-secrets
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: liqo-backend-secrets
+                  key: JWT_SECRET
+            - name: DEFAULT_ORGANIZATION_ID
+              value: default-org-001
+            - name: DEMAND_SIGNAL_PROVIDER
+              value: historical_velocity
+            - name: ML_FORECAST_MODEL_NAME
+              value: liqo-demand-forecast-v1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: liqo-backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "5000"
