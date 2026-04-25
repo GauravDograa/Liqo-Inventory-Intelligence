@@ -40,6 +40,12 @@ Before a real cluster deploy, update:
 - `NEXT_PUBLIC_API_BASE_URL` in `overlays/staging/frontend-patch.yaml`
 - the `liqo-backend-secrets` secret in the cluster
 
+## Metrics Wiring
+
+The staging backend overlay now includes Prometheus scrape annotations for `/metrics` on port `5000`.
+
+That means a Prometheus deployment that respects standard scrape annotations can discover backend metrics without requiring a Prometheus Operator or `ServiceMonitor` CRD on day one.
+
 ## GitHub Actions Deployment
 
 The repository now includes `.github/workflows/deploy-staging.yml`.

@@ -65,8 +65,8 @@ The current backend test baseline is a deployment-oriented smoke test that verif
 - Continuous Development: enabled through branch + PR workflow.
 - Continuous Integration: enabled through GitHub Actions.
 - Continuous Testing: baseline enabled with lint + smoke test.
-- Continuous Deployment/Delivery: partially enabled through documented Render/Vercel flow.
-- Continuous Monitoring: baseline enabled through `/health`.
+- Continuous Deployment/Delivery: partially enabled through staging workflow, image publishing, and documented Render/Vercel flow.
+- Continuous Monitoring: baseline enabled through `/health`, `/metrics`, and the local Prometheus/Grafana scaffold.
 - Continuous Feedback: enabled through PR review plus CI signal.
 - Continuous Operations: documented baseline in place, still needs stronger alerting and runbooks over time.
 
@@ -80,11 +80,11 @@ npm --prefix frontend run ci
 
 ## Next Improvements
 
-- Add Docker image publishing to the CI pipeline.
-- Add staging deployment from Docker Compose or a container registry.
 - Add Grafana dashboards and alert rules for the new `/metrics` endpoint.
+- Add production deployment workflow and production Kubernetes overlay.
+- Add secret management for staging and production outside plain repo config.
 - Add backend unit tests for recommendation, simulation, and import logic.
 - Add frontend tests for critical views and hooks.
 - Add branch protection in GitHub so CI is required before merge.
-- Add structured logging and production error tracking.
-- Add staging deployment and release tagging workflow.
+- Add production error tracking and alert routing.
+- Add release tagging workflow and release notes automation.
