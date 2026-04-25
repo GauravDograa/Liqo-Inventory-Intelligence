@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Liqo Dashboards
+    orgId: 1
+    folder: Liqo
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

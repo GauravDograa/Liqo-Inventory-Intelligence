@@ -10,6 +10,7 @@ This folder is a starter scaffold for moving Liqo Inventory Intelligence from Do
 - `base/frontend-deployment.yaml`: frontend deployment + service
 - `base/ingress.yaml`: placeholder ingress routing
 - `overlays/staging/`: staging overlay wired to GHCR image names
+- `overlays/production/`: production overlay wired to GHCR image names
 
 ## Assumptions
 
@@ -55,3 +56,14 @@ To use it, add this repository secret:
 - `KUBE_CONFIG_DATA`: base64-encoded kubeconfig for the staging cluster
 
 Then trigger the workflow manually or let it run on `main` changes to the Kubernetes folder.
+
+## Production Overlay
+
+The repository now also includes a production overlay plus a manual production deployment workflow.
+
+Before using production deploys, update:
+
+- `liqo.example.com` in `overlays/production/ingress-patch.yaml`
+- `NEXT_PUBLIC_API_BASE_URL` in `overlays/production/frontend-patch.yaml`
+- `KUBE_CONFIG_DATA_PRODUCTION` as a GitHub secret
+- the `liqo-backend-secrets` secret in the production cluster

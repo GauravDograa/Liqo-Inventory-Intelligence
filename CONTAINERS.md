@@ -84,6 +84,24 @@ It expects:
 - GHCR images already published from `main`
 - the `k8s/overlays/staging` values updated with your real staging hostname and API URL
 
+## Production Deploy Workflow
+
+The repo now includes `.github/workflows/deploy-production.yml`.
+
+It expects:
+
+- a production Kubernetes cluster reachable through `KUBE_CONFIG_DATA_PRODUCTION`
+- manual workflow dispatch
+- the `k8s/overlays/production` values updated with your real production hostname and API URL
+
+## Local Dashboards
+
+When you run the observability profile, Grafana now auto-provisions:
+
+- a Prometheus datasource
+- a starter `Liqo Backend Overview` dashboard
+- Prometheus alert rules for high error rate and high P95 latency
+
 ## Kubernetes Prep
 
 The `k8s/base` folder is intentionally a starter scaffold, not a finished production cluster setup.

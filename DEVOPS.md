@@ -80,11 +80,11 @@ npm --prefix frontend run ci
 
 ## Next Improvements
 
-- Add Grafana dashboards and alert rules for the new `/metrics` endpoint.
-- Add production deployment workflow and production Kubernetes overlay.
 - Add secret management for staging and production outside plain repo config.
 - Add backend unit tests for recommendation, simulation, and import logic.
 - Add frontend tests for critical views and hooks.
 - Add branch protection in GitHub so CI is required before merge.
 - Add production error tracking and alert routing.
 - Add release tagging workflow and release notes automation.
+- Add centralized cluster logs and tracing for staging/production.
+- Add real autoscaling and production capacity tuning.
