@@ -1,435 +1,298 @@
-# 🧠 Liqo Inventory Intelligence
+# Liqo Inventory Intelligence Platform
 
-> A full-stack analytics platform that helps retailers optimize inventory distribution across stores using **data-driven insights and automated recommendations**.
+Liqo Inventory Intelligence is a full-stack retail analytics platform for monitoring inventory, detecting deadstock, comparing store performance, and generating data-driven stock redistribution recommendations.
 
----
+The platform combines a Next.js dashboard with an Express and Prisma API so retail teams can quickly understand where stock is moving, where it is stuck, and what action should be taken next.
 
-## 🚀 Live Demo
+## Live Demo
 
-🌐 Frontend (Vercel)  
-https://liqo-inventory-intelligence-ep1q.vercel.app/login
+- Frontend: https://liqo-inventory-intelligence-ep1q.vercel.app/login
+- Backend: https://liqo-inventory-intelligence.onrender.com
 
-⚙️ Backend (Render)  
-https://liqo-inventory-intelligence.onrender.com
+## Preview
 
----
+![Liqo dashboard](frontend/public/readme/dashboard.png)
 
-# 📊 Overview
+## Key Features
 
-Liqo Inventory Intelligence analyzes:
+- Dashboard analytics for revenue, inventory health, store performance, and operational risk.
+- Deadstock detection to identify slow-moving products before they become costly.
+- Smart redistribution recommendations for moving stock from surplus stores to high-demand stores.
+- Inventory visibility across stores, categories, SKUs, and stock levels.
+- Store performance insights based on sales velocity, turnover, and margin signals.
+- Import workflows for bringing inventory and business data into the platform.
+- Forecasting and ML-ready modules for demand intelligence and future planning.
+- Secure cookie-based authentication with protected API routes.
+- Health and metrics endpoints for production monitoring.
 
-- 📦 Inventory levels
-- 📈 Sales velocity
-- 🏬 Store performance
-- ⚠️ Deadstock risks
+## Screenshots
 
-The system then generates **AI-driven redistribution recommendations** between stores.
+### Login
 
-This helps retailers:
+![Login page](frontend/public/readme/login.png)
 
-- Reduce deadstock
-- Improve inventory turnover
-- Maximize profitability
-- Make smarter stocking decisions
-
----
-
-# 🖥️ Dashboard
-
-## Main Dashboard
+### Dashboard
 
 ![Dashboard](frontend/public/readme/dashboard.png)
 
-The dashboard provides:
+### Recommendations
 
-- Revenue insights
-- Inventory performance
-- Store analytics
-- Risk alerts
+![Recommendations](frontend/public/readme/recommendations.png)
 
----
+## Tech Stack
 
-# ✨ Features
+### Frontend
 
-## 📈 Real-Time Analytics
-Track key business metrics in real time.
-
-- Revenue trends
-- Store performance
-- Category breakdown
-- Inventory movement
-
----
-
-## ⚠️ Deadstock Detection
-
-Automatically detects products that are not selling.
-
-Helps retailers:
-
-- identify slow inventory
-- reduce warehouse costs
-- improve cash flow
-
----
-
-## 🔁 Smart Redistribution
-
-The system suggests inventory transfers between stores.
-
-Example:
-
-```
-Store A → 120 units
-Store B → 20 units
-
-Demand detected at Store B
-Recommendation: Transfer 40 units
-```
-
----
-
-## 🏬 Store Performance Insights
-
-Compare stores based on:
-
-- Sales velocity
-- Inventory turnover
-- Profit margins
-
----
-
-## 📦 Inventory Visibility
-
-Track inventory across locations.
-
-Helps businesses:
-
-- maintain optimal stock levels
-- avoid stockouts
-- prevent overstocking
-
----
-
-# 🧱 System Architecture
-
-```
-Frontend (Next.js + React)
-        │
-        │ REST API
-        ▼
-Backend (Node.js + Express)
-        │
-        │ Prisma ORM
-        ▼
-PostgreSQL Database
-```
-
----
-
-# ⚙️ Tech Stack
-
-## Frontend
-
-- Next.js 14
+- Next.js
 - React
 - TypeScript
 - Tailwind CSS
-- React Query
+- TanStack React Query
 - Axios
 - Recharts
-- Lucide Icons
+- Lucide React
+- XLSX export support
 
----
-
-## Backend
+### Backend
 
 - Node.js
 - Express
 - TypeScript
 - Prisma ORM
 - PostgreSQL
+- JWT authentication
+- Cookie parser
 - Helmet
-- Rate Limiting
-- Cookie Authentication
+- CORS
+- Compression
+- Express rate limiting
+- Prometheus metrics
 
----
+### DevOps and Monitoring
 
-## DevOps
+- Docker Compose
+- Vercel frontend deployment
+- Render backend deployment
+- PostgreSQL
+- Prometheus
+- Grafana
+- Uptime monitoring through `/health`
 
-- Vercel (Frontend deployment)
-- Render (Backend deployment)
-- PostgreSQL (Database)
-- UptimeRobot (Backend monitoring)
+## Project Structure
 
----
-
-# 📂 Project Structure
-
+```text
+Liqo Inventory Intelligence Platform
+|-- backend
+|   |-- prisma
+|   |   `-- schema.prisma
+|   `-- src
+|       |-- middleware
+|       |-- modules
+|       |   |-- auth
+|       |   |-- dashboard
+|       |   |-- deadstock
+|       |   |-- import
+|       |   |-- insights
+|       |   |-- inventory
+|       |   |-- mlForecast
+|       |   |-- recommendation
+|       |   |-- simulation
+|       |   |-- sku
+|       |   |-- store
+|       |   |-- storePerformance
+|       |   |-- transaction
+|       |   `-- velocity
+|       |-- observability
+|       |-- routes
+|       `-- server.ts
+|-- frontend
+|   |-- public
+|   |   `-- readme
+|   |       |-- dashboard.png
+|   |       |-- login.png
+|   |       `-- recommendations.png
+|   `-- src
+|       `-- app
+|           |-- dashboard
+|           |-- deadstock
+|           |-- decision-lab
+|           |-- import
+|           |-- insights
+|           |-- inventory
+|           |-- login
+|           |-- recommendations
+|           |-- settings
+|           `-- store-performance
+|-- k8s
+|-- observability
+|-- docker-compose.yml
+`-- README.md
 ```
-liqo-inventory-intelligence
-│
-├── backend
-│   ├── routes
-│   ├── controllers
-│   ├── services
-│   ├── middleware
-│   ├── prisma
-│   └── server.ts
-│
-├── frontend
-│   ├── src
-│   │   ├── app
-│   │   │   ├── dashboard
-│   │   │   ├── inventory
-│   │   │   ├── deadstock
-│   │   │   ├── recommendations
-│   │   │   └── login
-│   │   │
-│   │   ├── services
-│   │   ├── types
-│   │   ├── hooks
-│   │   └── lib
-│   │
-│   ├── public
-│   └── package.json
-│
-└── README.md
-```
 
----
+## API Overview
 
-# 🔗 API Endpoints
+Base API path:
 
-Base API
-
-```
+```text
 /api/v2
 ```
 
----
+Public routes:
 
-## Authentication
-
-```
+```text
 POST /auth/login
 POST /auth/guest
 POST /auth/logout
 ```
 
----
+Protected route groups:
 
-## Dashboard
-
-```
+```text
 GET /dashboard
-GET /dashboard/overview
-```
-
-Returns aggregated analytics data.
-
----
-
-## Inventory
-
-```
-GET /inventory
-GET /inventory/categories
-```
-
----
-
-## Deadstock
-
-```
 GET /deadstock
-```
-
----
-
-## Recommendations
-
-```
+GET /insights
+GET /inventory
 GET /recommendations
+GET /simulation
+GET /sku
+GET /stores
+GET /store-performance
+GET /transactions
+GET /velocity
+GET /category
+POST /import
+GET /ml-forecast
 ```
 
----
+Monitoring endpoints:
 
-# ⚡ Performance Optimizations
-
-### Aggregated Dashboard API
-
-Instead of multiple requests:
-
-```
-/dashboard/kpis
-/dashboard/revenue
-/dashboard/stores
+```text
+GET /health
+GET /metrics
 ```
 
-The system uses one endpoint:
+## Getting Started
 
-```
-/dashboard/overview
-```
+### Prerequisites
 
-This significantly improves performance.
+- Node.js
+- npm
+- PostgreSQL
+- Docker and Docker Compose, optional but recommended
 
----
+### Clone the Repository
 
-### React Query Caching
-
-Dashboard responses are cached for **5 minutes**.
-
-Benefits:
-
-- Faster page loads
-- Reduced API calls
-- Better user experience
-
----
-
-### Skeleton Loaders
-
-UI skeletons improve perceived performance while loading data.
-
----
-
-# 🔐 Authentication Flow
-
-1. User logs in
-2. Backend sets authentication cookie
-3. Frontend sends cookie with every request
-4. Protected APIs verify session
-
-Example:
-
-```
-POST /auth/login
-```
-
----
-
-# 🛠️ Setup Instructions
-
-## 1️⃣ Clone Repository
-
-```
+```bash
 git clone https://github.com/GauravDograa/Liqo-Inventory-Intelligence.git
-```
-
-```
 cd Liqo-Inventory-Intelligence
 ```
 
----
+### Run with Docker Compose
 
-# Backend Setup
-
+```bash
+docker compose up --build
 ```
+
+Default local services:
+
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+- PostgreSQL: localhost:5432
+
+To include observability services:
+
+```bash
+docker compose --profile observability up --build
+```
+
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3001
+
+## Manual Setup
+
+### Backend
+
+```bash
 cd backend
 npm install
 ```
 
-Create `.env`
+Create `backend/.env`:
 
-```
-DATABASE_URL=
-JWT_SECRET=
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/liqo"
+JWT_SECRET="replace-with-a-secure-secret"
 PORT=5000
+DEFAULT_ORGANIZATION_ID="default-org-001"
+DEMAND_SIGNAL_PROVIDER="historical_velocity"
+ML_FORECAST_MODEL_NAME="liqo-demand-forecast-v1"
+OPENAI_API_KEY=""
+ML_FORECAST_API_URL=""
 ```
 
-Run migrations
+Generate Prisma artifacts and run the backend:
 
-```
-npx prisma migrate dev
-```
-
-Start backend
-
-```
+```bash
+npm run prisma:generate
 npm run dev
 ```
 
----
+### Frontend
 
-# Frontend Setup
-
-```
+```bash
 cd frontend
 npm install
 ```
 
-Create `.env.local`
+Create `frontend/.env.local`:
 
-```
+```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api/v2
+N8N_ANALYTICS_CHAT_WEBHOOK_URL=
 ```
 
-Start frontend
+Run the frontend:
 
-```
+```bash
 npm run dev
 ```
 
----
+## Quality Checks
 
-# 📡 Monitoring
+From the repository root:
 
-Backend uptime monitored using **UptimeRobot**
-
-Monitored endpoint:
-
-```
-/health
+```bash
+npm run ci
 ```
 
----
+Frontend only:
 
-# 📸 Screenshots
+```bash
+npm --prefix frontend run ci
+```
 
-## Login Page
+Backend only:
 
-![Login](frontend/public/readme/login.png)
+```bash
+npm --prefix backend run ci
+```
 
----
+## Production Notes
 
-## Dashboard
+- The frontend expects `NEXT_PUBLIC_API_BASE_URL` to point to the deployed backend `/api/v2` URL.
+- The backend enables CORS for local development and the deployed Vercel frontend.
+- Protected API routes require a valid authentication cookie.
+- `/health` is intended for uptime checks.
+- `/metrics` exposes Prometheus-compatible metrics.
 
-![Dashboard](frontend/public/readme/dashboard.png)
+## Author
 
----
+Gaurav Dogra
 
-## Recommendations
+- GitHub: https://github.com/GauravDograa
 
-![Recommendations](frontend/public/readme/recommendations.png)
+## Copyright
 
----
+Copyright (c) 2026 Gaurav Dogra.
 
-# 🧑‍💻 Author
-
-**Gaurav Dogra**
-
-GitHub  
-https://github.com/GauravDograa
-
----
-
-# © Copyright
-
-Copyright © 2026 Gaurav Dogra.
-
-All rights reserved.
-
-This project and its source code are the intellectual property of **Gaurav Dogra**.  
-Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited without prior permission from the author.
-
-For permissions or inquiries, please contact:
-
-**Gaurav Dogra**  
-GitHub: https://github.com/GauravDograa
-
----
----
-
-⭐ If you found this project useful, please consider **starring the repository**.
+All rights reserved. This project and its source code are the intellectual property of Gaurav Dogra. Unauthorized copying, modification, distribution, or use of this software, by any medium, is strictly prohibited without prior permission from the author.
