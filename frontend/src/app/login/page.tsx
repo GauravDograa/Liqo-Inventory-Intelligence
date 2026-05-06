@@ -4,34 +4,25 @@ import { startTransition, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Cormorant_Garamond,
-  Manrope,
-  Playfair_Display,
-  Source_Serif_4,
-} from "next/font/google";
 import { Eye, LockKeyhole, Mail } from "lucide-react";
 import { api } from "@/lib/axios";
 import { getAggregatedDashboard } from "@/services/dashboard.service";
 
-const sans = Manrope({
-  subsets: ["latin"],
-});
+const sansStyle = {
+  fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
+};
 
-const display = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-});
+const displayStyle = {
+  fontFamily: 'Georgia, "Times New Roman", serif',
+};
 
-const serif = Source_Serif_4({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
+const serifStyle = {
+  fontFamily: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+};
 
-const accentSerif = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
+const accentSerifStyle = {
+  fontFamily: 'Garamond, Baskerville, "Times New Roman", serif',
+};
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -98,16 +89,22 @@ export default function LoginPage() {
   };
 
   return (
-    <main className={`${sans.className} min-h-screen bg-[#f5ece5] px-3 py-3 text-slate-900 sm:px-6 sm:py-6`}>
+    <main
+      className="min-h-screen bg-[#f5ece5] px-3 py-3 text-slate-900 sm:px-6 sm:py-6"
+      style={sansStyle}
+    >
       <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1280px] overflow-hidden rounded-[28px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.14)] lg:min-h-[calc(100vh-3rem)] lg:grid-cols-[1.02fr_0.98fr] lg:rounded-[34px]">
         <section className="relative overflow-hidden bg-gradient-to-b from-[#ff7a21] via-[#ef6714] to-[#d94d08] px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-14 lg:py-14">
           <div className="absolute inset-y-0 right-0 hidden w-12 bg-gradient-to-r from-transparent via-[#f38a47]/28 to-[#f7d6c3]/58 lg:block" />
 
           <div className="relative flex h-full flex-col justify-between">
             <div className="pt-2 text-center lg:pt-8">
-              <p className={`${display.className} text-[24px] font-semibold tracking-tight sm:text-[30px] lg:text-[36px]`}>
-                Welcome to
-              </p>
+                <p
+                  className="text-[24px] font-semibold tracking-tight sm:text-[30px] lg:text-[36px]"
+                  style={displayStyle}
+                >
+                  Welcome to
+                </p>
 
               <div className="mx-auto mt-8 flex max-w-[220px] justify-center rounded-[24px] bg-white px-6 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.08)] sm:mt-10 sm:max-w-[250px] sm:px-8 sm:py-8 lg:mt-16 lg:rounded-[28px]">
                 <Image
@@ -120,14 +117,15 @@ export default function LoginPage() {
               </div>
 
               <p
-                className={`${accentSerif.className} mx-auto mt-8 max-w-[420px] text-[22px] leading-[1.35] text-white/95 sm:mt-10 sm:text-[24px] lg:mt-16 lg:text-[28px] lg:leading-[1.45]`}
+                className="mx-auto mt-8 max-w-[420px] text-[22px] leading-[1.35] text-white/95 sm:mt-10 sm:text-[24px] lg:mt-16 lg:text-[28px] lg:leading-[1.45]"
+                style={accentSerifStyle}
               >
                 With cleaner inventory visibility and faster transfer action,
                 your team stays ahead of stock issues every day.
               </p>
             </div>
 
-            <div className={`${sans.className} pt-8 text-sm leading-7 text-white/95 lg:pt-12`}>
+            <div className="pt-8 text-sm leading-7 text-white/95 lg:pt-12">
               <p>
                 Built for retail teams that want inventory decisions to feel
                 simple, focused, and reliable.
@@ -144,10 +142,16 @@ export default function LoginPage() {
 
           <div className="relative mx-auto flex h-full max-w-[360px] flex-col justify-center">
             <div>
-              <h1 className={`${display.className} text-[40px] font-bold leading-none text-[#eb5d1b] sm:text-[50px] lg:text-[58px]`}>
+              <h1
+                className="text-[40px] font-bold leading-none text-[#eb5d1b] sm:text-[50px] lg:text-[58px]"
+                style={displayStyle}
+              >
                 Log in
               </h1>
-              <p className={`${serif.className} mt-3 text-base leading-7 text-slate-500 sm:text-[18px] sm:leading-8`}>
+              <p
+                className="mt-3 text-base leading-7 text-slate-500 sm:text-[18px] sm:leading-8"
+                style={serifStyle}
+              >
                 Please fill in your credentials to login.
               </p>
             </div>

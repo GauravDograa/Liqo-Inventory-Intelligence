@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: liqo-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEFAULT_ORGANIZATION_ID
+        value: default-org-001
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ML_FORECAST_API_URL
+        sync: false
+      - key: ML_FORECAST_MODEL_NAME
+        value: liqo-demand-forecast-v1
+      - key: DEMAND_SIGNAL_PROVIDER
+        value: historical_velocity

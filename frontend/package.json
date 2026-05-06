@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build:ci": "node scripts/run-build-ci.mjs",
+    "ci": "npm run lint && npm run build:ci"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",

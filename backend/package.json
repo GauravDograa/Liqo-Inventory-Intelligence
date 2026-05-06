@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
-    "build": "tsc",
+    "prisma:generate": "prisma generate",
+    "build": "npm run prisma:generate && tsc",
     "start": "node dist/server.js",
+    "test:smoke": "node tests/health.smoke.mjs",
+    "ci": "npm run build && npm run test:smoke",
     "export:ml-training-dataset": "node scripts/export-ml-training-dataset.js"
   },
   "keywords": [],
@@ -28,7 +31,8 @@
     "nodemon": "^3.1.11",
     "openai": "^6.22.0",
     "pg": "^8.18.0",
-    "prisma": "^7.4.0"
+    "prisma": "^7.4.0",
+    "prom-client": "^15.1.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
