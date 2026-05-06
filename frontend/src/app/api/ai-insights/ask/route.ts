@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
   const webhookUrl = process.env.N8N_ANALYTICS_CHAT_WEBHOOK_URL;
   const body = (await request.json()) as { question?: string };
   const question = body.question?.trim();
+  let webhookFailureMessage: string | null = null;
 
   if (!question) {
     return NextResponse.json(
@@ -131,35 +132,18 @@ export async function POST(request: NextRequest) {
         return buildSuccessResponse(answer, "n8n");
       }
 
-      if (isProduction) {
-        return NextResponse.json(
-          {
-            message:
-              "The chat webhook responded, but no answer field was found in the response.",
-          },
-          { status: 502 }
-        );
-      }
+      webhookFailureMessage =
+        "The chat webhook responded, but no answer field was found in the response.";
     } catch (error) {
       if (!axios.isAxiosError(error)) {
-        return NextResponse.json(
-          { message: "The analytics webhook request failed." },
-          { status: 502 }
-        );
-      }
-
-      if (isProduction) {
+        webhookFailureMessage = "The analytics webhook request failed.";
+      } else {
         const payload = error.response?.data;
-        const message =
+        webhookFailureMessage =
           extractErrorMessage(payload) ||
           extractAnswer(payload) ||
           error.message ||
           "The analytics webhook request failed.";
-
-        return NextResponse.json(
-          { message },
-          { status: error.response?.status || 502 }
-        );
       }
     }
   }
@@ -196,6 +180,7 @@ export async function POST(request: NextRequest) {
       const message =
         extractErrorMessage(payload) ||
         extractAnswer(payload) ||
+        webhookFailureMessage ||
         error.message ||
         "The analytics services are currently unavailable.";
 
@@ -206,7 +191,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "The analytics services are currently unavailable." },
+      {
+        message:
+          webhookFailureMessage ||
+          "The analytics services are currently unavailable.",
+      },
       { status: 502 }
     );
   }
