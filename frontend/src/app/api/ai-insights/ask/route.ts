@@ -40,6 +40,7 @@ const extractAnswer = (payload: unknown): string | null => {
       "answer",
       "response",
       "output",
+      "result",
       "message",
       "text",
       "content",
@@ -50,9 +51,14 @@ const extractAnswer = (payload: unknown): string | null => {
       if (typeof value === "string" && value.trim()) {
         return value.trim();
       }
+
+      const nestedAnswer = extractAnswer(value);
+      if (nestedAnswer) {
+        return nestedAnswer;
+      }
     }
 
-    const nestedKeys = ["data", "result", "body", "json"];
+    const nestedKeys = ["data", "body", "json"];
 
     for (const key of nestedKeys) {
       const nestedAnswer = extractAnswer(record[key]);
@@ -113,8 +119,13 @@ export async function POST(request: NextRequest) {
         webhookUrl,
         {
           question,
+          chatInput: question,
           message: question,
           query: question,
+          sessionId:
+            request.cookies.get("liqo_ai_session")?.value ||
+            request.headers.get("x-vercel-id") ||
+            "liqo-web-app",
           source: "liqo-web-app",
           timestamp: new Date().toISOString(),
         },

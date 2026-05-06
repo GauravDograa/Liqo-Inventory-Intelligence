@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios";
 import {
   AiInsightsAnswer,
+  AiInsightsAnswerResponse,
   AiInsightsResponse,
   AiInsightsSummary,
   InsightsOverview,
@@ -45,6 +46,19 @@ export const askAiInsightsQuestion = async (
   const data = await response.json();
 
   if (!response.ok || !data.success) {
+    if (response.status === 401 || data.message === "Unauthorized") {
+      const fallbackResponse = await api.post<AiInsightsAnswerResponse>(
+        "/insights/ask",
+        { question }
+      );
+
+      if (!fallbackResponse.data.success) {
+        throw new Error("Failed to get AI answer");
+      }
+
+      return fallbackResponse.data.data;
+    }
+
     throw new Error(data.message || "Failed to get AI answer");
   }
 
