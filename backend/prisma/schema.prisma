@@ -7,6 +7,15 @@ datasource db {
 }
 
 //////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP MIGRATION NOTES
+//////////////////////////////////////////////////////
+// Existing analytics models remain below for dashboard compatibility.
+// Add future ERP models incrementally by bounded context:
+// Catalog, Customers, Orders, Pricing, Procurement, Fulfillment, Finance.
+// Do not rename or remove current analytics models until migration routes
+// and data backfills are explicitly introduced.
+
+//////////////////////////////////////////////////////
 // ORGANIZATION
 //////////////////////////////////////////////////////
 
@@ -20,6 +29,15 @@ model Organization {
   stores       Store[]
   inventory    Inventory[]
   transactions Transaction[]
+  brands       Brand[]
+  categories   Category[]
+  products     Product[]
+  retailStores RetailStore[]
+  retailInventory RetailInventory[]
+  customers    Customer[]
+  retailTransactions RetailTransaction[]
+  invoices     Invoice[]
+  payments     Payment[]
 }
 
 //////////////////////////////////////////////////////
@@ -140,4 +158,319 @@ model Inventory {
   @@unique([storeId, skuId])
   @@index([organizationId])
   @@index([organizationId, stockAgeDays])
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - SHARED ENUMS
+//////////////////////////////////////////////////////
+
+enum RetailEntityStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  DISCONTINUED
+  ARCHIVED
+}
+
+enum RetailTransactionStatus {
+  DRAFT
+  CONFIRMED
+  PARTIALLY_RETURNED
+  RETURNED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  NET_BANKING
+  WALLET
+  STORE_CREDIT
+  GIFT_CARD
+  BANK_TRANSFER
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+  CANCELLED
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - CATALOG
+//////////////////////////////////////////////////////
+
+model Brand {
+  id             String             @id @default(uuid())
+  name           String
+  code           String?
+  status         RetailEntityStatus @default(ACTIVE)
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  products       Product[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([organizationId, name])
+  @@unique([organizationId, code])
+  @@index([organizationId, status])
+  @@map("retail_brands")
+}
+
+model Category {
+  id             String             @id @default(uuid())
+  name           String
+  code           String?
+  status         RetailEntityStatus @default(ACTIVE)
+  parentId       String?
+  parent         Category?          @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  children       Category[]         @relation("CategoryHierarchy")
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  products       Product[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([organizationId, name])
+  @@unique([organizationId, code])
+  @@index([organizationId, parentId])
+  @@index([organizationId, status])
+  @@map("retail_categories")
+}
+
+model Product {
+  id                  String             @id @default(uuid())
+  sku                 String
+  barcode             String?
+  name                String
+  description         String?
+  hsnCode             String?
+  gstRate             Decimal            @default(0) @db.Decimal(5, 2)
+  baseCost            Decimal            @default(0) @db.Decimal(14, 2)
+  mrp                 Decimal            @default(0) @db.Decimal(14, 2)
+  status              ProductStatus      @default(DRAFT)
+  brandId             String?
+  brand               Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  categoryId          String?
+  category            Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  organizationId      String
+  organization        Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  inventory           RetailInventory[]
+  transactionItems    TransactionItem[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@unique([organizationId, sku])
+  @@unique([organizationId, barcode])
+  @@index([organizationId, status])
+  @@index([organizationId, brandId])
+  @@index([organizationId, categoryId])
+  @@map("retail_products")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - LOCATIONS AND INVENTORY
+//////////////////////////////////////////////////////
+
+model RetailStore {
+  id             String             @id @default(uuid())
+  code           String
+  name           String
+  gstin          String?
+  region         String?
+  city           String?
+  state          String?
+  country        String             @default("IN")
+  status         RetailEntityStatus @default(ACTIVE)
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  inventory      RetailInventory[]
+  transactions   RetailTransaction[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([organizationId, code])
+  @@index([organizationId, status])
+  @@index([organizationId, city])
+  @@map("retail_stores")
+}
+
+model RetailInventory {
+  id               String                @id @default(uuid())
+  productId        String
+  product          Product               @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  storeId          String
+  store            RetailStore           @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  quantityOnHand   Int                   @default(0)
+  quantityReserved Int                   @default(0)
+  quantityAvailable Int                  @default(0)
+  reorderLevel     Int                   @default(0)
+  reorderQuantity  Int                   @default(0)
+  safetyStockLevel Int                   @default(0)
+  lastStocktakeAt  DateTime?
+  organizationId   String
+  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@unique([productId, storeId])
+  @@index([organizationId, productId])
+  @@index([organizationId, storeId])
+  @@index([organizationId, quantityAvailable])
+  @@index([organizationId, storeId, quantityAvailable])
+  @@map("retail_inventory")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - CUSTOMERS, SALES, GST
+//////////////////////////////////////////////////////
+
+model Customer {
+  id             String             @id @default(uuid())
+  customerNumber String
+  name           String
+  email          String?
+  phone          String?
+  gstin          String?
+  billingAddress Json?
+  shippingAddress Json?
+  status         RetailEntityStatus @default(ACTIVE)
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  transactions   RetailTransaction[]
+  invoices       Invoice[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([organizationId, customerNumber])
+  @@unique([organizationId, email])
+  @@unique([organizationId, phone])
+  @@index([organizationId, status])
+  @@map("retail_customers")
+}
+
+model RetailTransaction {
+  id              String                  @id @default(uuid())
+  transactionNo   String
+  transactionDate DateTime                @default(now())
+  status          RetailTransactionStatus @default(DRAFT)
+  paymentStatus   PaymentStatus           @default(PENDING)
+  storeId         String
+  store           RetailStore             @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  customerId      String?
+  customer        Customer?               @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  subtotal        Decimal                 @default(0) @db.Decimal(14, 2)
+  discountTotal   Decimal                 @default(0) @db.Decimal(14, 2)
+  taxableAmount   Decimal                 @default(0) @db.Decimal(14, 2)
+  cgstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
+  sgstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
+  igstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal      Decimal                 @default(0) @db.Decimal(14, 2)
+  organizationId  String
+  organization    Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items           TransactionItem[]
+  invoice         Invoice?
+  payments        Payment[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@unique([organizationId, transactionNo])
+  @@index([organizationId, transactionDate])
+  @@index([organizationId, storeId, transactionDate])
+  @@index([organizationId, customerId])
+  @@index([organizationId, status])
+  @@map("retail_transactions")
+}
+
+model TransactionItem {
+  id             String            @id @default(uuid())
+  transactionId  String
+  transaction    RetailTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId      String
+  product        Product           @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quantity       Int
+  unitPrice      Decimal           @db.Decimal(14, 2)
+  discountAmount Decimal           @default(0) @db.Decimal(14, 2)
+  taxableAmount  Decimal           @default(0) @db.Decimal(14, 2)
+  gstRate        Decimal           @default(0) @db.Decimal(5, 2)
+  cgstAmount     Decimal           @default(0) @db.Decimal(14, 2)
+  sgstAmount     Decimal           @default(0) @db.Decimal(14, 2)
+  igstAmount     Decimal           @default(0) @db.Decimal(14, 2)
+  lineTotal      Decimal           @db.Decimal(14, 2)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([transactionId])
+  @@index([productId])
+  @@map("retail_transaction_items")
+}
+
+model Invoice {
+  id             String            @id @default(uuid())
+  invoiceNo      String
+  invoiceDate    DateTime          @default(now())
+  status         InvoiceStatus     @default(DRAFT)
+  transactionId  String            @unique
+  transaction    RetailTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId     String?
+  customer       Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  gstin          String?
+  placeOfSupply  String?
+  subtotal       Decimal           @default(0) @db.Decimal(14, 2)
+  taxableAmount  Decimal           @default(0) @db.Decimal(14, 2)
+  cgstTotal      Decimal           @default(0) @db.Decimal(14, 2)
+  sgstTotal      Decimal           @default(0) @db.Decimal(14, 2)
+  igstTotal      Decimal           @default(0) @db.Decimal(14, 2)
+  grandTotal     Decimal           @default(0) @db.Decimal(14, 2)
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  payments       Payment[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@unique([organizationId, invoiceNo])
+  @@index([organizationId, invoiceDate])
+  @@index([organizationId, status])
+  @@map("retail_invoices")
+}
+
+model Payment {
+  id             String            @id @default(uuid())
+  paymentNo      String
+  method         PaymentMethod
+  status         PaymentStatus     @default(PENDING)
+  amount         Decimal           @db.Decimal(14, 2)
+  paidAt         DateTime?
+  referenceNo    String?
+  transactionId  String
+  transaction    RetailTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  invoiceId      String?
+  invoice        Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@unique([organizationId, paymentNo])
+  @@index([organizationId, method])
+  @@index([organizationId, status])
+  @@index([organizationId, paidAt])
+  @@map("retail_payments")
 }

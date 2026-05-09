@@ -14,6 +14,8 @@ import velocityRoutes from "../modules/velocity/velocity.routes";
 import categoryRoutes from "../modules/category/category.routes";
 import importRoutes from "../modules/import/import.routes";
 import mlForecastRoutes from "../modules/mlForecast/mlForecast.routes";
+import retailCoreRoutes from "../modules/retail-core.routes";
+import retailTransactionRoutes from "../modules/transactions/transaction.routes";
 import { authenticate } from "../middleware/auth.middleware";
 
 const router = Router();
@@ -37,5 +39,7 @@ router.use("/velocity", velocityRoutes);
 router.use("/category", categoryRoutes);
 router.use("/import", importRoutes);
 router.use("/ml-forecast", mlForecastRoutes);
+router.use("/retail", retailCoreRoutes);
+router.use("/retail-transactions", retailTransactionRoutes);
 
 export default router;

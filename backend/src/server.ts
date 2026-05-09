@@ -1,24 +1,30 @@
 import dotenv from "dotenv";
-dotenv.config(); // ✅ Load env FIRST
+dotenv.config();
 
 import app from "./app";
+import { config } from "./config";
+import { logger } from "./infrastructure/logger";
 import { prisma } from "./prisma/client";
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.env.port;
 
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  logger.info("Server started", {
+    port: PORT,
+    environment: config.env.nodeEnv,
+  });
 });
 
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("Shutting down gracefully...");
+const shutdown = async (signal: "SIGTERM" | "SIGINT") => {
+  logger.info("Shutting down gracefully", { signal });
   await prisma.$disconnect();
   server.close(() => process.exit(0));
+};
+
+process.on("SIGTERM", () => {
+  void shutdown("SIGTERM");
 });
 
-process.on("SIGINT", async () => {
-  console.log("Shutting down (SIGINT)...");
-  await prisma.$disconnect();
-  process.exit(0);
+process.on("SIGINT", () => {
+  void shutdown("SIGINT");
 });

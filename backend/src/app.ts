@@ -2,41 +2,41 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
+import { config } from "./config";
 import routes from "./routes";
 import { errorHandler } from "./middleware/error.middleware";
+import { notFoundHandler } from "./middleware/notFound.middleware";
 import rateLimiter from "./middleware/rateLimit.middleware";
-import cookieParser from "cookie-parser";
+
 const app: Application = express();
 
-// Trust proxy (needed for Render / production environments)
 app.set("trust proxy", 1);
 
-// Security middlewares
 app.use(helmet());
 app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(rateLimiter);
 app.use(cookieParser());
-// ✅ CORS CONFIGURATION
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://liqo-inventory-intelligence-ep1q.vercel.app", // 👈 replace if different
-    ],
+    origin: config.env.corsOrigins,
     credentials: true,
   })
 );
-// Routes
+
 app.use("/api/v2", routes);
 
-// Health check
 app.get("/health", (_, res) => {
-  res.json({ status: "OK" });
+  res.json({
+    status: "OK",
+    service: config.env.serviceName,
+    environment: config.env.nodeEnv,
+  });
 });
 
-// Global error handler
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;
