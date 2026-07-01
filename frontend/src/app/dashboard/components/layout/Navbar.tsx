@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, ArrowUpRight } from "lucide-react";
-import { appRoutes } from "@/config/roleAccess";
+import { appRoutes, defaultRouteByRole } from "@/config/roleAccess";
+import { api } from "@/lib/axios";
 import { usePosStore } from "@/stores/posStore";
 
 export default function Navbar({
@@ -16,6 +17,7 @@ export default function Navbar({
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [roleChanging, setRoleChanging] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const role = usePosStore((state) => state.role);
   const setRole = usePosStore((state) => state.setRole);
@@ -109,6 +111,22 @@ export default function Navbar({
     }
   }
 
+  async function handleRoleChange(nextRole: typeof role) {
+    setRoleChanging(true);
+
+    try {
+      await api.post("/auth/guest", { role: nextRole });
+      setRole(nextRole);
+      const destination = defaultRouteByRole[nextRole];
+      if (pathname !== destination) {
+        router.replace(destination);
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Unable to switch role");
+    } finally {
+      setRoleChanging(false);
+    }
+  }
   return (
     <div className="flex min-h-14 items-center gap-3 sm:min-h-16 sm:gap-4">
       <button
@@ -207,8 +225,9 @@ export default function Navbar({
       <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
         <select
           value={role}
-          onChange={(event) => setRole(event.target.value as typeof role)}
-          className="hidden h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200 md:block"
+          onChange={(event) => void handleRoleChange(event.target.value as typeof role)}
+          disabled={roleChanging}
+          className="hidden h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-60 md:block"
           aria-label="Current role"
         >
           {["OWNER", "ADMIN", "STORE_MANAGER", "CASHIER", "WAREHOUSE_MANAGER", "ANALYST"].map((item) => (

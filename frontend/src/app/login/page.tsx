@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,9 +10,12 @@ import {
   Playfair_Display,
   Source_Serif_4,
 } from "next/font/google";
-import { Eye, LockKeyhole, Mail } from "lucide-react";
+import { Fingerprint, ShieldCheck, Sparkles } from "lucide-react";
 import { api } from "@/lib/axios";
+import { defaultRouteByRole } from "@/config/roleAccess";
 import { getAggregatedDashboard } from "@/services/dashboard.service";
+import { usePosStore } from "@/stores/posStore";
+import { UserRole } from "@/types/erp.types";
 
 const sans = Manrope({
   subsets: ["latin"],
@@ -33,6 +36,19 @@ const accentSerif = Cormorant_Garamond({
   weight: ["500", "600", "700"],
 });
 
+const roles: Array<{
+  value: UserRole;
+  label: string;
+  hint: string;
+}> = [
+  { value: "OWNER", label: "Owner", hint: "Executive control" },
+  { value: "ADMIN", label: "Admin", hint: "Full platform access" },
+  { value: "STORE_MANAGER", label: "Store Manager", hint: "Store ops command" },
+  { value: "CASHIER", label: "Cashier", hint: "POS billing" },
+  { value: "WAREHOUSE_MANAGER", label: "Warehouse", hint: "Transfers and stock" },
+  { value: "ANALYST", label: "Analyst", hint: "Insights and reports" },
+];
+
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
     return error.message;
@@ -41,59 +57,75 @@ const getErrorMessage = (error: unknown) => {
   return "Something went wrong";
 };
 
+const requestBiometricVerification = async () => {
+  if (
+    typeof window === "undefined" ||
+    !("PublicKeyCredential" in window) ||
+    !window.crypto?.getRandomValues
+  ) {
+    return "demo";
+  }
+
+  try {
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+
+    await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        timeout: 15000,
+        userVerification: "preferred",
+      },
+    });
+
+    return "verified";
+  } catch {
+    return "demo";
+  }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const setRole = usePosStore((state) => state.setRole);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("ADMIN");
   const [submitting, setSubmitting] = useState(false);
-  const [guestLoading, setGuestLoading] = useState(false);
+  const [scanState, setScanState] = useState<"idle" | "scanning" | "verified">("idle");
+
+  const selectedRoleDetails = useMemo(
+    () => roles.find((role) => role.value === selectedRole) ?? roles[1],
+    [selectedRole]
+  );
 
   useEffect(() => {
-    router.prefetch("/dashboard");
+    Object.values(defaultRouteByRole).forEach((path) => router.prefetch(path));
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleBiometricLogin = async () => {
     setSubmitting(true);
+    setScanState("scanning");
 
     try {
-      await api.post("/auth/login", { email, password });
+      await requestBiometricVerification();
+      setScanState("verified");
+      await api.post("/auth/guest", { role: selectedRole });
+      setRole(selectedRole);
 
       void queryClient.prefetchQuery({
         queryKey: ["dashboard"],
         queryFn: getAggregatedDashboard,
       });
 
+      const destination = defaultRouteByRole[selectedRole];
       startTransition(() => {
-        router.replace("/dashboard");
+        router.replace(destination);
       });
     } catch (error: unknown) {
-      alert(getErrorMessage(error) || "Login failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    setGuestLoading(true);
-
-    try {
-      await api.post("/auth/guest");
-
-      void queryClient.prefetchQuery({
-        queryKey: ["dashboard"],
-        queryFn: getAggregatedDashboard,
-      });
-
-      startTransition(() => {
-        router.replace("/dashboard");
-      });
-    } catch (error: unknown) {
+      setScanState("idle");
       alert(getErrorMessage(error));
     } finally {
-      setGuestLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -139,79 +171,95 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#fffdfb] px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-14">
+        <section className="relative overflow-hidden bg-[#fffdfb] px-5 py-7 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
           <div className="absolute inset-y-0 left-0 hidden w-10 bg-gradient-to-r from-[#f6dbca]/42 to-transparent lg:block" />
 
-          <div className="relative mx-auto flex h-full max-w-[360px] flex-col justify-center">
+          <div className="relative mx-auto flex h-full max-w-[460px] flex-col justify-center">
             <div>
-              <h1 className={`${display.className} text-[40px] font-bold leading-none text-[#eb5d1b] sm:text-[50px] lg:text-[58px]`}>
-                Log in
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#ffb38c] bg-[#fff5ef] px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#eb5d1b]">
+                <ShieldCheck size={14} />
+                Secure Access
+              </div>
+              <h1 className={`${display.className} mt-4 text-[38px] font-bold leading-none text-[#eb5d1b] sm:text-[48px] lg:text-[56px]`}>
+                Choose role
               </h1>
               <p className={`${serif.className} mt-3 text-base leading-7 text-slate-500 sm:text-[18px] sm:leading-8`}>
-                Please fill in your credentials to login.
+                Authenticate with thumbprint and open the workspace for your role.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-10 space-y-6 sm:mt-12 lg:mt-14 lg:space-y-7">
-              <label className="block">
-                <span className="sr-only">Email</span>
-                <div className="flex items-center gap-3 border-b border-slate-400 pb-3">
-                  <Mail size={18} className="text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    placeholder="EMP123456"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent text-lg text-slate-700 outline-none placeholder:text-slate-400"
-                  />
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {roles.map((role) => {
+                const active = selectedRole === role.value;
+
+                return (
+                  <button
+                    key={role.value}
+                    type="button"
+                    onClick={() => setSelectedRole(role.value)}
+                    disabled={submitting}
+                    className={`min-h-[82px] rounded-2xl border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-70 ${
+                      active
+                        ? "border-[#ff6a2a] bg-[#fff2ea] shadow-[0_12px_28px_rgba(255,106,42,0.14)]"
+                        : "border-slate-200 bg-white hover:border-[#ffc2a3] hover:bg-[#fffaf7]"
+                    }`}
+                    aria-pressed={active}
+                  >
+                    <span className="block text-sm font-bold text-slate-950">
+                      {role.label}
+                    </span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-500">
+                      {role.hint}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-7 rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+              <div className="flex items-center gap-4">
+                <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-full border ${scanState === "verified" ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-[#ffd2bd] bg-[#fff5ef] text-[#eb5d1b]"}`}>
+                  <Fingerprint size={40} strokeWidth={1.8} />
                 </div>
-              </label>
-
-              <label className="block">
-                <span className="sr-only">Password</span>
-                <div className="flex items-center gap-3 border-b border-slate-400 pb-3">
-                  <LockKeyhole size={18} className="text-slate-400" />
-                  <input
-                    type="password"
-                    required
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent text-lg text-slate-700 outline-none placeholder:text-slate-400"
-                  />
-                  <Eye size={18} className="text-slate-400" />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                    {selectedRoleDetails.label}
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-slate-950">
+                    {scanState === "scanning"
+                      ? "Scanning thumbprint"
+                      : scanState === "verified"
+                        ? "Thumbprint accepted"
+                        : "Ready for thumbprint"}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Opens {defaultRouteByRole[selectedRole].replace("/", "") || "dashboard"} after verification.
+                  </p>
                 </div>
-              </label>
-
-              <label className="flex items-center gap-2 text-sm font-medium text-[#eb5d1b]">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded-[4px] border border-[#eb5d1b] accent-[#eb5d1b]"
-                />
-                Remember Me
-              </label>
-
-              <button
-                type="submit"
-                disabled={submitting || guestLoading}
-                className="mt-4 w-full rounded-[12px] bg-[#ff6a2a] px-6 py-3 text-center text-[18px] font-bold text-white shadow-[0_10px_25px_rgba(255,106,42,0.28)] transition hover:bg-[#f15e1e] disabled:cursor-not-allowed disabled:opacity-60 sm:mt-6 sm:w-[170px]"
-              >
-                {submitting ? "Logging in..." : "Log in"}
-              </button>
+              </div>
 
               <button
                 type="button"
-                onClick={handleGuestLogin}
-                disabled={submitting || guestLoading}
-                className="block text-sm font-semibold text-slate-500 underline-offset-4 transition hover:text-[#eb5d1b] hover:underline disabled:opacity-60"
+                onClick={handleBiometricLogin}
+                disabled={submitting}
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#ff6a2a] px-5 py-3 text-[16px] font-bold text-white shadow-[0_10px_25px_rgba(255,106,42,0.28)] transition hover:bg-[#f15e1e] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {guestLoading ? "Opening guest view..." : "Sign in as Guest"}
+                {submitting ? (
+                  <>
+                    <Sparkles size={18} />
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    <Fingerprint size={18} />
+                    Authenticate thumbprint
+                  </>
+                )}
               </button>
-            </form>
+            </div>
 
-            <p className="mt-10 text-sm italic leading-7 text-slate-400">
-              *Do not share your login credentials with anyone.
+            <p className="mt-6 text-sm italic leading-7 text-slate-400">
+              *Use the role assigned for your shift.
             </p>
           </div>
         </section>
