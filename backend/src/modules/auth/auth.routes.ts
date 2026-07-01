@@ -55,7 +55,7 @@ router.post("/guest", (req, res) => {
   const token = generateToken({
     userId: "guest-user",
     organizationId: DEFAULT_ORGANIZATION_ID,
-    role: "USER",
+    role: "ADMIN",
   });
 
     res.cookie("token", token, {
@@ -63,7 +63,7 @@ router.post("/guest", (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
-  res.json({ message: "Guest login successful", role: "guest" });
+  res.json({ message: "Guest login successful", role: "admin" });
 });
 
 router.get("/session", authenticate, (req: AuthRequest, res) => {

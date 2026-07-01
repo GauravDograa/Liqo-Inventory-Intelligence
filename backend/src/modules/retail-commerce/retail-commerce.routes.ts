@@ -10,6 +10,8 @@ import analyticsRoutes from "./analytics/analytics.routes";
 import recommendationRoutes from "./recommendations/recommendation-engine.routes";
 import forecastingRoutes from "./forecasting/forecasting.routes";
 import warehouseRoutes from "./warehouse/warehouse.routes";
+import invoiceRoutes from "../invoices/invoice.routes";
+import paymentRoutes from "../payments/payment.routes";
 import { auditAction } from "../../middleware/audit.middleware";
 import { enforceStoreScope, requirePermission } from "../../middleware/role.middleware";
 
@@ -34,6 +36,8 @@ router.use(
   auditAction({ action: "TRANSACTION_API_WRITE", entityType: "RetailTransaction", severity: "CRITICAL", storeIdFrom: "body.storeId" }),
   transactionRoutes
 );
+router.use("/invoices", requirePermission("billing:read"), enforceStoreScope(), invoiceRoutes);
+router.use("/payments", requirePermission("billing:read"), paymentRoutes);
 router.use("/analytics", requirePermission("analytics:read"), enforceStoreScope(), analyticsRoutes);
 router.use("/recommendations", requirePermission("inventory:read"), enforceStoreScope(), recommendationRoutes);
 router.use("/forecasting", requirePermission("analytics:read"), enforceStoreScope(), forecastingRoutes);
