@@ -6,7 +6,7 @@ The platform combines a Next.js dashboard with an Express and Prisma API so reta
 
 ## Live Demo
 
-- Frontend: https://liqo-inventory-intelligence-ep1q.vercel.app/login
+- Frontend: https://liqo-inventory-intelligence-hp1r-4rlyp7oie.vercel.app/login
 - Backend: https://liqo-inventory-intelligence.onrender.com
 
 ## Preview
