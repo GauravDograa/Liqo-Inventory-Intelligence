@@ -8,6 +8,7 @@ import {
   RecommendationFeatureSnapshot,
 } from "./recommendation.ml";
 import * as forecastService from "../forecast/forecast.service";
+import { prisma } from "../../prisma/client";
 
 type InventoryRow = Awaited<
   ReturnType<typeof repo.getInventoryWithStoreAndSku>
@@ -408,6 +409,92 @@ export const generateTransferRecommendations = async (
   return recommendations;
 };
 
+
+export const generateRetailInventoryRecommendations = async (organizationId: string) => {
+  const inventory = await prisma.retailInventory.findMany({
+    where: {
+      organizationId,
+      quantityAvailable: { gt: 0 },
+      deletedAt: null,
+      store: { locationType: "STORE", deletedAt: null },
+    },
+    include: {
+      store: true,
+      product: {
+        include: { category: true },
+      },
+    },
+  });
+
+  const byProduct = new Map<string, typeof inventory>();
+
+  for (const item of inventory) {
+    const group = byProduct.get(item.productId) ?? [];
+    group.push(item);
+    byProduct.set(item.productId, group);
+  }
+
+  const recommendations: any[] = [];
+
+  for (const rows of byProduct.values()) {
+    if (rows.length < 2) {
+      continue;
+    }
+
+    const sorted = [...rows].sort((a, b) => b.quantityAvailable - a.quantityAvailable);
+    const source = sorted[0];
+    const destination = sorted[sorted.length - 1];
+    const gap = source.quantityAvailable - destination.quantityAvailable;
+    const quantity = Math.min(
+      Math.floor(gap / 2),
+      Math.max(0, source.quantityAvailable - Math.max(source.reorderLevel, source.safetyStockLevel))
+    );
+
+    if (quantity < RECOMMENDATION_RULES.minimumTransferUnits) {
+      continue;
+    }
+
+    const beforeCoverageDays = destination.quantityAvailable;
+    const afterCoverageDays = destination.quantityAvailable + quantity;
+
+    recommendations.push({
+      skuCategory: source.product.category?.name ?? "Uncategorized",
+      skuId: source.product.sku,
+      moveFrom: source.store.name,
+      moveTo: destination.store.name,
+      quantity,
+      reason: "Balance ERP inventory by moving surplus units from the highest-stock store to the lowest-stock store.",
+      impact: {
+        demandCoverageDays: quantity,
+        imbalanceBefore: gap,
+        beforeCoverageDays,
+        afterCoverageDays,
+        targetCoverageDays: Math.max(destination.reorderLevel, destination.safetyStockLevel),
+        stockAgeDays: 90,
+      },
+      featureSnapshot: {
+        currentUnits: source.quantityAvailable,
+        sourceCoverageDays: source.quantityAvailable,
+        destinationCoverageDays: destination.quantityAvailable,
+        sourceVelocityPerDay: 0,
+        destinationVelocityPerDay: 0,
+        stockAgeDays: 90,
+        grossMarginPct: Number(source.product.mrp || 0) > 0
+          ? Number((((Number(source.product.mrp) - Number(source.product.baseCost || 0)) / Number(source.product.mrp)) * 100).toFixed(2))
+          : null,
+        sourceDemandConfidence: 0.68,
+        destinationDemandConfidence: 0.68,
+      },
+      mlSignals: {
+        confidence: 0.72,
+        rankingScore: Number((0.72 + Math.min(gap / 100, 1)).toFixed(2)),
+        readyForModel: false,
+      },
+    });
+  }
+
+  return recommendations.sort((a, b) => b.quantity - a.quantity).slice(0, 25);
+};
 function getDemandCoverageDays(
   quantity: number,
   velocityPerDay: number

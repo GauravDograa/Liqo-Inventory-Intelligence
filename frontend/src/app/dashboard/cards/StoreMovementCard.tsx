@@ -16,10 +16,18 @@ export default function StoreMovementCard() {
     );
   }
 
-  if (error || data.length === 0) {
+  if (error) {
     return (
       <Card className="flex min-h-[420px] items-center justify-center lg:h-[650px]">
         Failed to load
+      </Card>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <Card className="flex min-h-[420px] items-center justify-center px-6 text-center text-sm text-slate-500 lg:h-[650px]">
+        No movement recommendations yet
       </Card>
     );
   }

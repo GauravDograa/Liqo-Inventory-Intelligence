@@ -9,13 +9,15 @@ import { usePosStore } from "@/stores/posStore";
 export default function StoreOperationsPage() {
   const { activeStoreId, setActiveStoreId, role, setRole } = usePosStore();
   const stores = useRetailStores();
-  const inventory = useRetailInventory(activeStoreId || undefined);
-  const alerts = useLowStockAlerts(activeStoreId || undefined);
-  const suggestions = useReplenishmentSuggestions(activeStoreId || undefined);
+  const validStoreIds = new Set((stores.data ?? []).map((store) => store.id));
+  const selectedStoreId = activeStoreId && validStoreIds.has(activeStoreId) ? activeStoreId : "";
+  const inventory = useRetailInventory(selectedStoreId || undefined);
+  const alerts = useLowStockAlerts(selectedStoreId || undefined);
+  const suggestions = useReplenishmentSuggestions(selectedStoreId || undefined);
   const transfers = useTransfers();
 
   const activeTransfers = (transfers.data ?? []).filter(
-    (transfer) => transfer.destinationStore?.id === activeStoreId && !["DELIVERED", "CANCELLED"].includes(transfer.status)
+    (transfer) => (!selectedStoreId || transfer.destinationStore?.id === selectedStoreId) && !["DELIVERED", "CANCELLED"].includes(transfer.status)
   );
   const stockValue = (inventory.data ?? []).reduce(
     (sum, item) => sum + Number(item.product.mrp ?? 0) * item.quantityAvailable,
@@ -33,7 +35,7 @@ export default function StoreOperationsPage() {
               <option key={item} value={item}>{item}</option>
             ))}
           </select>
-          <select value={activeStoreId} onChange={(event) => setActiveStoreId(event.target.value)} className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200">
+          <select value={selectedStoreId} onChange={(event) => setActiveStoreId(event.target.value)} className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200">
             <option value="">All stores</option>
             {(stores.data ?? []).filter((store) => store.locationType !== "WAREHOUSE").map((store) => (
               <option key={store.id} value={store.id}>{store.name}</option>

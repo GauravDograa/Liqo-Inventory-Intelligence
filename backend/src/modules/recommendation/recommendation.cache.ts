@@ -1,4 +1,4 @@
-import { generateTransferRecommendations } from "./recommendation.service";
+import { generateRetailInventoryRecommendations, generateTransferRecommendations } from "./recommendation.service";
 
 const RECOMMENDATION_CACHE_TTL_MS = 1000 * 60 * 5;
 
@@ -15,7 +15,13 @@ type RecommendationCacheEntry = {
 const recommendationCache = new Map<string, RecommendationCacheEntry>();
 
 const buildRecommendations = async (organizationId: string) => {
-  return generateTransferRecommendations(organizationId);
+  const legacyRecommendations = await generateTransferRecommendations(organizationId);
+
+  if (legacyRecommendations.length > 0) {
+    return legacyRecommendations;
+  }
+
+  return generateRetailInventoryRecommendations(organizationId);
 };
 
 export const getCachedRecommendations = async (
@@ -55,7 +61,7 @@ export const getCachedRecommendations = async (
       return cachedEntry.data;
     }
 
-    const fallback: RecommendationData = [];
+    const fallback = await generateRetailInventoryRecommendations(organizationId);
     recommendationCache.set(organizationId, {
       data: fallback,
       expiresAt: Date.now() + RECOMMENDATION_CACHE_TTL_MS,
