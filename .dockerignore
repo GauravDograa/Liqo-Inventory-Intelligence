@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/dist
+**/.env
+**/.env.local
+**/*.log
+.git
+chrome_pdf_check
+chrome_pdf_check2
+ishav_cv_render

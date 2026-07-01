@@ -5,8 +5,13 @@ import app from "./app";
 import { config } from "./config";
 import { logger } from "./infrastructure/logger";
 import { prisma } from "./prisma/client";
+import { registerAnalyticsEventHandlers } from "./modules/retail-commerce/analytics/analytics.events";
+import { registerRecommendationEventHandlers } from "./modules/retail-commerce/recommendations/recommendation-engine.events";
 
 const PORT = config.env.port;
+
+registerAnalyticsEventHandlers();
+registerRecommendationEventHandlers();
 
 const server = app.listen(PORT, () => {
   logger.info("Server started", {

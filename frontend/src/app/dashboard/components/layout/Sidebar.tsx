@@ -16,7 +16,13 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ShoppingCart,
+  Warehouse,
+  ReceiptText,
+  MonitorCog,
 } from "lucide-react";
+import { appRoutes, RouteAccess } from "@/config/roleAccess";
+import { usePosStore } from "@/stores/posStore";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -25,21 +31,23 @@ interface SidebarProps {
   setMobileMenuOpen: (value: boolean) => void;
 }
 
-const menuItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Deadstock", href: "/deadstock", icon: Package },
-  { name: "Store Performance", href: "/store-performance", icon: BarChart3 },
-  { name: "Inventory", href: "/inventory", icon: Boxes },
-  { name: "Recommender", href: "/recommendations", icon: Sparkles },
-  { name: "Insights", href: "/insights", icon: Brain },
-  { name: "Import", href: "/import", icon: Upload },
-];
-
-const generalItems = [
-  { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Help", href: "/help", icon: HelpCircle },
-  { name: "Logout", href: "/logout", icon: LogOut },
-];
+const routeIcons: Record<RouteAccess["key"], typeof LayoutDashboard> = {
+  dashboard: LayoutDashboard,
+  "store-operations": MonitorCog,
+  pos: ShoppingCart,
+  deadstock: Package,
+  "store-performance": BarChart3,
+  inventory: Boxes,
+  "warehouse-transfers": Warehouse,
+  invoices: ReceiptText,
+  recommendations: Sparkles,
+  "decision-lab": Brain,
+  insights: Brain,
+  import: Upload,
+  settings: Settings,
+  help: HelpCircle,
+  logout: LogOut,
+};
 
 export default function Sidebar({
   collapsed,
@@ -49,6 +57,11 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const role = usePosStore((state) => state.role);
+  const allowedRoutes = appRoutes.filter((route) => route.roles.includes(role));
+  const operationItems = allowedRoutes.filter((route) => route.navGroup === "operations");
+  const analyticsItems = allowedRoutes.filter((route) => route.navGroup === "analytics");
+  const generalItems = allowedRoutes.filter((route) => route.navGroup === "general");
 
   return (
     <>
@@ -75,7 +88,7 @@ export default function Sidebar({
               alt="Liqo Logo"
               width={120}
               height={40}
-              className="object-contain"
+              className="h-auto w-auto object-contain"
             />
           )}
 
@@ -112,9 +125,9 @@ export default function Sidebar({
           )}
 
           <div className="space-y-2">
-            {menuItems.map((item) => {
+            {[...operationItems, ...analyticsItems].map((item) => {
               const active = pathname === item.href;
-              const Icon = item.icon;
+              const Icon = routeIcons[item.key];
 
               return (
                 <Link
@@ -149,7 +162,7 @@ export default function Sidebar({
 
           <div className="space-y-2">
             {generalItems.map((item) => {
-              const Icon = item.icon;
+              const Icon = routeIcons[item.key];
 
               return (
                 <Link

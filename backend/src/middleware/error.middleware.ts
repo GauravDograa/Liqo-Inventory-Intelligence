@@ -18,6 +18,7 @@ export const errorHandler = (
       : "Internal Server Error";
 
   logger.error("Request failed", {
+    requestId: (req as any).requestId,
     method: req.method,
     path: req.originalUrl,
     statusCode,
@@ -28,5 +29,10 @@ export const errorHandler = (
 
   res
     .status(statusCode)
-    .json(fail(errorCode, message, isAppError(err) ? err.details : undefined));
+    .json(
+      fail(errorCode, message, {
+        requestId: (req as any).requestId,
+        ...(isAppError(err) && err.details !== undefined ? { details: err.details } : {}),
+      })
+    );
 };

@@ -3,63 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, ArrowUpRight } from "lucide-react";
-
-const searchablePages = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    description: "Revenue, profitability, and overview metrics",
-    keywords: ["home", "overview", "revenue", "profit", "kpi", "sales", "gross margin"],
-  },
-  {
-    label: "Deadstock",
-    href: "/deadstock",
-    description: "Aging inventory and capital exposure",
-    keywords: ["aging", "risk", "inventory", "stock", "dead stock", "capital exposure"],
-  },
-  {
-    label: "Store Performance",
-    href: "/store-performance",
-    description: "Store ranking, margin, and trend analysis",
-    keywords: ["store", "performance", "profit", "revenue", "ranking", "trend", "branch"],
-  },
-  {
-    label: "Inventory",
-    href: "/inventory",
-    description: "Stock value, units, category mix, and health",
-    keywords: ["stock", "inventory", "category", "aging", "units", "stock value", "availability"],
-  },
-  {
-    label: "Recommendations",
-    href: "/recommendations",
-    description: "Store-to-store transfer recommendations",
-    keywords: ["recommender", "transfer", "moves", "reallocation", "coverage", "redistribution", "suggestions"],
-  },
-  {
-    label: "Insights",
-    href: "/insights",
-    description: "Executive summary and AI insights",
-    keywords: ["ai", "summary", "executive", "insight", "questions", "analysis", "assistant"],
-  },
-  {
-    label: "Import",
-    href: "/import",
-    description: "Upload and import business data",
-    keywords: ["upload", "csv", "import", "data"],
-  },
-  {
-    label: "Settings",
-    href: "/settings",
-    description: "Workspace and application settings",
-    keywords: ["config", "preferences", "settings"],
-  },
-  {
-    label: "Help",
-    href: "/help",
-    description: "Support, documentation, and FAQ",
-    keywords: ["faq", "support", "help", "docs"],
-  },
-];
+import { appRoutes } from "@/config/roleAccess";
+import { usePosStore } from "@/stores/posStore";
 
 export default function Navbar({
   onOpenMobileMenu,
@@ -72,6 +17,20 @@ export default function Navbar({
   const [focused, setFocused] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const role = usePosStore((state) => state.role);
+  const setRole = usePosStore((state) => state.setRole);
+  const searchablePages = useMemo(
+    () =>
+      appRoutes
+        .filter((page) => page.roles.includes(role) && page.key !== "logout")
+        .map((page) => ({
+          label: page.name,
+          href: page.href,
+          description: page.description,
+          keywords: page.keywords,
+        })),
+    [role]
+  );
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -133,7 +92,7 @@ export default function Navbar({
       .filter((page) => page.score > 0)
       .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label))
       .slice(0, 6);
-  }, [query]);
+  }, [query, searchablePages]);
 
   useEffect(() => {
     results.slice(0, 3).forEach((result) => router.prefetch(result.href));
@@ -246,6 +205,19 @@ export default function Navbar({
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
+        <select
+          value={role}
+          onChange={(event) => setRole(event.target.value as typeof role)}
+          className="hidden h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200 md:block"
+          aria-label="Current role"
+        >
+          {["OWNER", "ADMIN", "STORE_MANAGER", "CASHIER", "WAREHOUSE_MANAGER", "ANALYST"].map((item) => (
+            <option key={item} value={item}>
+              {item.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+
         <button className="hidden text-sm text-slate-600 hover:text-slate-900 sm:block">
           Notifications
         </button>
@@ -255,11 +227,11 @@ export default function Navbar({
           className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 sm:hidden"
           aria-label="Notifications"
         >
-          ðŸ””
+          !
         </button>
 
         <div className="whitespace-nowrap text-sm font-medium text-slate-700">
-          My Hub
+          {role.replaceAll("_", " ")}
         </div>
       </div>
     </div>

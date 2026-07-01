@@ -5,18 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import FloatingAiAssistant from "./FloatingAiAssistant";
-
-const appRoutes = [
-  "/dashboard",
-  "/deadstock",
-  "/store-performance",
-  "/inventory",
-  "/recommendations",
-  "/insights",
-  "/import",
-  "/settings",
-  "/help",
-];
+import { canAccessRoute, defaultRouteByRole, routesForRole } from "@/config/roleAccess";
+import { usePosStore } from "@/stores/posStore";
 
 export default function DashboardShell({
   children,
@@ -27,9 +17,17 @@ export default function DashboardShell({
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const role = usePosStore((state) => state.role);
 
   useEffect(() => {
-    const prefetchTargets = appRoutes.filter((route) => route !== pathname);
+    if (!canAccessRoute(role, pathname)) {
+      router.replace(defaultRouteByRole[role]);
+      return;
+    }
+
+    const prefetchTargets = routesForRole(role)
+      .map((route) => route.href)
+      .filter((route) => route !== pathname);
 
     const runPrefetch = () => {
       prefetchTargets.forEach((route) => router.prefetch(route));
@@ -56,7 +54,7 @@ export default function DashboardShell({
 
     const timeoutId = setTimeout(runPrefetch, 250);
     return () => clearTimeout(timeoutId);
-  }, [pathname, router]);
+  }, [pathname, role, router]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -79,9 +77,9 @@ export default function DashboardShell({
             />
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:p-6">
+          <main className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:p-6">
             {children}
-          </div>
+          </main>
         </div>
       </div>
 

@@ -1,49 +1,21 @@
-import { Prisma } from "@prisma/client";
 import { randomUUID } from "crypto";
 import {
   BadRequestError,
   NotFoundError,
 } from "../../../shared/errors/http-errors";
+import { eventBus } from "../../../infrastructure/events";
+import * as invoiceService from "../../invoices/invoice.service";
+import * as inventoryService from "../inventory/inventory.service";
 import { CreateTransactionDto } from "./transaction-engine.dto";
 import * as repo from "./transaction-engine.repository";
-
-type CartLine = {
-  productId: string;
-  quantity: number;
-  unitPrice: Prisma.Decimal;
-  discountAmount: Prisma.Decimal;
-  taxableAmount: Prisma.Decimal;
-  gstRate: Prisma.Decimal;
-  cgstAmount: Prisma.Decimal;
-  sgstAmount: Prisma.Decimal;
-  igstAmount: Prisma.Decimal;
-  lineTotal: Prisma.Decimal;
-};
 
 type InventoryDemand = {
   productId: string;
   quantity: number;
 };
 
-const money = (value: Prisma.Decimal.Value) =>
-  new Prisma.Decimal(value).toDecimalPlaces(2);
-
-const percentage = (value: Prisma.Decimal.Value) =>
-  new Prisma.Decimal(value).toDecimalPlaces(2);
-
 const sequence = (prefix: string) =>
   `${prefix}-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
-
-const sumMoney = (values: Prisma.Decimal[]) =>
-  values.reduce((total, value) => total.plus(value), money(0));
-
-const isInterStateSale = (storeState?: string | null, placeOfSupply?: string) => {
-  if (!storeState || !placeOfSupply) {
-    return false;
-  }
-
-  return storeState.trim().toLowerCase() !== placeOfSupply.trim().toLowerCase();
-};
 
 const aggregateDemand = (items: CreateTransactionDto["items"]): InventoryDemand[] => {
   const demandByProductId = new Map<string, number>();
@@ -65,7 +37,7 @@ export const createTransaction = async (
   organizationId: string,
   dto: CreateTransactionDto
 ) => {
-  return repo.runInTransaction(async (tx) => {
+  const result = await repo.runInTransaction(async (tx) => {
     const store = await repo.findStoreById(tx, organizationId, dto.storeId);
     if (!store) {
       throw new NotFoundError("Retail store not found");
@@ -92,93 +64,58 @@ export const createTransaction = async (
       throw new BadRequestError("One or more products are invalid or inactive");
     }
 
-    const inventory = await repo.findStoreInventory(
-      tx,
+    await inventoryService.validateInventoryAvailability(
       organizationId,
       dto.storeId,
-      productIds
-    );
-    const inventoryByProductId = new Map(
-      inventory.map((item) => [item.productId, item])
+      inventoryDemand,
+      tx
     );
 
-    const interState = isInterStateSale(store.state, dto.placeOfSupply);
-
-    for (const demand of inventoryDemand) {
-      const inventoryItem = inventoryByProductId.get(demand.productId);
-
-      if (!inventoryItem) {
-        throw new BadRequestError(`Inventory is not configured for product ${demand.productId}`);
-      }
-
-      if (inventoryItem.quantityAvailable < demand.quantity) {
-        throw new BadRequestError(`Insufficient inventory for product ${demand.productId}`, {
-          productId: demand.productId,
-          requestedQuantity: demand.quantity,
-          availableQuantity: inventoryItem.quantityAvailable,
-        });
-      }
-    }
-
-    const cartLines: CartLine[] = dto.items.map((item) => {
+    const invoiceDate = dto.transactionDate
+      ? new Date(dto.transactionDate)
+      : new Date();
+    const placeOfSupply = dto.placeOfSupply ?? store.state;
+    const invoiceCalculation = invoiceService.calculateInvoiceLines(
+      dto.items.map((item) => {
       const product = productsById.get(item.productId)!;
-
-      const unitPrice = money(item.unitPrice ?? product.mrp);
-      const discountAmount = money(item.discountAmount ?? 0);
-      const grossAmount = unitPrice.mul(item.quantity);
-
-      if (discountAmount.gt(grossAmount)) {
-        throw new BadRequestError(`Discount exceeds line total for product ${item.productId}`);
-      }
-
-      const taxableAmount = grossAmount.minus(discountAmount).toDecimalPlaces(2);
-      const gstRate = percentage(product.gstRate);
-      const gstAmount = taxableAmount.mul(gstRate).div(100).toDecimalPlaces(2);
-      const cgstAmount = interState ? money(0) : gstAmount.div(2).toDecimalPlaces(2);
-      const sgstAmount = interState ? money(0) : gstAmount.minus(cgstAmount);
-      const igstAmount = interState ? gstAmount : money(0);
-      const lineTotal = taxableAmount.plus(gstAmount).toDecimalPlaces(2);
 
       return {
         productId: item.productId,
         quantity: item.quantity,
-        unitPrice,
-        discountAmount,
-        taxableAmount,
-        gstRate,
-        cgstAmount,
-        sgstAmount,
-        igstAmount,
-        lineTotal,
+        unitPrice: item.unitPrice ?? product.mrp,
+        discountAmount: item.discountAmount ?? 0,
+        gstRate: product.gstRate,
       };
-    });
-
-    const subtotal = sumMoney(
-      cartLines.map((line) => line.unitPrice.mul(line.quantity).toDecimalPlaces(2))
+      }),
+      store.state,
+      placeOfSupply
     );
-    const discountTotal = sumMoney(cartLines.map((line) => line.discountAmount));
-    const taxableAmount = sumMoney(cartLines.map((line) => line.taxableAmount));
-    const cgstTotal = sumMoney(cartLines.map((line) => line.cgstAmount));
-    const sgstTotal = sumMoney(cartLines.map((line) => line.sgstAmount));
-    const igstTotal = sumMoney(cartLines.map((line) => line.igstAmount));
-    const grandTotal = sumMoney(cartLines.map((line) => line.lineTotal));
-    const paidAmount = sumMoney(dto.payments.map((payment) => money(payment.amount)));
-
-    if (!paidAmount.equals(grandTotal)) {
-      throw new BadRequestError("Payment total must match transaction grand total", {
-        paidAmount: paidAmount.toString(),
-        grandTotal: grandTotal.toString(),
-      });
-    }
+    const cartLines = invoiceCalculation.lines;
+    const {
+      subtotal,
+      discountTotal,
+      taxableAmount,
+      cgstTotal,
+      sgstTotal,
+      igstTotal,
+      grandTotal,
+    } = invoiceCalculation.totals;
+    const reconciliation = invoiceService.validateInvoicePaymentReconciliation(
+      grandTotal,
+      dto.payments
+    );
 
     const transactionNo = sequence("TXN");
-    const invoiceNo = sequence("INV");
+    const invoiceNumber = await invoiceService.createInvoiceNumber(tx, {
+      organizationId,
+      storeId: dto.storeId,
+      storeCode: store.code,
+      invoiceDate,
+    });
 
     const created = await repo.createTransaction(tx, {
       transactionNo,
-      transactionDate: dto.transactionDate
-        ? new Date(dto.transactionDate)
-        : new Date(),
+      transactionDate: invoiceDate,
       status: "CONFIRMED",
       paymentStatus: "PAID",
       store: { connect: { id: dto.storeId } },
@@ -207,17 +144,29 @@ export const createTransaction = async (
       },
       invoice: {
         create: {
-          invoiceNo,
-          status: "ISSUED",
+          invoiceNo: invoiceNumber.invoiceNo,
+          invoiceDate,
+          status: "PAID",
+          store: { connect: { id: dto.storeId } },
           customer: dto.customerId ? { connect: { id: dto.customerId } } : undefined,
+          financialYear: invoiceNumber.financialYear,
+          sequenceNumber: invoiceNumber.sequenceNumber,
           gstin: store.gstin,
-          placeOfSupply: dto.placeOfSupply ?? store.state,
+          placeOfSupply,
           subtotal,
           taxableAmount,
           cgstTotal,
           sgstTotal,
           igstTotal,
           grandTotal,
+          paymentReconciledAt: reconciliation.reconciledAt,
+          auditTrail: invoiceService.buildInvoiceAuditTrail({
+            createdBy: "TRANSACTION_ENGINE",
+            transactionId: transactionNo,
+            paymentTotal: reconciliation.paymentTotal.toString(),
+            invoiceTotal: reconciliation.invoiceTotal.toString(),
+            gstMode: invoiceCalculation.interStateSale ? "INTER_STATE" : "INTRA_STATE",
+          }),
           organization: { connect: { id: organizationId } },
         },
       },
@@ -228,7 +177,7 @@ export const createTransaction = async (
         paymentNo: sequence("PAY"),
         method: payment.method,
         status: "PAID",
-        amount: money(payment.amount),
+        amount: invoiceService.toMoney(payment.amount),
         paidAt: payment.paidAt ? new Date(payment.paidAt) : new Date(),
         referenceNo: payment.referenceNo,
         transaction: { connect: { id: created.id } },
@@ -237,22 +186,27 @@ export const createTransaction = async (
       });
     }
 
+    const inventoryResults = [];
+
     for (const demand of inventoryDemand) {
-      const inventoryItem = inventoryByProductId.get(demand.productId)!;
-      const updatedInventory = await repo.decrementInventoryIfAvailable(
-        tx,
-        inventoryItem.id,
-        demand.quantity
+      inventoryResults.push(
+        await inventoryService.deductInventory(
+          {
+            organizationId,
+            storeId: dto.storeId,
+            productId: demand.productId,
+            quantity: demand.quantity,
+            referenceType: "RETAIL_TRANSACTION",
+            referenceId: created.id,
+            transactionId: created.id,
+            reason: "Retail sale",
+            metadata: {
+              transactionNo,
+            },
+          },
+          tx
+        )
       );
-
-      if (!updatedInventory) {
-        throw new BadRequestError(`Insufficient inventory for product ${demand.productId}`, {
-          productId: demand.productId,
-          requestedQuantity: demand.quantity,
-        });
-      }
-
-      void updatedInventory;
     }
 
     const hydratedTransaction = await repo.findTransactionByIdForOrganization(
@@ -265,8 +219,43 @@ export const createTransaction = async (
       throw new NotFoundError("Created transaction could not be loaded");
     }
 
-    return hydratedTransaction;
+    return {
+      transaction: hydratedTransaction,
+      inventoryResults,
+    };
   });
+
+  await inventoryService.publishInventoryEngineEvents(result.inventoryResults);
+  if (result.transaction.invoice?.id) {
+    await invoiceService.generateAndPersistInvoicePdf(
+      organizationId,
+      result.transaction.invoice.id
+    );
+  }
+  await eventBus.publish({
+    id: randomUUID(),
+    name: "retail.transaction.completed",
+    occurredAt: new Date(),
+    aggregateId: result.transaction.id,
+    payload: {
+      organizationId,
+      transactionId: result.transaction.id,
+      storeId: result.transaction.storeId,
+      transactionDate: result.transaction.transactionDate,
+      grandTotal: result.transaction.grandTotal.toString(),
+    },
+  });
+
+  const refreshedTransaction = await repo.findTransactionById(
+    organizationId,
+    result.transaction.id
+  );
+
+  if (!refreshedTransaction) {
+    throw new NotFoundError("Created transaction could not be loaded");
+  }
+
+  return refreshedTransaction;
 };
 
 export const getTransactionById = async (

@@ -21,4 +21,13 @@ yarn-error.log*
 
 # OS files
 .DS_Store
-Thumbs.db
+Thumbs.db# Local agent/dev artifacts
+.npm-cache/
+.prisma-cache/
+frontend/dev-server*.log
+backend/*codex.log
+chrome_pdf_check*/
+ishav_cv_render/
+Ishav*Resume*
+Ishav_Kapoor_Editable_CV.docx
+build_ishav_cv.py

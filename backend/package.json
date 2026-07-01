@@ -6,8 +6,13 @@
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
     "build": "tsc",
+    "test": "npm run build && node tests/business-rules.test.js",
+    "prisma:validate": "prisma validate --schema prisma/schema.prisma",
     "start": "node dist/server.js",
     "export:ml-training-dataset": "node scripts/export-ml-training-dataset.js"
+  },
+  "prisma": {
+    "seed": "ts-node --transpile-only prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

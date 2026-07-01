@@ -7,6 +7,7 @@ const generateToken = (payload: {
   userId: string;
   organizationId: string;
   role: UserRole;
+  assignedRetailStoreId?: string | null;
 }) => {
   return jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: "7d",
@@ -39,6 +40,7 @@ export const register = async (
     userId: user.id,
     organizationId: organization.id,
     role: user.role,
+    assignedRetailStoreId: user.assignedRetailStoreId,
   });
 
   return { token };
@@ -58,6 +60,7 @@ export const login = async (email: string, password: string) => {
     userId: user.id,
     organizationId: user.organizationId!,
     role: user.role,
+    assignedRetailStoreId: user.assignedRetailStoreId,
   });
 
   return { token };

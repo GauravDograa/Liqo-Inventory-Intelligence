@@ -1,30 +1,18 @@
 import express, { Application } from "express";
-import helmet from "helmet";
-import compression from "compression";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 
 import { config } from "./config";
 import routes from "./routes";
 import { errorHandler } from "./middleware/error.middleware";
 import { notFoundHandler } from "./middleware/notFound.middleware";
-import rateLimiter from "./middleware/rateLimit.middleware";
+import { applySecurityMiddleware } from "./middleware/security.middleware";
+import { requestLogger } from "./middleware/request-logger.middleware";
+import { enforceApiVersion } from "./middleware/api-version.middleware";
 
 const app: Application = express();
 
-app.set("trust proxy", 1);
-
-app.use(helmet());
-app.use(compression());
-app.use(express.json({ limit: "10mb" }));
-app.use(rateLimiter);
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: config.env.corsOrigins,
-    credentials: true,
-  })
-);
+applySecurityMiddleware(app);
+app.use(enforceApiVersion);
+app.use(requestLogger);
 
 app.use("/api/v2", routes);
 

@@ -20,24 +20,39 @@ datasource db {
 //////////////////////////////////////////////////////
 
 model Organization {
-  id           String   @id @default(uuid())
-  name         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  users        User[]
-  stores       Store[]
-  inventory    Inventory[]
-  transactions Transaction[]
-  brands       Brand[]
-  categories   Category[]
-  products     Product[]
-  retailStores RetailStore[]
-  retailInventory RetailInventory[]
-  customers    Customer[]
-  retailTransactions RetailTransaction[]
-  invoices     Invoice[]
-  payments     Payment[]
+  users                         User[]
+  stores                        Store[]
+  inventory                     Inventory[]
+  transactions                  Transaction[]
+  brands                        Brand[]
+  categories                    Category[]
+  products                      Product[]
+  retailStores                  RetailStore[]
+  retailInventory               RetailInventory[]
+  inventoryMovements            InventoryMovement[]
+  lowStockAlerts                LowStockAlert[]
+  customers                     Customer[]
+  retailTransactions            RetailTransaction[]
+  invoices                      Invoice[]
+  payments                      Payment[]
+  dailySalesSummaries           DailySalesSummary[]
+  storePerformanceSummaries     StorePerformanceSummary[]
+  inventoryHealthSummaries      InventoryHealthSummary[]
+  paymentMethodSummaries        PaymentMethodSummary[]
+  gstSummaries                  GstSummary[]
+  productSalesVelocitySummaries ProductSalesVelocitySummary[]
+  recommendations               Recommendation[]
+  recommendationDecisionLogs    RecommendationDecisionLog[]
+  forecasts                     Forecast[]
+  forecastModelMetadata         ForecastModelMetadata[]
+  stockTransfers                StockTransfer[]
+  transferItems                 TransferItem[]
+  auditLogs                     AuditLog[]
 }
 
 //////////////////////////////////////////////////////
@@ -45,23 +60,33 @@ model Organization {
 //////////////////////////////////////////////////////
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  password       String
-  role           UserRole @default(USER)
+  id                    String       @id @default(uuid())
+  email                 String       @unique
+  password              String
+  role                  UserRole     @default(USER)
+  assignedRetailStoreId String?
+  assignedRetailStore   RetailStore? @relation(fields: [assignedRetailStoreId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   @@index([organizationId])
+  @@index([organizationId, role])
+  @@index([organizationId, assignedRetailStoreId])
 }
 
 enum UserRole {
   OWNER
   ADMIN
   USER
+  STORE_MANAGER
+  CASHIER
+  WAREHOUSE_MANAGER
+  ANALYST
 }
 
 //////////////////////////////////////////////////////
@@ -69,23 +94,23 @@ enum UserRole {
 //////////////////////////////////////////////////////
 
 model Store {
-  id             String   @id @default(uuid())
-  externalId     Int      @unique
-  code           String
-  name           String
-  region         String?
-  city           String?
-  cityType       String?
-  isActive       Boolean  @default(true)
+  id         String  @id @default(uuid())
+  externalId Int     @unique
+  code       String
+  name       String
+  region     String?
+  city       String?
+  cityType   String?
+  isActive   Boolean @default(true)
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  inventory      Inventory[]
-  transactions   Transaction[]
+  inventory    Inventory[]
+  transactions Transaction[]
 
   @@index([organizationId])
 }
@@ -104,8 +129,8 @@ model SKU {
   refurbCost      Float
   createdAt       DateTime @default(now())
 
-  transactions    Transaction[]
-  inventory       Inventory[]
+  transactions Transaction[]
+  inventory    Inventory[]
 }
 
 //////////////////////////////////////////////////////
@@ -125,11 +150,11 @@ model Transaction {
   inventoryAgeBucket String
   quantity           Int?
 
-  organizationId     String
-  organization       Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
-  store              Store @relation(fields: [storeId], references: [id])
-  sku                SKU   @relation(fields: [skuId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+  sku   SKU   @relation(fields: [skuId], references: [id])
 
   @@index([organizationId])
   @@index([organizationId, date])
@@ -142,18 +167,18 @@ model Transaction {
 //////////////////////////////////////////////////////
 
 model Inventory {
-  id             String   @id @default(uuid())
-  storeId        String
-  skuId          String
-  unitsAcquired  Int
-  unitsSaleable  Int
-  stockAgeDays   Int
+  id            String @id @default(uuid())
+  storeId       String
+  skuId         String
+  unitsAcquired Int
+  unitsSaleable Int
+  stockAgeDays  Int
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
-  store          Store @relation(fields: [storeId], references: [id])
-  sku            SKU   @relation(fields: [skuId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+  sku   SKU   @relation(fields: [skuId], references: [id])
 
   @@unique([storeId, skuId])
   @@index([organizationId])
@@ -213,6 +238,68 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum InventoryMovementType {
+  SALE
+  PURCHASE
+  RETURN
+  TRANSFER_IN
+  TRANSFER_OUT
+  ADJUSTMENT
+  DAMAGE
+  RESTOCK
+}
+
+enum LowStockAlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum RecommendationType {
+  TRANSFER
+  RESTOCK
+  DEADSTOCK_ALERT
+  HIGH_DEMAND_ALERT
+}
+
+enum RecommendationStatus {
+  OPEN
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  EXPIRED
+}
+
+enum RecommendationDecisionAction {
+  ACCEPT
+  REJECT
+  COMPLETE
+  EXPIRE
+  NOTE
+}
+
+enum ForecastType {
+  DEMAND_FORECAST
+  STOCKOUT_FORECAST
+  REORDER_FORECAST
+  FESTIVAL_FORECAST
+}
+
+enum RetailLocationType {
+  STORE
+  WAREHOUSE
+}
+
+enum StockTransferStatus {
+  PENDING
+  APPROVED
+  ALLOCATED
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
 //////////////////////////////////////////////////////
 // RETAIL COMMERCE ERP - CATALOG
 //////////////////////////////////////////////////////
@@ -256,26 +343,33 @@ model Category {
 }
 
 model Product {
-  id                  String             @id @default(uuid())
-  sku                 String
-  barcode             String?
-  name                String
-  description         String?
-  hsnCode             String?
-  gstRate             Decimal            @default(0) @db.Decimal(5, 2)
-  baseCost            Decimal            @default(0) @db.Decimal(14, 2)
-  mrp                 Decimal            @default(0) @db.Decimal(14, 2)
-  status              ProductStatus      @default(DRAFT)
-  brandId             String?
-  brand               Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  categoryId          String?
-  category            Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  organizationId      String
-  organization        Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  inventory           RetailInventory[]
-  transactionItems    TransactionItem[]
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id                     String                        @id @default(uuid())
+  sku                    String
+  barcode                String?
+  name                   String
+  description            String?
+  hsnCode                String?
+  gstRate                Decimal                       @default(0) @db.Decimal(5, 2)
+  baseCost               Decimal                       @default(0) @db.Decimal(14, 2)
+  mrp                    Decimal                       @default(0) @db.Decimal(14, 2)
+  status                 ProductStatus                 @default(DRAFT)
+  brandId                String?
+  brand                  Brand?                        @relation(fields: [brandId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  categoryId             String?
+  category               Category?                     @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  organizationId         String
+  organization           Organization                  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  inventory              RetailInventory[]
+  inventoryMovements     InventoryMovement[]
+  lowStockAlerts         LowStockAlert[]
+  transactionItems       TransactionItem[]
+  salesVelocitySummaries ProductSalesVelocitySummary[]
+  recommendations        Recommendation[]
+  forecasts              Forecast[]
+  transferItems          TransferItem[]
+  createdAt              DateTime                      @default(now())
+  updatedAt              DateTime                      @updatedAt
+  deletedAt              DateTime?
 
   @@unique([organizationId, sku])
   @@unique([organizationId, barcode])
@@ -290,45 +384,63 @@ model Product {
 //////////////////////////////////////////////////////
 
 model RetailStore {
-  id             String             @id @default(uuid())
-  code           String
-  name           String
-  gstin          String?
-  region         String?
-  city           String?
-  state          String?
-  country        String             @default("IN")
-  status         RetailEntityStatus @default(ACTIVE)
-  organizationId String
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  inventory      RetailInventory[]
-  transactions   RetailTransaction[]
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  id                         String                        @id @default(uuid())
+  code                       String
+  name                       String
+  gstin                      String?
+  region                     String?
+  city                       String?
+  state                      String?
+  country                    String                        @default("IN")
+  locationType               RetailLocationType            @default(STORE)
+  status                     RetailEntityStatus            @default(ACTIVE)
+  organizationId             String
+  organization               Organization                  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  inventory                  RetailInventory[]
+  inventoryMovements         InventoryMovement[]
+  lowStockAlerts             LowStockAlert[]
+  transactions               RetailTransaction[]
+  invoices                   Invoice[]
+  storePerformanceSummaries  StorePerformanceSummary[]
+  inventoryHealthSummaries   InventoryHealthSummary[]
+  salesVelocitySummaries     ProductSalesVelocitySummary[]
+  sourceRecommendations      Recommendation[]              @relation("RecommendationSourceStore")
+  destinationRecommendations Recommendation[]              @relation("RecommendationDestinationStore")
+  forecasts                  Forecast[]
+  sourceStockTransfers       StockTransfer[]               @relation("StockTransferSourceWarehouse")
+  destinationStockTransfers  StockTransfer[]               @relation("StockTransferDestinationStore")
+  assignedUsers              User[]
+  createdAt                  DateTime                      @default(now())
+  updatedAt                  DateTime                      @updatedAt
+  deletedAt                  DateTime?
 
   @@unique([organizationId, code])
   @@index([organizationId, status])
+  @@index([organizationId, locationType, status])
   @@index([organizationId, city])
   @@map("retail_stores")
 }
 
 model RetailInventory {
-  id               String                @id @default(uuid())
-  productId        String
-  product          Product               @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  storeId          String
-  store            RetailStore           @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  quantityOnHand   Int                   @default(0)
-  quantityReserved Int                   @default(0)
-  quantityAvailable Int                  @default(0)
-  reorderLevel     Int                   @default(0)
-  reorderQuantity  Int                   @default(0)
-  safetyStockLevel Int                   @default(0)
-  lastStocktakeAt  DateTime?
-  organizationId   String
-  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt        DateTime              @default(now())
-  updatedAt        DateTime              @updatedAt
+  id                String              @id @default(uuid())
+  productId         String
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  storeId           String
+  store             RetailStore         @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  quantityOnHand    Int                 @default(0)
+  quantityReserved  Int                 @default(0)
+  quantityAvailable Int                 @default(0)
+  reorderLevel      Int                 @default(0)
+  reorderQuantity   Int                 @default(0)
+  safetyStockLevel  Int                 @default(0)
+  lastStocktakeAt   DateTime?
+  organizationId    String
+  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  movements         InventoryMovement[]
+  lowStockAlerts    LowStockAlert[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
 
   @@unique([productId, storeId])
   @@index([organizationId, productId])
@@ -338,26 +450,86 @@ model RetailInventory {
   @@map("retail_inventory")
 }
 
+model InventoryMovement {
+  id               String                @id @default(uuid())
+  inventoryId      String
+  inventory        RetailInventory       @relation(fields: [inventoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId        String
+  product          Product               @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  storeId          String
+  store            RetailStore           @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  movementType     InventoryMovementType
+  quantityChange   Int
+  previousQuantity Int
+  newQuantity      Int
+  referenceType    String?
+  referenceId      String?
+  transactionId    String?
+  transaction      RetailTransaction?    @relation(fields: [transactionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  reason           String?
+  metadata         Json?
+  organizationId   String
+  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([organizationId, storeId, createdAt])
+  @@index([organizationId, productId, createdAt])
+  @@index([organizationId, movementType, createdAt])
+  @@index([referenceType, referenceId])
+  @@index([transactionId])
+  @@map("retail_inventory_movements")
+}
+
+model LowStockAlert {
+  id                  String              @id @default(uuid())
+  inventoryId         String
+  inventory           RetailInventory     @relation(fields: [inventoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId           String
+  product             Product             @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  storeId             String
+  store               RetailStore         @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quantityAvailable   Int
+  reorderLevel        Int
+  reorderQuantity     Int
+  status              LowStockAlertStatus @default(OPEN)
+  referenceMovementId String?
+  triggeredAt         DateTime            @default(now())
+  acknowledgedAt      DateTime?
+  resolvedAt          DateTime?
+  metadata            Json?
+  organizationId      String
+  organization        Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([organizationId, status, triggeredAt])
+  @@index([organizationId, storeId, status])
+  @@index([organizationId, productId, status])
+  @@index([inventoryId, status])
+  @@map("retail_low_stock_alerts")
+}
+
 //////////////////////////////////////////////////////
 // RETAIL COMMERCE ERP - CUSTOMERS, SALES, GST
 //////////////////////////////////////////////////////
 
 model Customer {
-  id             String             @id @default(uuid())
-  customerNumber String
-  name           String
-  email          String?
-  phone          String?
-  gstin          String?
-  billingAddress Json?
+  id              String              @id @default(uuid())
+  customerNumber  String
+  name            String
+  email           String?
+  phone           String?
+  gstin           String?
+  billingAddress  Json?
   shippingAddress Json?
-  status         RetailEntityStatus @default(ACTIVE)
-  organizationId String
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  transactions   RetailTransaction[]
-  invoices       Invoice[]
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  status          RetailEntityStatus  @default(ACTIVE)
+  organizationId  String
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  transactions    RetailTransaction[]
+  invoices        Invoice[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   @@unique([organizationId, customerNumber])
   @@unique([organizationId, email])
@@ -367,29 +539,30 @@ model Customer {
 }
 
 model RetailTransaction {
-  id              String                  @id @default(uuid())
-  transactionNo   String
-  transactionDate DateTime                @default(now())
-  status          RetailTransactionStatus @default(DRAFT)
-  paymentStatus   PaymentStatus           @default(PENDING)
-  storeId         String
-  store           RetailStore             @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  customerId      String?
-  customer        Customer?               @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  subtotal        Decimal                 @default(0) @db.Decimal(14, 2)
-  discountTotal   Decimal                 @default(0) @db.Decimal(14, 2)
-  taxableAmount   Decimal                 @default(0) @db.Decimal(14, 2)
-  cgstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
-  sgstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
-  igstTotal       Decimal                 @default(0) @db.Decimal(14, 2)
-  grandTotal      Decimal                 @default(0) @db.Decimal(14, 2)
-  organizationId  String
-  organization    Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  items           TransactionItem[]
-  invoice         Invoice?
-  payments        Payment[]
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  id                 String                  @id @default(uuid())
+  transactionNo      String
+  transactionDate    DateTime                @default(now())
+  status             RetailTransactionStatus @default(DRAFT)
+  paymentStatus      PaymentStatus           @default(PENDING)
+  storeId            String
+  store              RetailStore             @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  customerId         String?
+  customer           Customer?               @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  subtotal           Decimal                 @default(0) @db.Decimal(14, 2)
+  discountTotal      Decimal                 @default(0) @db.Decimal(14, 2)
+  taxableAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  cgstTotal          Decimal                 @default(0) @db.Decimal(14, 2)
+  sgstTotal          Decimal                 @default(0) @db.Decimal(14, 2)
+  igstTotal          Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal         Decimal                 @default(0) @db.Decimal(14, 2)
+  organizationId     String
+  organization       Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items              TransactionItem[]
+  invoice            Invoice?
+  payments           Payment[]
+  inventoryMovements InventoryMovement[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
 
   @@unique([organizationId, transactionNo])
   @@index([organizationId, transactionDate])
@@ -423,31 +596,41 @@ model TransactionItem {
 }
 
 model Invoice {
-  id             String            @id @default(uuid())
-  invoiceNo      String
-  invoiceDate    DateTime          @default(now())
-  status         InvoiceStatus     @default(DRAFT)
-  transactionId  String            @unique
-  transaction    RetailTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  customerId     String?
-  customer       Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  gstin          String?
-  placeOfSupply  String?
-  subtotal       Decimal           @default(0) @db.Decimal(14, 2)
-  taxableAmount  Decimal           @default(0) @db.Decimal(14, 2)
-  cgstTotal      Decimal           @default(0) @db.Decimal(14, 2)
-  sgstTotal      Decimal           @default(0) @db.Decimal(14, 2)
-  igstTotal      Decimal           @default(0) @db.Decimal(14, 2)
-  grandTotal     Decimal           @default(0) @db.Decimal(14, 2)
-  organizationId String
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  payments       Payment[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id                  String            @id @default(uuid())
+  invoiceNo           String
+  invoiceDate         DateTime          @default(now())
+  status              InvoiceStatus     @default(DRAFT)
+  transactionId       String            @unique
+  transaction         RetailTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  storeId             String?
+  store               RetailStore?      @relation(fields: [storeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  customerId          String?
+  customer            Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  financialYear       Int?
+  sequenceNumber      Int?
+  gstin               String?
+  placeOfSupply       String?
+  subtotal            Decimal           @default(0) @db.Decimal(14, 2)
+  taxableAmount       Decimal           @default(0) @db.Decimal(14, 2)
+  cgstTotal           Decimal           @default(0) @db.Decimal(14, 2)
+  sgstTotal           Decimal           @default(0) @db.Decimal(14, 2)
+  igstTotal           Decimal           @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal           @default(0) @db.Decimal(14, 2)
+  pdfPath             String?
+  pdfGeneratedAt      DateTime?
+  paymentReconciledAt DateTime?
+  auditTrail          Json?
+  organizationId      String
+  organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  payments            Payment[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   @@unique([organizationId, invoiceNo])
+  @@unique([organizationId, storeId, financialYear, sequenceNumber])
   @@index([organizationId, invoiceDate])
   @@index([organizationId, status])
+  @@index([organizationId, storeId, financialYear])
   @@map("retail_invoices")
 }
 
@@ -473,4 +656,360 @@ model Payment {
   @@index([organizationId, status])
   @@index([organizationId, paidAt])
   @@map("retail_payments")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - OPERATIONAL ANALYTICS
+//////////////////////////////////////////////////////
+
+model DailySalesSummary {
+  id                String       @id @default(uuid())
+  summaryDate       DateTime
+  transactionCount  Int          @default(0)
+  itemQuantity      Int          @default(0)
+  grossRevenue      Decimal      @default(0) @db.Decimal(14, 2)
+  taxableRevenue    Decimal      @default(0) @db.Decimal(14, 2)
+  discountTotal     Decimal      @default(0) @db.Decimal(14, 2)
+  gstTotal          Decimal      @default(0) @db.Decimal(14, 2)
+  averageOrderValue Decimal      @default(0) @db.Decimal(14, 2)
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt          DateTime     @default(now())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([organizationId, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@map("daily_sales_summary")
+}
+
+model StorePerformanceSummary {
+  id                String       @id @default(uuid())
+  summaryDate       DateTime
+  storeId           String
+  store             RetailStore  @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  transactionCount  Int          @default(0)
+  itemQuantity      Int          @default(0)
+  grossRevenue      Decimal      @default(0) @db.Decimal(14, 2)
+  taxableRevenue    Decimal      @default(0) @db.Decimal(14, 2)
+  gstTotal          Decimal      @default(0) @db.Decimal(14, 2)
+  averageOrderValue Decimal      @default(0) @db.Decimal(14, 2)
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt          DateTime     @default(now())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([organizationId, storeId, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@index([organizationId, storeId, summaryDate])
+  @@map("store_performance_summary")
+}
+
+model InventoryHealthSummary {
+  id                     String       @id @default(uuid())
+  summaryDate            DateTime
+  storeId                String?
+  store                  RetailStore? @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  totalProducts          Int          @default(0)
+  totalQuantityOnHand    Int          @default(0)
+  totalQuantityAvailable Int          @default(0)
+  lowStockCount          Int          @default(0)
+  outOfStockCount        Int          @default(0)
+  overstockCount         Int          @default(0)
+  openLowStockAlerts     Int          @default(0)
+  organizationId         String
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt               DateTime     @default(now())
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  @@unique([organizationId, storeId, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@index([organizationId, storeId, summaryDate])
+  @@map("inventory_health_summary")
+}
+
+model PaymentMethodSummary {
+  id             String        @id @default(uuid())
+  summaryDate    DateTime
+  paymentMethod  PaymentMethod
+  paymentCount   Int           @default(0)
+  paymentAmount  Decimal       @default(0) @db.Decimal(14, 2)
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt       DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([organizationId, paymentMethod, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@index([organizationId, paymentMethod, summaryDate])
+  @@map("payment_method_summary")
+}
+
+model GstSummary {
+  id             String       @id @default(uuid())
+  summaryDate    DateTime
+  invoiceCount   Int          @default(0)
+  taxableAmount  Decimal      @default(0) @db.Decimal(14, 2)
+  cgstTotal      Decimal      @default(0) @db.Decimal(14, 2)
+  sgstTotal      Decimal      @default(0) @db.Decimal(14, 2)
+  igstTotal      Decimal      @default(0) @db.Decimal(14, 2)
+  gstTotal       Decimal      @default(0) @db.Decimal(14, 2)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt       DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@map("gst_summary")
+}
+
+model ProductSalesVelocitySummary {
+  id               String       @id @default(uuid())
+  summaryDate      DateTime
+  productId        String
+  product          Product      @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  storeId          String?
+  store            RetailStore? @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitsSold        Int          @default(0)
+  revenue          Decimal      @default(0) @db.Decimal(14, 2)
+  transactionCount Int          @default(0)
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  syncedAt         DateTime     @default(now())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([organizationId, productId, storeId, summaryDate])
+  @@index([organizationId, summaryDate])
+  @@index([organizationId, productId, summaryDate])
+  @@index([organizationId, storeId, summaryDate])
+  @@map("product_sales_velocity_summary")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - RECOMMENDATION ENGINE
+//////////////////////////////////////////////////////
+
+model Recommendation {
+  id                 String                      @id @default(uuid())
+  type               RecommendationType
+  status             RecommendationStatus        @default(OPEN)
+  productId          String
+  product            Product                     @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sourceStoreId      String?
+  sourceStore        RetailStore?                @relation("RecommendationSourceStore", fields: [sourceStoreId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  destinationStoreId String?
+  destinationStore   RetailStore?                @relation("RecommendationDestinationStore", fields: [destinationStoreId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  quantity           Int?
+  confidenceScore    Decimal                     @default(0) @db.Decimal(5, 2)
+  reason             String
+  signals            Json?
+  expectedImpact     Json?
+  outcome            Json?
+  generatedAt        DateTime                    @default(now())
+  decidedAt          DateTime?
+  expiresAt          DateTime?
+  organizationId     String
+  organization       Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  decisionLogs       RecommendationDecisionLog[]
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+
+  @@index([organizationId, status, generatedAt])
+  @@index([organizationId, type, status])
+  @@index([organizationId, productId, status])
+  @@index([organizationId, sourceStoreId, status])
+  @@index([organizationId, destinationStoreId, status])
+  @@map("retail_recommendations")
+}
+
+model RecommendationDecisionLog {
+  id               String                       @id @default(uuid())
+  recommendationId String
+  recommendation   Recommendation               @relation(fields: [recommendationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  action           RecommendationDecisionAction
+  note             String?
+  metadata         Json?
+  decidedByUserId  String?
+  organizationId   String
+  organization     Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  @@index([organizationId, recommendationId, createdAt])
+  @@index([organizationId, action, createdAt])
+  @@map("retail_recommendation_decision_logs")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - FORECASTING ENGINE
+//////////////////////////////////////////////////////
+
+model ForecastModelMetadata {
+  id             String       @id @default(uuid())
+  name           String
+  version        String       @default("1.0.0")
+  provider       String       @default("rule_based")
+  algorithm      String       @default("moving_average")
+  description    String?
+  parameters     Json?
+  metrics        Json?
+  isActive       Boolean      @default(true)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  forecasts      Forecast[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, name, version])
+  @@index([organizationId, isActive])
+  @@map("retail_forecast_model_metadata")
+}
+
+model Forecast {
+  id                        String                 @id @default(uuid())
+  type                      ForecastType
+  workflow                  String
+  productId                 String
+  product                   Product                @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  storeId                   String?
+  store                     RetailStore?           @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  horizonStart              DateTime
+  horizonEnd                DateTime
+  horizonDays               Int
+  predictedQuantity         Decimal                @default(0) @db.Decimal(14, 2)
+  salesVelocityPerDay       Decimal                @default(0) @db.Decimal(14, 4)
+  movingAveragePerDay       Decimal                @default(0) @db.Decimal(14, 4)
+  trendMultiplier           Decimal                @default(1) @db.Decimal(8, 4)
+  seasonalMultiplier        Decimal                @default(1) @db.Decimal(8, 4)
+  festivalMultiplier        Decimal                @default(1) @db.Decimal(8, 4)
+  confidenceScore           Decimal                @default(0) @db.Decimal(5, 2)
+  explanation               String
+  stockoutRisk              Decimal?               @db.Decimal(5, 2)
+  daysUntilStockout         Int?
+  recommendedReorderQuantity Int?
+  reorderPoint              Int?
+  currentStock              Int?
+  signals                   Json?
+  metadata                  Json?
+  modelMetadataId           String?
+  modelMetadata             ForecastModelMetadata? @relation(fields: [modelMetadataId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  organizationId            String
+  organization              Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  generatedAt               DateTime               @default(now())
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+
+  @@index([organizationId, type, generatedAt])
+  @@index([organizationId, productId, generatedAt])
+  @@index([organizationId, storeId, generatedAt])
+  @@index([organizationId, workflow, generatedAt])
+  @@map("retail_forecasts")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - WAREHOUSE AND REPLENISHMENT
+//////////////////////////////////////////////////////
+
+model StockTransfer {
+  id                    String              @id @default(uuid())
+  transferNo            String
+  status                StockTransferStatus @default(PENDING)
+  sourceWarehouseId     String
+  sourceWarehouse       RetailStore         @relation("StockTransferSourceWarehouse", fields: [sourceWarehouseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  destinationStoreId    String
+  destinationStore      RetailStore         @relation("StockTransferDestinationStore", fields: [destinationStoreId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  requestedByUserId     String?
+  approvedByUserId      String?
+  allocatedByUserId     String?
+  dispatchedByUserId    String?
+  deliveredByUserId     String?
+  cancelledByUserId     String?
+  dispatchReference     String?
+  trackingReference     String?
+  expectedDispatchAt    DateTime?
+  expectedDeliveryAt    DateTime?
+  approvedAt            DateTime?
+  allocatedAt           DateTime?
+  dispatchedAt          DateTime?
+  inTransitAt           DateTime?
+  deliveredAt           DateTime?
+  cancelledAt           DateTime?
+  cancellationReason    String?
+  notes                 String?
+  metadata              Json?
+  organizationId        String
+  organization          Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items                 TransferItem[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+
+  @@unique([organizationId, transferNo])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, sourceWarehouseId, status])
+  @@index([organizationId, destinationStoreId, status])
+  @@map("retail_stock_transfers")
+}
+
+model TransferItem {
+  id                     String        @id @default(uuid())
+  transferId             String
+  transfer               StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId              String
+  product                Product       @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  requestedQuantity      Int
+  allocatedQuantity      Int           @default(0)
+  dispatchedQuantity     Int           @default(0)
+  deliveredQuantity      Int           @default(0)
+  sourceInventoryId      String?
+  destinationInventoryId String?
+  suggestionSource       String?
+  signals                Json?
+  organizationId         String
+  organization           Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@unique([transferId, productId])
+  @@index([organizationId, productId])
+  @@index([organizationId, transferId])
+  @@map("retail_transfer_items")
+}
+
+//////////////////////////////////////////////////////
+// RETAIL COMMERCE ERP - ENTERPRISE AUDITABILITY
+//////////////////////////////////////////////////////
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  action         String
+  entityType     String
+  entityId       String?
+  severity       String       @default("INFO")
+  requestId      String?
+  method         String?
+  path           String?
+  ipAddress      String?
+  userAgent      String?
+  userId         String?
+  userRole       UserRole?
+  storeId        String?
+  before         Json?
+  after          Json?
+  metadata       Json?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, action, createdAt])
+  @@index([organizationId, entityType, entityId])
+  @@index([organizationId, userId, createdAt])
+  @@map("retail_audit_logs")
 }

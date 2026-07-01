@@ -35,3 +35,25 @@ export const getInvoice = async (
     next(error);
   }
 };
+
+export const downloadInvoicePdf = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await service.getInvoicePdf(
+      req.user!.organizationId,
+      routeParam(req.params.id, "id")
+    );
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.invoiceNo}.pdf"`
+    );
+    res.send(result.pdf);
+  } catch (error) {
+    next(error);
+  }
+};

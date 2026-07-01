@@ -46,10 +46,13 @@ export default function RevenueLineChart() {
   const [range, setRange] = useState<RevenueRange>("30d");
   const overviewQuery = useDashboardOverview();
   const trendQuery = useRevenueTrend(range, range !== "30d");
-  const data =
-    range === "30d"
-      ? overviewQuery.data?.revenueTrend ?? []
-      : trendQuery.data ?? [];
+  const data = useMemo(
+    () =>
+      range === "30d"
+        ? overviewQuery.data?.revenueTrend ?? []
+        : trendQuery.data ?? [],
+    [overviewQuery.data?.revenueTrend, range, trendQuery.data]
+  );
   const isLoading =
     range === "30d" ? overviewQuery.isLoading : trendQuery.isLoading;
   const error = range === "30d" ? overviewQuery.error : trendQuery.error;

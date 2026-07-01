@@ -1,5 +1,6 @@
 import { NotFoundError } from "../../../shared/errors/http-errors";
 import * as repo from "./store.repository";
+import { RetailLocationType } from "@prisma/client";
 
 export type CreateStoreInput = {
   code: string;
@@ -9,6 +10,7 @@ export type CreateStoreInput = {
   city?: string;
   state?: string;
   country?: string;
+  locationType?: RetailLocationType;
 };
 
 export const createStore = (organizationId: string, data: CreateStoreInput) => {
