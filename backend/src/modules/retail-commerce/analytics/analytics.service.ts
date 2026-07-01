@@ -92,7 +92,24 @@ export const syncOperationalAnalyticsForTransaction = async (
   return syncOperationalAnalyticsForDate(organizationId, transaction.transactionDate);
 };
 
-export const getDashboardSummary = (
+const hasDashboardSummaryData = (summary: Awaited<ReturnType<typeof repo.getDashboardSummary>>) =>
+  summary.dailySales.length > 0 ||
+  summary.storePerformance.length > 0 ||
+  summary.inventoryHealth.length > 0 ||
+  summary.paymentMethods.length > 0 ||
+  summary.gst.length > 0 ||
+  summary.salesVelocity.length > 0;
+
+const syncAnalyticsWindow = async (organizationId: string, start: Date, end: Date) => {
+  const cursor = new Date(start);
+
+  while (cursor <= end) {
+    await syncOperationalAnalyticsForDate(organizationId, cursor);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+};
+
+export const getDashboardSummary = async (
   organizationId: string,
   query: { startDate?: string; endDate?: string }
 ) => {
@@ -101,5 +118,12 @@ export const getDashboardSummary = (
     ? dayWindow(parseDate(query.startDate)).summaryDate
     : new Date(end.getTime() - 6 * 24 * 60 * 60 * 1000);
 
+  const summary = await repo.getDashboardSummary(organizationId, start, end);
+
+  if (hasDashboardSummaryData(summary)) {
+    return summary;
+  }
+
+  await syncAnalyticsWindow(organizationId, start, end);
   return repo.getDashboardSummary(organizationId, start, end);
 };
