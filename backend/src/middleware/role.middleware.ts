@@ -45,7 +45,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   CASHIER: ["catalog:read", "inventory:read", "transactions:read", "transactions:write", "billing:read", "billing:write"],
   WAREHOUSE_MANAGER: ["catalog:read", "inventory:read", "inventory:write", "warehouse:read", "warehouse:write"],
   ANALYST: ["catalog:read", "inventory:read", "transactions:read", "billing:read", "analytics:read"],
-  USER: ["catalog:read", "inventory:read", "analytics:read"],
+  USER: ["catalog:read", "inventory:read", "transactions:read", "billing:read", "warehouse:read", "analytics:read"],
 };
 
 export const requirePermission = (permission: Permission) => {

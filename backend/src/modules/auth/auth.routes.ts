@@ -7,7 +7,7 @@ import { warmRecommendationsCache } from "../recommendation/recommendation.cache
 
 const router = Router();
 const DEFAULT_ORGANIZATION_ID =
-  process.env.DEFAULT_ORGANIZATION_ID || "default-org-001";
+  process.env.DEFAULT_ORGANIZATION_ID || "seed-org-liqo-retail";
 const jwtSecret =
   process.env.JWT_SECRET ||
   (process.env.NODE_ENV !== "production"

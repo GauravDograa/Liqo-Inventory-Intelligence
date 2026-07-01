@@ -8,7 +8,7 @@ import {
 import { validateImportFiles } from "./import.validator";
 
 const DEFAULT_ORGANIZATION_ID =
-  process.env.DEFAULT_ORGANIZATION_ID || "default-org-001";
+  process.env.DEFAULT_ORGANIZATION_ID || "seed-org-liqo-retail";
 
 export function validateDatasetImport(
   files: ImportFileInput
