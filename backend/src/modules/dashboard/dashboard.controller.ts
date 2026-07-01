@@ -22,15 +22,36 @@ type DashboardCacheEntry = {
 
 const dashboardCache = new Map<string, DashboardCacheEntry>();
 
+const emptyOverview = {
+  totalRevenue: 0,
+  totalCOGS: 0,
+  grossProfit: 0,
+  grossMargin: 0,
+  totalTransactions: 0,
+  deadstockValue: 0,
+  revenueTrend: [],
+};
+
+const safeSection = async <T>(label: string, fallback: T, loader: () => Promise<T>) => {
+  try {
+    return await loader();
+  } catch (error) {
+    console.error(`Failed to load dashboard section ${label}:`, error);
+    return fallback;
+  }
+};
+
 const buildAggregatedDashboard = async (
   orgId: string
 ): Promise<AggregatedDashboardPayload> => {
   const [overview, categories, stores, deadstock] =
     await Promise.all([
-      getDashboardOverview(orgId, undefined, undefined, undefined, "30d", true),
-      getCategoryPerformance(orgId),
-      getPerformance(orgId),
-      getDeadStockSummary(orgId),
+      safeSection("overview", emptyOverview, () =>
+        getDashboardOverview(orgId, undefined, undefined, undefined, "30d", true)
+      ),
+      safeSection("categories", [], () => getCategoryPerformance(orgId)),
+      safeSection("stores", [], () => getPerformance(orgId)),
+      safeSection("deadstock", [], () => getDeadStockSummary(orgId)),
     ]);
 
   return {

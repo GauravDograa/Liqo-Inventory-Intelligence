@@ -48,12 +48,19 @@ export const getCachedRecommendations = async (
     });
     return data;
   } catch (error) {
+    console.error("Failed to build legacy recommendations:", error);
+
     if (cachedEntry?.data) {
       recommendationCache.set(organizationId, cachedEntry);
-    } else {
-      recommendationCache.delete(organizationId);
+      return cachedEntry.data;
     }
-    throw error;
+
+    const fallback: RecommendationData = [];
+    recommendationCache.set(organizationId, {
+      data: fallback,
+      expiresAt: Date.now() + RECOMMENDATION_CACHE_TTL_MS,
+    });
+    return fallback;
   }
 };
 
