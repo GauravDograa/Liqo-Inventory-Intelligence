@@ -131,6 +131,9 @@ export default function LoginPage() {
 
   return (
     <main className={`${sans.className} min-h-screen bg-[#f5ece5] px-3 py-3 text-slate-900 sm:px-6 sm:py-6`}>
+      <div className="mx-auto mb-3 max-w-[1280px] rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900 shadow-sm">
+        This is a demo simulation and does not represent an actual production company product.
+      </div>
       <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1280px] overflow-hidden rounded-[28px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.14)] lg:min-h-[calc(100vh-3rem)] lg:grid-cols-[1.02fr_0.98fr] lg:rounded-[34px]">
         <section className="relative overflow-hidden bg-gradient-to-b from-[#ff7a21] via-[#ef6714] to-[#d94d08] px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-14 lg:py-14">
           <div className="absolute inset-y-0 right-0 hidden w-12 bg-gradient-to-r from-transparent via-[#f38a47]/28 to-[#f7d6c3]/58 lg:block" />

@@ -71,6 +71,9 @@ export default function DashboardShell({
         } px-3 py-3 sm:px-4 sm:py-4 lg:p-6`}
       >
         <div className="space-y-3 sm:space-y-4">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900 shadow-sm">
+            This is a demo simulation and does not represent an actual production company product.
+          </div>
           <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 shadow-sm sm:px-4 lg:px-6 lg:py-4">
             <Navbar
               onOpenMobileMenu={() => setMobileMenuOpen(true)}
