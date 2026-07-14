@@ -19,6 +19,7 @@ type PosState = {
   updateDiscount: (productId: string, discountAmount: number) => void;
   removeProduct: (productId: string) => void;
   clearCart: () => void;
+  resetSession: () => void;
 };
 
 export const usePosStore = create<PosState>()(
@@ -80,6 +81,7 @@ export const usePosStore = create<PosState>()(
           cart: state.cart.filter((line) => line.product.id !== productId),
         })),
       clearCart: () => set({ cart: [], selectedProductId: undefined }),
+      resetSession: () => set({ activeStoreId: "", role: "ADMIN", cart: [], selectedProductId: undefined }),
     }),
     {
       name: "liqo-retail-session",
@@ -110,3 +112,5 @@ export const cartTotals = (cart: CartLine[]) => {
     itemCount: cart.reduce((sum, line) => sum + line.quantity, 0),
   };
 };
+
+

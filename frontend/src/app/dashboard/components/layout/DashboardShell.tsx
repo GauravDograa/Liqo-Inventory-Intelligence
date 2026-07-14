@@ -6,7 +6,9 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import FloatingAiAssistant from "./FloatingAiAssistant";
 import { canAccessRoute, defaultRouteByRole, routesForRole } from "@/config/roleAccess";
+import { api } from "@/lib/axios";
 import { usePosStore } from "@/stores/posStore";
+import { UserRole } from "@/types/erp.types";
 
 export default function DashboardShell({
   children,
@@ -17,9 +19,50 @@ export default function DashboardShell({
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const role = usePosStore((state) => state.role);
+  const setRole = usePosStore((state) => state.setRole);
+  const resetSession = usePosStore((state) => state.resetSession);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const redirectToLogin = () => {
+      resetSession();
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    };
+
+    const verifySession = async () => {
+      try {
+        const response = await api.get<{
+          data?: { role?: UserRole };
+        }>("/auth/session");
+
+        if (cancelled) return;
+
+        const sessionRole = response.data.data?.role;
+        if (sessionRole && sessionRole !== role) {
+          setRole(sessionRole);
+        }
+
+        setSessionReady(true);
+      } catch {
+        if (!cancelled) redirectToLogin();
+      }
+    };
+
+    window.addEventListener("liqo:unauthorized", redirectToLogin);
+    void verifySession();
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("liqo:unauthorized", redirectToLogin);
+    };
+  }, [pathname, resetSession, role, router, setRole]);
+
+  useEffect(() => {
+    if (!sessionReady) return;
+
     if (!canAccessRoute(role, pathname)) {
       router.replace(defaultRouteByRole[role]);
       return;
@@ -54,7 +97,15 @@ export default function DashboardShell({
 
     const timeoutId = setTimeout(runPrefetch, 250);
     return () => clearTimeout(timeoutId);
-  }, [pathname, role, router]);
+  }, [pathname, role, router, sessionReady]);
+
+  if (!sessionReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-sm font-semibold text-slate-600">
+        Checking secure session...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
