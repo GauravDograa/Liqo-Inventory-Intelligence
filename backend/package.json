@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prebuild": "npm run prisma:generate",
     "build": "tsc",
     "test": "npm run build && node tests/business-rules.test.js",
     "prisma:validate": "prisma validate --schema prisma/schema.prisma",
