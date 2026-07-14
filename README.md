@@ -12,71 +12,7 @@ The system combines a Next.js dashboard, an Express.js and Prisma API, PostgreSQ
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  UI["Presentation Layer<br/>Frontend Dashboard<br/>Role-based UI, Charts,<br/>Tables, AI Copilot"]
-
-  subgraph Backend["Backend Layer"]
-    APIReq["API Request<br/>Auth, RBAC, Validation"]
-    API["Backend API<br/>Express.js REST Services"]
-    DB[("PostgreSQL Database<br/>Prisma ORM")]
-    Jobs["Background Jobs<br/>Redis Cache"]
-    Storage["Object Storage<br/>Imports & Files"]
-  end
-
-  subgraph Analytics["Analytics Engine"]
-    Inventory["Inventory Analysis<br/>Stock, Aging,<br/>Availability"]
-    Sales["Sales Analysis<br/>Revenue, Transactions,<br/>GST"]
-    StorePerf["Store Performance<br/>Velocity, Margin,<br/>Turnover"]
-    Forecast["Forecasting Signals<br/>Demand Coverage<br/>& Trends"]
-  end
-
-  subgraph Decision["Decision Layer"]
-    Deadstock["Deadstock Detection<br/>High-risk SKUs"]
-    Demand["Demand Analysis<br/>Store-wise Need"]
-    Imbalance["Stock Imbalance<br/>Surplus vs Shortage"]
-    Agent["Agentic AI Layer<br/>Chatbot + Caller Agent"]
-  end
-
-  subgraph Optimization["Optimization Layer"]
-    Redistribute["Redistribution Logic<br/>Source, Destination,<br/>Quantity"]
-    Transfer["Transfer Recommendations<br/>Warehouse & Store<br/>Movement"]
-    Simulation["Impact Simulation<br/>Before vs After<br/>Coverage"]
-  end
-
-  subgraph Output["Output Layer"]
-    Response["API Response<br/>Structured JSON"]
-    Dashboard["Dashboard Output<br/>KPIs, Charts, Tables"]
-    Business["Business Decision<br/>Transfer, Reorder,<br/>Follow-up"]
-  end
-
-  UI -->|Request| APIReq
-  APIReq --> API
-  API <-->|Read / Write| DB
-  DB --> Jobs
-  Jobs --> Storage
-
-  API -->|Process| Inventory
-  API -->|Process| Sales
-  API -->|Process| StorePerf
-  API -->|Process| Forecast
-
-  Inventory --> Deadstock
-  Sales --> Demand
-  StorePerf --> Imbalance
-  Forecast --> Demand
-
-  Deadstock --> Redistribute
-  Demand --> Redistribute
-  Imbalance --> Transfer
-  Agent --> Business
-
-  Redistribute --> Transfer
-  Transfer --> Simulation
-  Simulation --> Response
-  Response --> Dashboard
-  Dashboard --> Business
-```
+![Liqo Cortex architecture](frontend/public/readme/liqo-cortex-architecture.png)
 
 ## Demo Preview
 
