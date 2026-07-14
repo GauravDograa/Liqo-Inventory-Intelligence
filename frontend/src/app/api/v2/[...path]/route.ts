@@ -1,8 +1,17 @@
 import { NextRequest } from "next/server";
 
-const backendApiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://liqo-inventory-intelligence.onrender.com/api/v2";
+const defaultBackendApiBaseUrl = "https://liqo-inventory-intelligence.onrender.com/api/v2";
+
+const resolveBackendApiBaseUrl = () => {
+  const configuredUrl = process.env.BACKEND_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!configuredUrl) return defaultBackendApiBaseUrl;
+
+  if (configuredUrl.startsWith("http://") || configuredUrl.startsWith("https://")) {
+    return configuredUrl;
+  }
+
+  return `https://${configuredUrl}`;
+};
 
 const hopByHopHeaders = new Set([
   "connection",
@@ -46,7 +55,7 @@ const getSetCookies = (headers: Headers) => {
 
 const proxy = async (request: NextRequest, context: RouteContext) => {
   const { path = [] } = await context.params;
-  const targetUrl = new URL(`${backendApiBaseUrl.replace(/\/$/, "")}/${path.join("/")}`);
+  const targetUrl = new URL(`${resolveBackendApiBaseUrl().replace(/\/$/, "")}/${path.join("/")}`);
   targetUrl.search = request.nextUrl.search;
 
   const requestHeaders = new Headers(request.headers);
@@ -82,3 +91,4 @@ export const PUT = proxy;
 export const PATCH = proxy;
 export const DELETE = proxy;
 export const OPTIONS = proxy;
+
