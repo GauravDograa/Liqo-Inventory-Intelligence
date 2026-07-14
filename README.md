@@ -12,7 +12,7 @@ The system combines a Next.js dashboard, an Express.js and Prisma API, PostgreSQ
 
 ## Architecture
 
-![Liqo Cortex architecture](frontend/public/readme/liqo-cortex-architecture.png)
+![Liqo Cortex architecture](frontend/public/readme/liqo-cortex-architecture-v2.png)
 
 ## Demo Preview
 
@@ -346,3 +346,4 @@ Gaurav Dogra
 Copyright (c) 2026 Gaurav Dogra.
 
 All rights reserved. This project and its source code are the intellectual property of Gaurav Dogra. Unauthorized copying, modification, distribution, or use of this software, by any medium, is strictly prohibited without prior permission from the author.
+
