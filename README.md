@@ -12,21 +12,33 @@ The system combines a Next.js dashboard, an Express.js and Prisma API, PostgreSQ
 
 ## Demo Preview
 
-![Liqo Cortex command center](frontend/public/readme/liqo-cortex-dashboard.png)
+![Liqo Cortex live command center](frontend/public/readme/liqo-cortex-command-center-live.png)
 
 ## Demo Screenshots
 
-### Secure Demo Access
+### Secure Role Access
 
-![Liqo Cortex login](frontend/public/readme/liqo-cortex-login.png)
+![Liqo Cortex role access](frontend/public/readme/liqo-cortex-role-access.png)
 
 ### Command Center
 
-![Liqo Cortex dashboard](frontend/public/readme/liqo-cortex-dashboard.png)
+![Liqo Cortex command center](frontend/public/readme/liqo-cortex-command-center-live.png)
 
-### Redistribution Intelligence
+### Deadstock and Recommendations
 
-![Liqo Cortex recommendations](frontend/public/readme/liqo-cortex-recommendations.png)
+![Liqo Cortex deadstock and recommendations](frontend/public/readme/liqo-cortex-deadstock-recommendations.png)
+
+### Deadstock Performance Overview
+
+![Liqo Cortex deadstock overview](frontend/public/readme/liqo-cortex-deadstock-overview.png)
+
+### Warehouse Transfer Control
+
+![Liqo Cortex warehouse control](frontend/public/readme/liqo-cortex-warehouse-control.png)
+
+### AI Inventory Copilot
+
+![Liqo Cortex AI copilot](frontend/public/readme/liqo-cortex-ai-copilot.png)
 
 ## What Liqo Cortex Does
 
@@ -142,9 +154,12 @@ Liqo Cortex
 |-- frontend
 |   |-- public
 |   |   `-- readme
-|   |       |-- liqo-cortex-dashboard.png
-|   |       |-- liqo-cortex-login.png
-|   |       `-- liqo-cortex-recommendations.png
+|   |       |-- liqo-cortex-role-access.png
+|   |       |-- liqo-cortex-command-center-live.png
+|   |       |-- liqo-cortex-deadstock-recommendations.png
+|   |       |-- liqo-cortex-deadstock-overview.png
+|   |       |-- liqo-cortex-warehouse-control.png
+|   |       `-- liqo-cortex-ai-copilot.png
 |   `-- src
 |       `-- app
 |           |-- dashboard
@@ -304,6 +319,35 @@ Frontend:
 cd frontend
 npm run build
 npm run lint
+```
+
+## System Design
+
+```mermaid
+flowchart LR
+  User["Retail user / Admin"] --> Vercel["Next.js frontend on Vercel"]
+  Vercel --> Proxy["Next.js /api/v2 proxy"]
+  Proxy --> API["Express.js API on Render"]
+
+  API --> Auth["JWT auth + RBAC"]
+  API --> Retail["Retail commerce services"]
+  API --> Insights["AI insights service"]
+  API --> Jobs["BullMQ worker jobs"]
+
+  Retail --> Inventory["Inventory, deadstock, stores, invoices"]
+  Retail --> Reco["Recommendation and forecasting engine"]
+  Retail --> Warehouse["Warehouse transfer engine"]
+
+  Auth --> Postgres[("PostgreSQL / Prisma")]
+  Inventory --> Postgres
+  Reco --> Postgres
+  Warehouse --> Postgres
+  Jobs --> Redis[("Redis queue")]
+  Jobs --> Storage[("S3 / MinIO object storage")]
+  Insights --> OpenAI["OpenAI / LLM workflows"]
+
+  Vercel --> Copilot["Liqo AI inventory copilot"]
+  Copilot --> Proxy
 ```
 
 ## Production Notes
